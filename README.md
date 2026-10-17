@@ -4,6 +4,10 @@ Lecture notes for CPSC 101 at Selkirk College. Each part of a lecture is
 written out as a page you can read top to bottom, with the code, its real
 output, and links to step-through demos that run the code one line at a time.
 
+The step-through demos are modelled on [Python Tutor](https://pythontutor.com/),
+Philip Guo's free, wonderful tool for seeing how code runs step by step. It's
+well worth a visit: paste in any of your own code and watch it run.
+
 ## Lecture Notes
 
 ### Lecture 1
