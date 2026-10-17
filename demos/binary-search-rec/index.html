@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Binary Search Rec · CPSC 101 Demo</title>
+<title>Binary Search (Recursive) · CPSC 101 Demo</title>
 <script>
   // apply a saved light/dark choice before the page draws (no flash)
   try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
@@ -124,6 +124,8 @@
   .cell .idx { font-size: .7rem; color: var(--muted); border-bottom: 1px solid var(--obj-line); padding: 0 6px; }
   .cell .val { padding: 4px 8px; min-height: 1.9em; }
   .obj table.vars td { border-bottom: 1px solid var(--obj-line); }
+  .obj.cls table.cvars { margin-top: 4px; font-family: system-ui, sans-serif; }
+  .obj.cls table.cvars td { border-bottom: none; border-top: 1px solid var(--soft-line); }
   .obj table.vars tr:last-child td { border-bottom: none; }
   .empty { padding: 4px 10px; color: var(--muted); font-style: italic; }
   .note { color: var(--muted); font-size: .85rem; margin-top: 10px; }
@@ -138,7 +140,7 @@
 <body>
 <header>
   <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
-  <h1>Binary Search Rec</h1>
+  <h1>Binary Search (Recursive)</h1>
   <p>Step through the program one line at a time. Watch the frames (each function call's
      variables) and the objects they point to. Keys: <kbd>→</kbd>/<kbd>Space</kbd> next, <kbd>←</kbd> back.</p>
   <div class="desc"><p>The same idea as the loop version, written recursively: each call looks at the middle of the list it was given, then searches only one half with a new call.</p><details><summary>How it works</summary><ol><li><strong>Base case:</strong> an empty list can&#x27;t contain the target, so return <code>-1</code>.</li><li>Otherwise look at the middle item, <code>lst[midpoint]</code> with <code>midpoint = len(lst) // 2</code>. If it&#x27;s the target, return <code>midpoint</code>.</li><li>If it&#x27;s too small, search the right half, <code>lst[midpoint + 1:]</code>. That call returns an index in the smaller list, so add <code>midpoint + 1</code> to turn it into an index in <code>lst</code> (unless it&#x27;s <code>-1</code>, meaning not found).</li><li>If it&#x27;s too big, search the left half, <code>lst[:midpoint]</code>. Its indices match <code>lst</code>&#x27;s, so the result is returned as is.</li></ol><p>Each call halves the list, so the stack is never more than about log₂ n calls deep. Unlike the loop version, every slice copies part of the list; the loop just moves <code>low</code> and <code>high</code>.</p></details></div>
@@ -240,6 +242,10 @@
       cls += ' fn'; label = 'function'; body = esc(o.name);
     } else if (o.kind === 'class') {
       cls += ' cls'; label = 'class'; body = esc(o.name);
+      if (o.attrs && o.attrs.length) {   // class variables: shared by every object of the class
+        body += '<table class="vars cvars">' + o.attrs.map(function (kv) {
+          return '<tr><td class="k">' + esc(kv[0]) + '</td><td>' + value(kv[1]) + '</td></tr>'; }).join('') + '</table>';
+      }
     } else {
       label = o.cls || 'object'; body = '<div class="empty">' + esc(o.repr || '') + '</div>';
     }

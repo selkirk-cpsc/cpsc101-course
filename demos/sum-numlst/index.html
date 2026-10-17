@@ -124,6 +124,8 @@
   .cell .idx { font-size: .7rem; color: var(--muted); border-bottom: 1px solid var(--obj-line); padding: 0 6px; }
   .cell .val { padding: 4px 8px; min-height: 1.9em; }
   .obj table.vars td { border-bottom: 1px solid var(--obj-line); }
+  .obj.cls table.cvars { margin-top: 4px; font-family: system-ui, sans-serif; }
+  .obj.cls table.cvars td { border-bottom: none; border-top: 1px solid var(--soft-line); }
   .obj table.vars tr:last-child td { border-bottom: none; }
   .empty { padding: 4px 10px; color: var(--muted); font-style: italic; }
   .note { color: var(--muted); font-size: .85rem; margin-top: 10px; }
@@ -240,6 +242,10 @@
       cls += ' fn'; label = 'function'; body = esc(o.name);
     } else if (o.kind === 'class') {
       cls += ' cls'; label = 'class'; body = esc(o.name);
+      if (o.attrs && o.attrs.length) {   // class variables: shared by every object of the class
+        body += '<table class="vars cvars">' + o.attrs.map(function (kv) {
+          return '<tr><td class="k">' + esc(kv[0]) + '</td><td>' + value(kv[1]) + '</td></tr>'; }).join('') + '</table>';
+      }
     } else {
       label = o.cls || 'object'; body = '<div class="empty">' + esc(o.repr || '') + '</div>';
     }

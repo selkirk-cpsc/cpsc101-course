@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sum of a List of Numbers (Recursion) · CPSC 101 Demo</title>
+<title>Recursive Sum and the Call Stack · CPSC 101 Demo</title>
 <script>
   // apply a saved light/dark choice before the page draws (no flash)
   try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
@@ -124,6 +124,8 @@
   .cell .idx { font-size: .7rem; color: var(--muted); border-bottom: 1px solid var(--obj-line); padding: 0 6px; }
   .cell .val { padding: 4px 8px; min-height: 1.9em; }
   .obj table.vars td { border-bottom: 1px solid var(--obj-line); }
+  .obj.cls table.cvars { margin-top: 4px; font-family: system-ui, sans-serif; }
+  .obj.cls table.cvars td { border-bottom: none; border-top: 1px solid var(--soft-line); }
   .obj table.vars tr:last-child td { border-bottom: none; }
   .empty { padding: 4px 10px; color: var(--muted); font-style: italic; }
   .note { color: var(--muted); font-size: .85rem; margin-top: 10px; }
@@ -138,7 +140,7 @@
 <body>
 <header>
   <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
-  <h1>Sum of a List of Numbers (Recursion)</h1>
+  <h1>Recursive Sum and the Call Stack</h1>
   <p>Step through the program one line at a time. Watch the frames (each function call's
      variables) and the objects they point to. Keys: <kbd>→</kbd>/<kbd>Space</kbd> next, <kbd>←</kbd> back.</p>
   <div class="desc"><p>The same recursive <code>listsum</code> as before, on <code>[1, 3, 5, 7]</code>, without a <code>print</code>. Follow the <strong>return values</strong> instead: each frame&#x27;s return value is the answer to its smaller problem.</p><details><summary>How it works</summary><ol><li><strong>Base case:</strong> a list with one number: its sum is that number.</li><li><strong>Recursive case:</strong> otherwise, return <code>numList[0] + listsum(numList[1:])</code>.</li></ol><p>On the way down, each call waits on the call below it. On the way back up, each frame returns its first number plus what it received: 7, then 5 + 7 = 12, then 3 + 12 = 15, then 1 + 15 = 16.</p></details></div>
@@ -240,6 +242,10 @@
       cls += ' fn'; label = 'function'; body = esc(o.name);
     } else if (o.kind === 'class') {
       cls += ' cls'; label = 'class'; body = esc(o.name);
+      if (o.attrs && o.attrs.length) {   // class variables: shared by every object of the class
+        body += '<table class="vars cvars">' + o.attrs.map(function (kv) {
+          return '<tr><td class="k">' + esc(kv[0]) + '</td><td>' + value(kv[1]) + '</td></tr>'; }).join('') + '</table>';
+      }
     } else {
       label = o.cls || 'object'; body = '<div class="empty">' + esc(o.repr || '') + '</div>';
     }
