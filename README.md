@@ -2,7 +2,7 @@
 
 **[Course info](https://rbrad070.github.io/cpsc101-course/course/) · [Schedule](https://rbrad070.github.io/cpsc101-course/schedule/) · [Demos](https://rbrad070.github.io/cpsc101-course/demos/) · [Setting up Python](https://rbrad070.github.io/cpsc101-course/setup/)**
 
-Assignments, labs, the project, grades and all due dates are on [Moodle](https://moodle.selkirk.ca/).
+Assignments, labs, the project, grades and all due dates are on [Moodle](https://learn.selkirk.ca/).
 
 Lecture notes for CPSC 101 at Selkirk College. Each part of a lecture is
 written out as a page you can read top to bottom, with the code, its real
