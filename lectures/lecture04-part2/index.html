@@ -666,11 +666,11 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a h
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Age: 51
 <span class="err">---------------------------------------------------------------------------
 AttributeError                            Traceback (most recent call last)
-Cell In[8], line 2
+Cell In[9], line 2
       1 e = Employee(&quot;Margaret Hamilton&quot;, 51, 1234)
 ----&gt; 2 e.show()
 
-Cell In[7], line 11, in Employee.show(self)
+Cell In[8], line 11, in Employee.show(self)
       8 print(&quot;Age:&quot;, self._age)
      10 # This will fail because __secret is mangled to _Person__secret
 ---&gt; 11 print(self.__secret)

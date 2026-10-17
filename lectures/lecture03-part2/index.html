@@ -437,8 +437,8 @@ identifier in memory.</p>
 <div class="sourceCode" id="cb12"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;id(s1):&quot;</span>, <span class="bu">id</span>(s1))</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;id(s2):&quot;</span>, <span class="bu">id</span>(s2))</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">id(s1): 128646942833840
-id(s2): 128646942919184</pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">id(s1): 127831146606672
+id(s2): 127831159223456</pre></div>
 
 </section>
 <section id="caution-with-assignment" class="level3">
@@ -474,15 +474,15 @@ in memeory,</li>
 class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing their addresses</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sx)</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">&lt;__main__.LabSample object at 0x7500f350bcb0&gt;
-&lt;__main__.LabSample object at 0x7500f350bcb0&gt;</pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">&lt;__main__.LabSample object at 0x7443021584d0&gt;
+&lt;__main__.LabSample object at 0x7443021584d0&gt;</pre></div>
 
 <div class="sourceCode" id="cb15"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing their IDs</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;id(s1):&quot;</span>, <span class="bu">id</span>(s1))</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;id(sx):&quot;</span>, <span class="bu">id</span>(sx))</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">id(s1): 128646942604464
-id(sx): 128646942604464</pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">id(s1): 127831146595536
+id(sx): 127831146595536</pre></div>
 
 </section>
 <section id="why-this-matters" class="level3">
@@ -522,9 +522,9 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a h
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s1 referrences address: </span><span class="sc">{</span>s1<span class="sc">}</span><span class="ss">&quot;</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s2 referrences address: </span><span class="sc">{</span>s2<span class="sc">}</span><span class="ss">&quot;</span>)</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;sx referrences address: </span><span class="sc">{</span>sx<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">s1 referrences address: &lt;__main__.LabSample object at 0x7500f3543cb0&gt;
-s2 referrences address: &lt;__main__.LabSample object at 0x7500f3543cb0&gt;
-sx referrences address: &lt;__main__.LabSample object at 0x7500f350bcb0&gt;</pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">s1 referrences address: &lt;__main__.LabSample object at 0x74430215b050&gt;
+s2 referrences address: &lt;__main__.LabSample object at 0x74430215b050&gt;
+sx referrences address: &lt;__main__.LabSample object at 0x7443021584d0&gt;</pre></div>
 
 <div class="sourceCode" id="cb19"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># s1 measurements are now empty</span></span>
@@ -730,7 +730,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a h
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 NameError                                 Traceback (most recent call last)
-Cell In[22], line 2
+Cell In[23], line 2
       1 del s1
 ----&gt; 2 print(s1)
 
@@ -794,7 +794,7 @@ Class attributes
 LabSample
 __main__
 Represents a lab sample with repeated measurements (e.g., pH, voltage, mass).
-{&#x27;__module__&#x27;: &#x27;__main__&#x27;, &#x27;__doc__&#x27;: &#x27;Represents a lab sample with repeated measurements (e.g., pH, voltage, mass).&#x27;, &#x27;__init__&#x27;: &lt;function LabSample.__init__ at 0x7500f2b704a0&gt;, &#x27;add_measurement&#x27;: &lt;function LabSample.add_measurement at 0x7500f2b70360&gt;, &#x27;mean&#x27;: &lt;function LabSample.mean at 0x7500f2b70540&gt;, &#x27;__str__&#x27;: &lt;function LabSample.__str__ at 0x7500f2b705e0&gt;, &#x27;__dict__&#x27;: &lt;attribute &#x27;__dict__&#x27; of &#x27;LabSample&#x27; objects&gt;, &#x27;__weakref__&#x27;: &lt;attribute &#x27;__weakref__&#x27; of &#x27;LabSample&#x27; objects&gt;}
+{&#x27;__module__&#x27;: &#x27;__main__&#x27;, &#x27;__doc__&#x27;: &#x27;Represents a lab sample with repeated measurements (e.g., pH, voltage, mass).&#x27;, &#x27;__init__&#x27;: &lt;function LabSample.__init__ at 0x744302165620&gt;, &#x27;add_measurement&#x27;: &lt;function LabSample.add_measurement at 0x744302165940&gt;, &#x27;mean&#x27;: &lt;function LabSample.mean at 0x7443021659e0&gt;, &#x27;__str__&#x27;: &lt;function LabSample.__str__ at 0x744302165a80&gt;, &#x27;__dict__&#x27;: &lt;attribute &#x27;__dict__&#x27; of &#x27;LabSample&#x27; objects&gt;, &#x27;__weakref__&#x27;: &lt;attribute &#x27;__weakref__&#x27; of &#x27;LabSample&#x27; objects&gt;}
 ------------
 Object attributes
 &lt;class &#x27;__main__.LabSample&#x27;&gt;

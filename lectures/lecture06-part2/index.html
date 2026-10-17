@@ -769,12 +769,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a h
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[EMAIL] Quiz today.
 <span class="err">---------------------------------------------------------------------------
 AttributeError                            Traceback (most recent call last)
-Cell In[13], line 17
+Cell In[14], line 17
      14         n.send(message)   # assumes .send exists
      16 notifiers = [EmailNotifier(), BrokenNotifier()]
 ---&gt; 17 notify_all(notifiers, &quot;Quiz today.&quot;)
 
-Cell In[13], line 14, in notify_all(notifiers, message)
+Cell In[14], line 14, in notify_all(notifiers, message)
      12 def notify_all(notifiers, message):
      13     for n in notifiers:
 ---&gt; 14         n.send(message)
@@ -991,10 +991,10 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a h
 class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>read_text_lbyl(Text(<span class="st">&#39;Will program for coffee&#39;</span>))</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 ArithmeticError                           Traceback (most recent call last)
-Cell In[18], line 1
+Cell In[19], line 1
 ----&gt; 1 read_text_lbyl(Text(&#x27;Will program for coffee&#x27;))
 
-Cell In[16], line 17, in read_text_lbyl(source)
+Cell In[17], line 17, in read_text_lbyl(source)
      15         return source.read()
      16 else:
 ---&gt; 17     raise ArithmeticError(&quot;Object does not support read()&quot;)

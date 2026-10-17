@@ -262,8 +262,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>t<span class="sc">}</span><span class="ss"> not found&quot;</span>)</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>t<span class="sc">}</span><span class="ss"> found at index </span><span class="sc">{</span>result<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[1, 5, 8, 5, 9, 4, 6, 8, 10, 4]
-5 found at index 1
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[6, 2, 10, 10, 5, 7, 3, 3, 3, 7]
+10 found at index 2
 99 not found</pre></div>
 
 </section>
@@ -361,30 +361,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>results_linear <span class="op">=</span> {<span class="st">&#39;list.index()&#39;</span>:{t:times[t][<span class="dv">0</span>] <span class="cf">for</span> t <span class="kw">in</span> times}, </span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;in operator&#39;</span>:{t:times[t][<span class="dv">1</span>] <span class="cf">for</span> t <span class="kw">in</span> times}, </span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;linear_search()&#39;</span>:{t:times[t][<span class="dv">2</span>] <span class="cf">for</span> t <span class="kw">in</span> times}}</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-Cell In[6], line 5
-      2 arr = list(range(10000001))
-      3 targets = sorted(random.choices(arr, k=100))
-----&gt; 5 times = {t: compare_searches(arr, t) for t in targets}
-      6 results_linear = {&#x27;list.index()&#x27;:{t:times[t][0] for t in times}, 
-      7     &#x27;in operator&#x27;:{t:times[t][1] for t in times}, 
-      8     &#x27;linear_search()&#x27;:{t:times[t][2] for t in times}}
-
-NameError: name &#x27;compare_searches&#x27; is not defined</span></pre></div>
-
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> benchmark <span class="im">import</span> plot_results</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>plot_results(results_linear, title<span class="op">=</span><span class="st">&quot;Linear Search Benchmarks&quot;</span>)</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-Cell In[7], line 3
-      1 from benchmark import plot_results
-----&gt; 3 plot_results(results_linear, title=&quot;Linear Search Benchmarks&quot;)
-
-NameError: name &#x27;results_linear&#x27; is not defined</span></pre></div>
-
+<p><img src="output01.png?v=6c07a140" loading="lazy"
+alt="Plot produced by the code above" /></p>
 </section>
 </section>
 <section id="observations" class="level3">
@@ -847,13 +829,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a h
 <span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;binary_search_bisect()&#39;</span>:{t:time_func(arr, t, binary_search_bisect) <span class="cf">for</span> t <span class="kw">in</span> targets}}</span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>plot_results(results_bin, title<span class="op">=</span><span class="st">&#39;Binary Search Algorithm Benchmarks&#39;</span>)</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-Cell In[18], line 1
-----&gt; 1 plot_results(results_bin, title=&#x27;Binary Search Algorithm Benchmarks&#x27;)
-
-NameError: name &#x27;results_bin&#x27; is not defined</span></pre></div>
-
+<p><img src="output02.png?v=d4d6ed55" loading="lazy"
+alt="Plot produced by the code above" /></p>
 </section>
 <section id="remarks" class="level3">
 <h3>Remarks</h3>
@@ -877,15 +854,8 @@ linear search!</p>
 class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># unpacking our linear and binary results into a single dictionary</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> {<span class="op">**</span>results_linear, <span class="op">**</span>results_bin}</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>plot_results(results, title<span class="op">=</span><span class="st">&#39;Linear vs Binary Search Comparisons&#39;</span>)</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-Cell In[19], line 2
-      1 # unpacking our linear and binary results into a single dictionary
-----&gt; 2 results = {**results_linear, **results_bin}
-      3 plot_results(results, title=&#x27;Linear vs Binary Search Comparisons&#x27;)
-
-NameError: name &#x27;results_linear&#x27; is not defined</span></pre></div>
-
+<p><img src="output03.png?v=e06ce04c" loading="lazy"
+alt="Plot produced by the code above" /></p>
 </section>
 <section id="summary-choosing-the-right-tool" class="level3">
 <h3>Summary: Choosing the Right Tool</h3>

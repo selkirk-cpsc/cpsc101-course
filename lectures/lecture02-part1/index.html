@@ -380,7 +380,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>point[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">10</span>    <span class="co"># TypeError: &#39;tuple&#39; object does not support item assignment</span></span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 TypeError                                 Traceback (most recent call last)
-Cell In[3], line 2
+Cell In[4], line 2
       1 point = (3, 7)
 ----&gt; 2 point[0] = 10    # TypeError: &#x27;tuple&#x27; object does not support item assignment
 
@@ -588,7 +588,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x)        <span class="co"># NameError: name &#39;x&#39; is not defined</span></span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 NameError                                 Traceback (most recent call last)
-Cell In[7], line 1
+Cell In[8], line 1
 ----&gt; 1 print(x)        # NameError: name &#x27;x&#x27; is not defined
 
 NameError: name &#x27;x&#x27; is not defined</span></pre></div>
@@ -896,7 +896,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a h
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">True
 <span class="err">---------------------------------------------------------------------------
 TypeError                                 Traceback (most recent call last)
-Cell In[14], line 6
+Cell In[15], line 6
       2 s2 = {1, 2, 3}
       4 print(s1 == s2)   # True — same elements, order doesn&#x27;t matter
 ----&gt; 6 s1[0]             # TypeError: &#x27;set&#x27; object is not subscriptable

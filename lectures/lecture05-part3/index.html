@@ -269,10 +269,10 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a hr
 class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>turing <span class="op">=</span> Person(<span class="st">&quot;Alan Turing&quot;</span>, <span class="op">-</span><span class="dv">10</span>)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 InvalidAgeException                       Traceback (most recent call last)
-Cell In[3], line 1
+Cell In[4], line 1
 ----&gt; 1 turing = Person(&quot;Alan Turing&quot;, -10)
 
-Cell In[2], line 4, in Person.__init__(self, name, age)
+Cell In[3], line 4, in Person.__init__(self, name, age)
       2 def __init__(self, name, age):
       3     if not (0 &lt;= age &lt;= 120):
 ----&gt; 4         raise InvalidAgeException(&quot;Valid ages must be between 0 and 120&quot;)
@@ -293,7 +293,7 @@ within the constructor method,</li>
 class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(turing) <span class="co"># turing object was never created</span></span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 NameError                                 Traceback (most recent call last)
-Cell In[4], line 1
+Cell In[5], line 1
 ----&gt; 1 print(turing) # turing object was never created
 
 NameError: name &#x27;turing&#x27; is not defined</span></pre></div>
@@ -376,10 +376,10 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a h
 class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>turing <span class="op">=</span> Person(<span class="st">&quot;Alan Turing&quot;</span>, <span class="st">&quot;thirty one&quot;</span>)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 ValueError                                Traceback (most recent call last)
-Cell In[10], line 1
+Cell In[11], line 1
 ----&gt; 1 turing = Person(&quot;Alan Turing&quot;, &quot;thirty one&quot;)
 
-Cell In[9], line 3, in Person.__init__(self, name, age_text)
+Cell In[10], line 3, in Person.__init__(self, name, age_text)
       2 def __init__(self, name, age_text):
 ----&gt; 3     age = int(age_text) # Might raise ValueError
       5     if not (0 &lt;= age &lt;= 120):

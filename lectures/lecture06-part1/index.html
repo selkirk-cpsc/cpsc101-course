@@ -571,10 +571,10 @@ tries to evaluate <code>obj.speak()</code>.</p>
 class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>say_it(<span class="st">&quot;Person&quot;</span>)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 AttributeError                            Traceback (most recent call last)
-Cell In[7], line 1
+Cell In[8], line 1
 ----&gt; 1 say_it(&quot;Person&quot;)
 
-Cell In[5], line 13, in say_it(obj)
+Cell In[6], line 13, in say_it(obj)
      11 def say_it(obj):
      12     # Python decides what speak() is at runtime
 ---&gt; 13     print(obj.speak())
@@ -671,11 +671,11 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a h
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[EMAIL] Reminder: assignment due Friday.
 <span class="err">---------------------------------------------------------------------------
 AttributeError                            Traceback (most recent call last)
-Cell In[11], line 2
+Cell In[12], line 2
       1 notifiers = [EmailNotifier(), BrokenNotifier()]
 ----&gt; 2 notify_all(notifiers, &quot;Reminder: assignment due Friday.&quot;)
 
-Cell In[8], line 18, in notify_all(notifiers, message)
+Cell In[9], line 18, in notify_all(notifiers, message)
      14 def notify_all(notifiers, message):
      15     # Duck typing: no type checks here.
      16     # We rely on each object supporting .send(message).
@@ -762,12 +762,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a h
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>find_largest_digit(<span class="dv">43234712636474632615156262615512300012300012300444</span>)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 TypeError                                 Traceback (most recent call last)
-Cell In[12], line 11
+Cell In[13], line 11
       8             largest = digit
       9     return largest
 ---&gt; 11 find_largest_digit(43234712636474632615156262615512300012300012300444)
 
-Cell In[12], line 6, in find_largest_digit(num)
+Cell In[13], line 6, in find_largest_digit(num)
       4 def find_largest_digit(num):
       5     largest = 0
 ----&gt; 6     for digit in num:  # TypeError if num is an int

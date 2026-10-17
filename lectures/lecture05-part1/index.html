@@ -252,7 +252,7 @@ wrong result (no exception)</li>
 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SyntaxError (program won&#39;t start)</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">True</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;missing colon&quot;</span>)</span></code></pre></div>
-<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">  Cell In[1], line 2
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">  Cell In[2], line 2
     if True
            ^
 SyntaxError: expected &#x27;:&#x27;
@@ -264,7 +264,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="dv">10</span> <span class="op">/</span> x)   <span class="co"># ZeroDivisionErrorc</span></span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 ZeroDivisionError                         Traceback (most recent call last)
-Cell In[2], line 3
+Cell In[3], line 3
       1 # Runtime exception (program starts, fails when executed)
       2 x = 0
 ----&gt; 3 print(10 / x)   # ZeroDivisionErrorc
@@ -315,7 +315,7 @@ and how Python manages them through <em>exceptions</em>.</p>
 class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span> <span class="op">+</span> <span class="st">&quot;hello&quot;</span> <span class="co"># Can&#39;t add an interger and a string</span></span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 TypeError                                 Traceback (most recent call last)
-Cell In[4], line 1
+Cell In[5], line 1
 ----&gt; 1 3 + &quot;hello&quot; # Can&#x27;t add an interger and a string
 
 TypeError: unsupported operand type(s) for +: &#x27;int&#x27; and &#x27;str&#x27;</span></pre></div>
@@ -330,12 +330,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>process(<span class="dv">10</span>)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 TypeError                                 Traceback (most recent call last)
-Cell In[5], line 4
+Cell In[6], line 4
       1 def process(x):
       2     x()
 ----&gt; 4 process(10)
 
-Cell In[5], line 2, in process(x)
+Cell In[6], line 2, in process(x)
       1 def process(x):
 ----&gt; 2     x()
 
@@ -365,12 +365,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a hr
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>night_out(<span class="dv">42</span>)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 AttributeError                            Traceback (most recent call last)
-Cell In[6], line 5
+Cell In[7], line 5
       2     x.eat()
       3     x.drink()
 ----&gt; 5 night_out(42)
 
-Cell In[6], line 2, in night_out(x)
+Cell In[7], line 2, in night_out(x)
       1 def night_out(x):
 ----&gt; 2     x.eat()
       3     x.drink()
@@ -392,7 +392,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a hr
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>math.sqrt(<span class="op">-</span><span class="dv">10</span>)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 ValueError                                Traceback (most recent call last)
-Cell In[7], line 2
+Cell In[8], line 2
       1 import math
 ----&gt; 2 math.sqrt(-10)
 
@@ -415,7 +415,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a hr
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sqrt(x)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 NameError                                 Traceback (most recent call last)
-Cell In[8], line 2
+Cell In[9], line 2
       1 x = 2
 ----&gt; 2 sqrt(x)
 
@@ -677,7 +677,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a h
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result) <span class="co"># print(result) never executes</span></span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 ZeroDivisionError                         Traceback (most recent call last)
-Cell In[10], line 2
+Cell In[11], line 2
       1 x = 0 # Python executes this statement
 ----&gt; 2 result = 10/x # Python raises this automatically
       3 print(result) # print(result) never executes
@@ -703,7 +703,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a h
 class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>turing <span class="op">=</span> Person() <span class="co"># raise a TypeError exception</span></span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 TypeError                                 Traceback (most recent call last)
-Cell In[12], line 1
+Cell In[13], line 1
 ----&gt; 1 turing = Person() # raise a TypeError exception
 
 TypeError: Person.__init__() missing 2 required positional arguments: &#x27;name&#x27; and &#x27;age&#x27;</span></pre></div>
@@ -715,10 +715,10 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(turing) <span class="co"># raises another Type Error exception</span></span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 TypeError                                 Traceback (most recent call last)
-Cell In[14], line 1
+Cell In[15], line 1
 ----&gt; 1 print(turing) # raises another Type Error exception
 
-Cell In[11], line 8, in Person.__str__(self)
+Cell In[12], line 8, in Person.__str__(self)
       7 def __str__(self):
 ----&gt; 8     return self.name + &quot; is &quot; + self.age
 
