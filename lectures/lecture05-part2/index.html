@@ -1,0 +1,1173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error &amp; Exception Handling · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture05-part1/"><span class="label">← Previous</span>Lecture
+5 · Part 1: Error &amp; Exception Handling</a>
+<a class="next" href="../lecture05-part3/"><span class="label">Next →</span>Lecture
+5 · Part 3: Error &amp; Exception Handling</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 5 · Part 2</div>
+<h1>Error &amp; Exception Handling</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#exception-handling" id="toc-exception-handling">Exception
+Handling</a></li>
+<li><a href="#terminology" id="toc-terminology">Terminology</a></li>
+<li><a href="#type-based" id="toc-type-based">Type-Based</a></li>
+<li><a href="#catching-broad-categories"
+id="toc-catching-broad-categories">Catching Broad Categories</a></li>
+<li><a href="#accessing-the-exception-object"
+id="toc-accessing-the-exception-object">Accessing the Exception
+Object</a></li>
+<li><a href="#jumping-to-an-exception-handler"
+id="toc-jumping-to-an-exception-handler">Jumping to an Exception
+Handler</a></li>
+<li><a href="#raising-exceptions" id="toc-raising-exceptions">Raising
+Exceptions</a></li>
+<li><a href="#object-representations"
+id="toc-object-representations">Object Representations</a></li>
+</ul>
+</nav>
+<section id="exception-handling" class="level2">
+<h2>Exception Handling</h2>
+<section id="what-is-exception-handling" class="level3">
+<h3>What Is Exception Handling?</h3>
+<p>Exception handling is about <strong>where responsibility
+lives</strong>.</p>
+<p>Often, the code that detects a problem:</p>
+<ul>
+<li>cannot fix it, and</li>
+<li>should not decide how to respond</li>
+</ul>
+<p>Instead, the exception is passed upward to code that <em>can</em>
+respond.</p>
+<p>This process is called <em>exception handling</em>.</p>
+</section>
+<section id="exception-handling-adding-control-flow" class="level3">
+<h3>Exception Handling (Adding Control Flow)</h3>
+<p><em>Exception handling</em> causes Python to:</p>
+<ul>
+<li>stop the current operation</li>
+<li>abandon the current line of execution</li>
+<li>search for code that knows how to respond</li>
+</ul>
+<p>This is a <strong>controlled transfer of responsibility</strong> that
+can be controlled using the <code>try</code>-<code>except</code>
+construct.</p>
+<section id="try-block" class="level4">
+<h4><em>try</em> block</h4>
+<p>The <em>try</em> block indicates the code which is to be monitored
+for the exceptions listed in the except expressions.</p>
+</section>
+<section id="except-clause" class="level4">
+<h4><em>except</em> clause</h4>
+<p>The <em>except</em> clause to indicate what to do when certain
+classes of exception/error occur (e.g. resolve the problem or generate a
+warning message). There can be any number of except clauses in sequence
+checking for different types of error/exceptions.</p>
+<p>The syntax for a <em>try</em> statement with an <em>except</em>
+clause is:</p>
+<pre class="raw"><code>try:
+    &lt;code to monitor&gt;
+except &lt;type of exception to monitor for&gt;:
+    &lt;code to call if exception is found&gt;</code></pre>
+</section>
+</section>
+<section id="example" class="level3">
+<h3>Example</h3>
+<p>Below is a code snippet that performs a simple calculation on some
+hard-coded user input:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="st">&quot;hello&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="bu">int</span>(user_input)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="dv">100</span> <span class="op">/</span> x)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+Cell In[1], line 2
+      1 user_input = &quot;hello&quot;
+----&gt; 2 x = int(user_input)
+      3 print(100 / x)
+
+ValueError: invalid literal for int() with base 10: &#x27;hello&#x27;</span></pre></div>
+
+<p><strong>Remarks:</strong></p>
+<ul>
+<li>When <code>int()</code> is passed a non-numeric string (e.g.,
+<code>"Hello"</code>), a <code>ValueError</code> exception is
+raised.</li>
+<li>The <code>ValueError</code> halts the program and transfers
+responsibility to the programmer to decide how to respond.</li>
+</ul>
+<p><strong>Response:</strong> We will use <em>exception handling</em> to
+print a human-readable message.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="st">&quot;Hello&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># adding exception handling (try-except)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(user_input)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="dv">100</span> <span class="op">/</span> x)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;That was not a valid number.&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">That was not a valid number.</pre></div>
+
+</section>
+<section id="what-just-happened" class="level3">
+<h3>What Just Happened?</h3>
+<ul>
+<li><p>The <code>int()</code> function raised a
+<code>ValueError</code></p>
+<ul>
+<li>When Python evaluates <code>int("Hello")</code>, it cannot convert
+the non-numeric string into an integer.</li>
+<li>As a result, <code>int()</code> raises a
+<code>ValueError</code>.</li>
+</ul></li>
+<li><p>The exception was passed to the calling code</p>
+<ul>
+<li>The error occurs inside <code>int()</code>, but <code>int()</code>
+does not handle it.</li>
+<li>The exception propagates <strong>upward</strong> to the surrounding
+<code>try</code> block.</li>
+</ul></li>
+<li><p>The matching handler responded</p>
+<ul>
+<li>Python searches for an <code>except</code> clause that matches the
+exception type.</li>
+<li><code>except ValueError:</code> matches, so that handler executes
+and prints the message.</li>
+</ul></li>
+</ul>
+</section>
+<section id="example-continued" class="level3">
+<h3>Example Continued</h3>
+<p>Lets now see what happens if we set <code>user_input = 0</code></p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(user_input)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="dv">100</span> <span class="op">/</span> x)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;That was not a valid number.&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+ZeroDivisionError                         Traceback (most recent call last)
+Cell In[3], line 5
+      3 try:
+      4     x = int(user_input)
+----&gt; 5     print(100 / x)
+      6 except ValueError:
+      7     print(&quot;That was not a valid number.&quot;)
+
+ZeroDivisionError: division by zero</span></pre></div>
+
+<section id="issue" class="level4">
+<h4>Issue</h4>
+<p>The division <code>/</code> operator raised a
+<code>ZeroDivisionError</code></p>
+</section>
+<section id="response" class="level4">
+<h4>Response</h4>
+<p>Add an additional <code>except</code> block to handle the
+<code>ZeroDivisionError</code>, extending the controlled transfer of
+responsibility.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(user_input)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="dv">100</span> <span class="op">/</span> x)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;That was not a valid number.&quot;</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ZeroDivisionError</span>:</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Division by zero is not allowed.&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Division by zero is not allowed.</pre></div>
+
+</section>
+</section>
+<section id="try-except-contstruct-continued" class="level3">
+<h3><em>try-except</em> Contstruct Continued</h3>
+<p>There are two additional <em>try-except</em> contstruct clauses:</p>
+<section id="else-clause" class="level4">
+<h4><em>else</em> clause.</h4>
+<p>This is an optional clause which will run if and only if no exception
+was thrown in the <em>try</em> block. It is useful for code that must be
+executed if the <em>try</em> clause does not raise an exception.</p>
+</section>
+<section id="ﬁnally-clause" class="level4">
+<h4><em>ﬁnally</em> clause.</h4>
+<p>The optional <em>ﬁnally</em> clause runs after the <em>try</em> block
+exits (whether or not this is due to an exception being raised). You can
+use it to clean up any resources, close ﬁles, etc.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> program(<span class="bu">input</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="bu">int</span>(<span class="bu">input</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> <span class="dv">100</span> <span class="op">/</span> x</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;That was not a valid number.&quot;</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ZeroDivisionError</span>:</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Division by zero is not allowed.&quot;</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> result</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>:</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;End of Program&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> program(user_input)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Division by zero is not allowed.
+End of Program
+None</pre></div>
+
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> program(user_input)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">End of Program
+5.0</pre></div>
+
+</section>
+</section>
+</section>
+<section id="terminology" class="level2">
+<h2>Terminology</h2>
+<section id="exception-handling-terminology" class="level3">
+<h3>Exception Handling Terminology</h3>
+<p>You will see the following terms:</p>
+<section id="exception" class="level4">
+<h4>Exception:</h4>
+<p>A runtime signal that expectations were violated</p>
+</section>
+<section id="raise-an-exception" class="level4">
+<h4>Raise an exception:</h4>
+<p>Create a new exception</p>
+</section>
+<section id="handling-an-exception" class="level4">
+<h4>Handling an exception:</h4>
+<p>Responding to an exception</p>
+</section>
+<section id="handler" class="level4">
+<h4>Handler:</h4>
+<p>Code that responds to a specific type of exception</p>
+</section>
+</section>
+<section id="example-1" class="level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="st">&quot;Hello&quot;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(user_input)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="dv">100</span> <span class="op">/</span> x)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;That was not a valid number.&quot;</span>)</span></code></pre></div>
+<section id="exception-1" class="level4">
+<h4>Exception:</h4>
+<p>The <code>ValueError</code> object that represents the runtime signal
+value error.</p>
+</section>
+<section id="raise-the-exception" class="level4">
+<h4>Raise the exception:</h4>
+<p>The moment <code>int(user_input)</code> fails and
+<strong>raises</strong> a <code>ValueError</code> (it creates/signals
+the exception).</p>
+</section>
+<section id="handling-the-exception" class="level4">
+<h4>Handling the exception:</h4>
+<p>What your program does in response: it prints
+<code>"That was not a valid number."</code> instead of haulting.</p>
+</section>
+<section id="handler-1" class="level4">
+<h4>Handler:</h4>
+<p>The <code>except ValueError:</code> block (and its indented body).
+This is the specific code written to respond to a
+<code>ValueError</code>.</p>
+</section>
+</section>
+</section>
+<section id="type-based" class="level2">
+<h2>Type-Based</h2>
+<section id="handlers-are-type-based" class="level3">
+<h3>Handlers Are Type-Based</h3>
+<p>An <code>except</code> clause does not catch <em>everything</em>.</p>
+<p>It catches:</p>
+<ul>
+<li>a specific exception type</li>
+<li>or any of its <em>subclasses</em></li>
+</ul>
+</section>
+<section id="exception-class-hierarchy-revisted" class="level3">
+<h3>Exception Class Hierarchy Revisted</h3>
+<p>Python organizes exceptions into a class hierarchy:</p>
+<figure class="nb-figure"><img src="exception_hierarchy.png?v=dfe036e8" alt="Exceptions Hierarchy" style="width:600px"><figcaption><strong>Figure 2.</strong> Exceptions Hierarchy</figcaption></figure>
+
+</section>
+<section id="example-arithmeticerror-hierarchy" class="level3">
+<h3>Example: <code>ArithmeticError</code> Hierarchy</h3>
+<figure class="nb-figure"><img src="arithmetic_exception_hierarchy.png?v=4ac90afd" alt="Arithmetic Exceptions Hierarchy" style="width:600px"><figcaption><strong>Figure 2.</strong> Arithmetic Exceptions Hierarchy</figcaption></figure>
+
+<p><strong>Oberservations:</strong></p>
+<ul>
+<li>The exceptions <code>FloatingPointError</code>,
+<code>OverflowError</code>, and <code>ZeroDivisionError</code> are all
+subclass of <code>ArithmeticError</code>.</li>
+<li>We can catch all three arithmetic exceptions
+(<code>FloatingPointError</code>, <code>OverflowError</code>, and
+<code>ZeroDivisionError</code>) using a single handler:
+<ul>
+<li><code>except ArithmeticError:</code></li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(user_input)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="dv">100</span> <span class="op">/</span> x)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#except ZeroDivisionError:</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#print(&quot;Division by zero is not allowed.&quot;)</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ArithmeticError</span>:</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;An arithmetic error has occured&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">An arithmetic error has occured</pre></div>
+
+</section>
+</section>
+<section id="catching-broad-categories" class="level2">
+<h2>Catching Broad Categories</h2>
+<section id="exception-class" class="level3">
+<h3><code>Exception</code> class</h3>
+<p><code>Exception</code> represents a <strong>broad category</strong>
+of runtime violations.</p>
+<figure class="nb-figure"><img src="exception_class.png?v=d5b6bdb3" alt="Exception Exceptions Hierarchy" style="width:600px"><figcaption><strong>Figure 3.</strong> Exception Exceptions Hierarchy</figcaption></figure>
+
+<p>Catching it means:</p>
+<blockquote>
+<p>“I am willing to handle many kinds of failures in the same way.”</p>
+</blockquote>
+<p>This can be useful, but it reduces precision.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(user_input)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="dv">100</span> <span class="op">/</span> x)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;opps ¯</span><span class="ch">\\</span><span class="st">_(ツ)_/¯&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">opps ¯\_(ツ)_/¯</pre></div>
+
+<p><strong>Remark:</strong></p>
+<ul>
+<li>This might not seem useful as we don’t get any useful
+information,</li>
+<li>but it can be helpful when catching <em>multiple</em>
+exceptions</li>
+</ul>
+</section>
+<section id="multiple-handlers" class="level3">
+<h3>Multiple Handlers</h3>
+<p>If different violations require different responses, you can provide
+multiple <code>except</code> clauses.</p>
+<p>Only <strong>one handler runs</strong>. The first matching one
+wins.</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> [<span class="st">&quot;0&quot;</span>, <span class="st">&quot;10&quot;</span>, <span class="st">&quot;hello&quot;</span>, <span class="st">&quot;&quot;</span>]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ui <span class="kw">in</span> user_input:</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;User input = </span><span class="sc">{</span>ui<span class="sc">}</span><span class="ss"> (type: </span><span class="sc">{</span><span class="bu">type</span>(ui)<span class="sc">.</span><span class="va">__name__</span><span class="sc">}</span><span class="ss">)&quot;</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="bu">int</span>(ui)              <span class="co"># could raise ValueError</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> <span class="dv">100</span> <span class="op">/</span> x         <span class="co"># could raise ZeroDivisionError</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Result:&quot;</span>, result)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">10</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Please enter a whole number (like 3, 10, -2).&quot;</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">10</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ZeroDivisionError</span>:</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;You entered 0, and division by zero is not allowed.&quot;</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">10</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Something unexpected happened:&quot;</span>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">10</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">User input = 0 (type: str)
+You entered 0, and division by zero is not allowed.
+----------
+User input = 10 (type: str)
+Result: 10.0
+----------
+User input = hello (type: str)
+Please enter a whole number (like 3, 10, -2).
+----------
+User input =  (type: str)
+Please enter a whole number (like 3, 10, -2).
+----------</pre></div>
+
+</section>
+<section id="handler-ordering-matters" class="level3">
+<h3>Handler Ordering Matters</h3>
+<p>Handlers must go:</p>
+<ul>
+<li>from <strong>most specific</strong></li>
+<li>to <strong>most general</strong></li>
+</ul>
+<p>Why?</p>
+<p>Because Python chooses the <strong>first matching
+handler</strong>.</p>
+<p>A broad handler placed first would block all others.</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> [<span class="st">&quot;0&quot;</span>, <span class="st">&quot;10&quot;</span>, <span class="st">&quot;hello&quot;</span>, <span class="st">&quot;&quot;</span>] </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ui <span class="kw">in</span> user_input: </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="bu">int</span>(ui)      <span class="co"># could raise ValueError</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> <span class="dv">100</span> <span class="op">/</span> x         <span class="co"># could raise ZeroDivisionError</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Result:&quot;</span>, result)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span>: <span class="co"># Blocks all other exceptions</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Something unexpected happened:&quot;</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Please enter a whole number (like 3, 10, -2).&quot;</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ZeroDivisionError</span>:</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;You entered 0, and division by zero is not allowed.&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Something unexpected happened:
+Result: 10.0
+Something unexpected happened:
+Something unexpected happened:</pre></div>
+
+</section>
+<section id="final-remarks" class="level3">
+<h3>Final Remarks</h3>
+<p>Exception handling is not about fixing code.</p>
+<p>It is about <strong>declaring responsibility</strong>.</p>
+<p>Using <code>except</code> says:</p>
+<p>“I understand this kind of failure, and I know how to respond.”</p>
+</section>
+</section>
+<section id="accessing-the-exception-object" class="level2">
+<h2>Accessing the Exception Object</h2>
+<section id="accessing-the-exception-object-1" class="level3">
+<h3>Accessing the Exception Object</h3>
+<p>So far, we have handled exceptions by <strong>type only</strong>.</p>
+<p>Sometimes, however, we want to know:</p>
+<ul>
+<li><em>what</em> specifically went wrong</li>
+<li><em>why</em> Python raised this exception</li>
+</ul>
+<p>Python allows us to access the exception object itself.</p>
+</section>
+<section id="the-as-keyword" class="level3">
+<h3>The <code>as</code> Keyword</h3>
+<p>When catching an exception, you can optionally bind the exception
+object to a variable using <code>as</code>.</p>
+<p>This gives you access to:</p>
+<ul>
+<li>the exception message</li>
+<li>contextual information about the failure</li>
+</ul>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> traceback</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> <span class="st">&quot;0&quot;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(user_input)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> <span class="dv">100</span><span class="op">/</span>x</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Result:&quot;</span>, result)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ZeroDivisionError</span> <span class="im">as</span> e:</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;type(e)         =&quot;</span>, <span class="bu">type</span>(e).<span class="va">__name__</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;str(e)          =&quot;</span>, <span class="bu">str</span>(e))</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;e.args          =&quot;</span>, e.args)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;e.__traceback__ =&quot;</span>, e.__traceback__)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">--- traceback.print_exception ---&quot;</span>)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    traceback.print_exception(<span class="bu">type</span>(e), e, e.__traceback__)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">type(e)         = ZeroDivisionError
+str(e)          = division by zero
+e.args          = (&#x27;division by zero&#x27;,)
+e.__traceback__ = &lt;traceback object at 0x7a7961d75e40&gt;
+
+--- traceback.print_exception ---
+Traceback (most recent call last):
+  File &quot;/tmp/ipykernel_167338/2421386816.py&quot;, line 7, in &lt;module&gt;
+    result = 100/x
+             ~~~^~
+ZeroDivisionError: division by zero</pre></div>
+
+<p><strong>Remarks:</strong></p>
+<ul>
+<li><code>import traceback</code> imports the <code>traceback</code>
+module, which provides tools for working with exception tracebacks.
+<ul>
+<li><code>traceback.print_exception(type(e), e, e.__traceback__)</code>
+prints the full traceback programmatically.</li>
+</ul></li>
+<li>Accessing the exception object allows you to:
+<ul>
+<li>display clearer error messages</li>
+<li>log diagnostic information</li>
+<li>decide how to respond based on details</li>
+</ul></li>
+</ul>
+</section>
+<section id="multiple-handlers-optional-access" class="level3">
+<h3>Multiple Handlers, Optional Access</h3>
+<p>Each <code>except</code> clause can independently decide whether
+to:</p>
+<ul>
+<li>bind the exception object</li>
+<li>or ignore it</li>
+</ul>
+<p>This choice is local to each handler.</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>user_input <span class="op">=</span> [<span class="st">&quot;0&quot;</span>, <span class="st">&quot;hello&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="dv">1000</span>]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ui <span class="kw">in</span> user_input:</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;user input =&quot;</span>, ui)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> <span class="bu">int</span>(ui)          <span class="co"># could raise ValueError</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> <span class="dv">100</span> <span class="op">/</span> y     <span class="co"># could raise ZeroDivisionError</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> math.exp(y)      <span class="co"># could raises OverflowError for large ui</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Result:&quot;</span>, result)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">10</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> exp:</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;ValueError:&quot;</span>, exp)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">10</span>)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ZeroDivisionError</span>:</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;You entered 0, and division by zero is not allowed.&quot;</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">10</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Something unexpected happened:&quot;</span>, e)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;message: &quot;</span>, e)</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;type: &quot;</span>, <span class="bu">type</span>(e))</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;repr(e) = &quot;</span>, <span class="bu">repr</span>(e))</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">10</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">user input = 0
+You entered 0, and division by zero is not allowed.
+----------
+user input = hello
+ValueError: invalid literal for int() with base 10: &#x27;hello&#x27;
+----------
+user input = 
+ValueError: invalid literal for int() with base 10: &#x27;&#x27;
+----------
+user input = 1000
+Something unexpected happened: math range error
+message:  math range error
+type:  &lt;class &#x27;OverflowError&#x27;&gt;
+repr(e) =  OverflowError(&#x27;math range error&#x27;)
+----------</pre></div>
+
+</section>
+</section>
+<section id="jumping-to-an-exception-handler" class="level2">
+<h2>Jumping to an Exception Handler</h2>
+<section id="jumping-to-an-exception-handler-1" class="level3">
+<h3>Jumping to an Exception Handler</h3>
+<p>When an exception is raised:</p>
+<ul>
+<li>execution <strong>stops immediately</strong></li>
+<li>remaining statements are <strong>skipped</strong></li>
+<li>control is transferred to a handler</li>
+</ul>
+<p>This is not optional behavior. It is how Python enforces broken
+expectations.</p>
+</section>
+<section id="key-rule" class="level3">
+<h3>Key Rule</h3>
+<p>Once an exception is raised:</p>
+<blockquote>
+<p><strong>Nothing after that point runs.</strong></p>
+</blockquote>
+<p>Not in the function. Not in the calling code. Only the matching
+handler executes.</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> my_function(x, y):</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;my_function in&quot;</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> x <span class="op">/</span> y</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;my_function out&quot;</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result</span></code></pre></div>
+<section id="case-1-expectations-are-met" class="level4">
+<h4>Case 1: Expectations Are Met</h4>
+<p>Here, no exception is raised. Execution proceeds normally.</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Starting&quot;</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Before my_function&quot;</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    my_function(<span class="dv">6</span>, <span class="dv">2</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;After my_function&quot;</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ZeroDivisionError</span>:</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;oops&quot;</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Done&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Starting
+Before my_function
+my_function in
+my_function out
+After my_function
+Done</pre></div>
+
+<p><strong>Observations</strong>: Output (No Exception)</p>
+<ul>
+<li>Every line runs</li>
+<li>The handler is skipped</li>
+<li>Control flow is uninterrupted</li>
+</ul>
+</section>
+<section id="case-2-expectations-are-violated" class="level4">
+<h4>Case 2: Expectations Are Violated</h4>
+<p>Now we violate an expectation: division by zero.</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Starting&quot;</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Before my_function&quot;</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    my_function(<span class="dv">6</span>, <span class="dv">0</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;After my_function&quot;</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ZeroDivisionError</span>:</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;oops&quot;</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Done&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Starting
+Before my_function
+my_function in
+oops
+Done</pre></div>
+
+<p><strong>Observations:</strong> Output (Exception Raised)</p>
+<p>Notice what does <em>not</em> happen:</p>
+<ul>
+<li><code>my_function out</code> is never printed</li>
+<li><code>After my_function</code> is never printed</li>
+</ul>
+<p>Execution jumps directly to the handler.</p>
+</section>
+</section>
+</section>
+<section id="raising-exceptions" class="level2">
+<h2>Raising Exceptions</h2>
+<section id="raising-an-exception-design-view" class="level3">
+<h3>Raising an Exception (Design View)</h3>
+<p>So far, we have seen Python raise exceptions
+<strong>automatically</strong>. But what if we want to raise an
+exception in our own code?</p>
+<p>This can be accomplished by using the <code>raise</code> keyword:</p>
+<pre class="raw"><code>raise &lt;Exception/Error type to raise&gt;()</code></pre>
+</section>
+<section id="example-forcing-expectations" class="level3">
+<h3>Example: Forcing Expectations</h3>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_even(x):</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>is_even(<span class="fl">3.4</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">False</pre></div>
+
+<p><strong>Remark</strong>:</p>
+<p>Even though this runs without error, we (as the programmers) expect
+the user to pass an integer, not a float. We can enforce this
+expectation by explicitly raising an exception:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_even(x):</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(x, <span class="bu">int</span>):</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">TypeError</span>(<span class="st">&quot;Input must be an integer&quot;</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>is_even(<span class="fl">3.4</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+Cell In[18], line 6
+      3         raise TypeError(&quot;Input must be an integer&quot;)
+      4     return x % 2 == 0
+----&gt; 6 is_even(3.4)
+
+Cell In[18], line 3, in is_even(x)
+      1 def is_even(x):
+      2     if not isinstance(x, int):
+----&gt; 3         raise TypeError(&quot;Input must be an integer&quot;)
+      4     return x % 2 == 0
+
+TypeError: Input must be an integer</span></pre></div>
+
+</section>
+<section id="handling-a-raised-exception" class="level3">
+<h3>Handling a Raised Exception</h3>
+<p>Once raised, an exception behaves the same way as any built-in
+error.</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_even(x):</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(x, <span class="bu">int</span>):</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">TypeError</span>(<span class="st">&quot;Input must be an integer&quot;</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    is_even(<span class="fl">3.4</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(e)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Input must be an integer</pre></div>
+
+</section>
+<section id="another-example" class="level3">
+<h3>Another Example</h3>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pad_with_zeros(data, left<span class="op">=</span><span class="dv">1</span>, right<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Pad data in-place by inserting 0s on the left and appending 0s on the right.</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Mutates the original list and returns None.</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> left <span class="op">&lt;</span> <span class="dv">0</span> <span class="kw">or</span> right <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">&quot;left and right must be non-negative&quot;</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add to the left (insert at index 0, repeated)</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    data[:<span class="dv">0</span>] <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> left</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add to the right (extend at end)</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    data.extend([<span class="dv">0</span>] <span class="op">*</span> right)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>]</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>pad_with_zeros(data)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[0, 1, 2, 3, 4, 0]</pre></div>
+
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>]</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>pad_with_zeros(data, left <span class="op">=</span> <span class="dv">2</span>, right <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[0, 0, 1, 2, 3, 4, 0, 0]</pre></div>
+
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>]</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>pad_with_zeros(data, left <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>, right <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+Cell In[23], line 2
+      1 data = [1,2,3,4]
+----&gt; 2 pad_with_zeros(data, left = -1, right = 2)
+      3 print(data)
+
+Cell In[20], line 8, in pad_with_zeros(data, left, right)
+      2 &quot;&quot;&quot;
+      3 Pad data in-place by inserting 0s on the left and appending 0s on the right.
+      4 
+      5 Mutates the original list and returns None.
+      6 &quot;&quot;&quot;
+      7 if left &lt; 0 or right &lt; 0:
+----&gt; 8     raise ValueError(&quot;left and right must be non-negative&quot;)
+     10 # Add to the left (insert at index 0, repeated)
+     11 data[:0] = [0] * left
+
+ValueError: left and right must be non-negative</span></pre></div>
+
+</section>
+<section id="important-design-point" class="level3">
+<h3>Important Design Point</h3>
+<p>Raising an exception does <strong>not</strong> mean:</p>
+<ul>
+<li>the code is “broken”</li>
+<li>something unexpected happened</li>
+</ul>
+<p>It means:</p>
+<blockquote>
+<p>“This situation violates the contract of this function.”</p>
+</blockquote>
+</section>
+<section id="re-raising-exceptions" class="level3">
+<h3>Re-raising Exceptions</h3>
+<p>Sometimes you want to <strong>catch an exception</strong> to log,
+inspect, or clean up, but still allow it to propagate up the call
+stack.</p>
+<p>This is done by <strong>re-raising</strong> the exception.</p>
+<section id="why-re-raise" class="level4">
+<h4>Why re-raise?</h4>
+<ul>
+<li>Preserve the original error for higher-level handling</li>
+<li>Add logging or debugging information</li>
+<li>Avoid silently swallowing errors</li>
+</ul>
+</section>
+<section id="key-idea" class="level4">
+<h4>Key Idea</h4>
+<p>Use <code>raise</code> inside an <code>except</code> block to
+re-throw the same exception.</p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(<span class="st">&quot;abc&quot;</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> e:</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Conversion failed:&quot;</span>, e)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span>  <span class="co"># re-raises the same ValueError</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Conversion failed: invalid literal for int() with base 10: &#x27;abc&#x27;
+<span class="err">---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+Cell In[24], line 2
+      1 try:
+----&gt; 2     x = int(&quot;abc&quot;)
+      3 except ValueError as e:
+      4     print(&quot;Conversion failed:&quot;, e)
+
+ValueError: invalid literal for int() with base 10: &#x27;abc&#x27;</span></pre></div>
+
+</section>
+</section>
+<section id="important-notes" class="level3">
+<h3>Important Notes</h3>
+<ul>
+<li><code>raise</code> (with no argument) preserves the original
+traceback</li>
+<li>Avoid catching exceptions unless you intend to handle or re-raise
+them</li>
+<li>Swallowing exceptions can make debugging difficult</li>
+</ul>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># BAD: silently swallowing the error</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(<span class="st">&quot;abc&quot;</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co"># GOOD: log and re-raise</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="bu">int</span>(<span class="st">&quot;abc&quot;</span>)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> e:</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Error occurred:&quot;</span>, e)</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Error occurred: invalid literal for int() with base 10: &#x27;abc&#x27;
+<span class="err">---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+Cell In[25], line 9
+      7 # GOOD: log and re-raise
+      8 try:
+----&gt; 9     x = int(&quot;abc&quot;)
+     10 except ValueError as e:
+     11     print(&quot;Error occurred:&quot;, e)
+
+ValueError: invalid literal for int() with base 10: &#x27;abc&#x27;</span></pre></div>
+
+</section>
+</section>
+<section id="object-representations" class="level2">
+<h2>Object Representations</h2>
+<section id="introducing-__repr__" class="level3">
+<h3>Introducing <code>__repr__()</code></h3>
+<p>You already know <code>__str__()</code> gives a
+<em>human-friendly</em> string for an object.</p>
+<p>For debugging purposes, we introduce <code>__repr__()</code>:</p>
+<ul>
+<li>A printable representation of an object</li>
+<li><code>__repr__()</code> is the <em>developer-friendly</em>
+string.</li>
+<li>It is used for debugging and for showing objects inside containers
+(like lists).</li>
+</ul>
+<p>Rule of thumb:</p>
+<ul>
+<li><code>__str__()</code> = “nice to read”</li>
+<li><code>__repr__()</code> = “useful for debugging”</li>
+</ul>
+<p>In many cases, <code>__repr__()</code> looks like valid Python code
+that could recreate the object. (That’s a convention — not a strict
+rule.)</p>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person:</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, age):</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.name <span class="op">=</span> name</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.age <span class="op">=</span> age</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Human-friendly (for print)</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.name <span class="op">+</span> <span class="st">&quot; is &quot;</span> <span class="op">+</span> <span class="bu">str</span>(<span class="va">self</span>.age)  <span class="co"># fix: cast age to string</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Developer-friendly (for debugging)</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Convention: show class name + field names + repr() of each value</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;Person(name=</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>name<span class="sc">!r}</span><span class="ss">, age=</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>age<span class="sc">!r}</span><span class="ss">)&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> Person(<span class="st">&quot;Alan Turing&quot;</span>, <span class="dv">41</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(p)         <span class="co"># uses __str__</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(p))    <span class="co"># uses __str__</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">repr</span>(p))   <span class="co"># uses __repr__</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Alan Turing is 41
+Alan Turing is 41
+Person(name=&#x27;Alan Turing&#x27;, age=41)</pre></div>
+
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>people <span class="op">=</span> [p, Person(<span class="st">&quot;Ada Lovelace&quot;</span>, <span class="dv">36</span>)]</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(people)    <span class="co"># list uses __repr__ for its elements</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[Person(name=&#x27;Alan Turing&#x27;, age=41), Person(name=&#x27;Ada Lovelace&#x27;, age=36)]</pre></div>
+
+<p><strong>Remarks:</strong></p>
+<p>You get <code>__str__()</code> when you:</p>
+<ul>
+<li>use <code>print(obj)</code></li>
+<li>use <code>str(obj)</code></li>
+<li>use an f-string like <code>f"{obj}"</code></li>
+</ul>
+<p>You get <code>__repr__()</code> when you:</p>
+<ul>
+<li>type <code>obj</code> in the Python shell / notebook</li>
+<li>call <code>repr(obj)</code></li>
+<li>put objects inside a list, dict, or other container (Python uses
+<code>repr</code> for the elements)</li>
+</ul>
+</section>
+<section id="key-idea-__repr__-helps-you-debug" class="level3">
+<h3>Key idea: <code>__repr__()</code> helps you debug</h3>
+<p>A good <code>__repr__()</code> makes it easy to answer:</p>
+<ul>
+<li>“Which object is this?”</li>
+<li>“What are its attribute values right now?”</li>
+<li>“Does something look wrong with the data?”</li>
+</ul>
+<p>This matters during exception handling because you often want to
+print objects right when something breaks.</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: Using repr() when debugging an exception</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> Person(<span class="st">&quot;Grace Hopper&quot;</span>, <span class="st">&quot;85&quot;</span>)  <span class="co"># age is a string (this might be a bug)</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Debug object:&quot;</span>, <span class="bu">repr</span>(p))   <span class="co"># show the internal state clearly</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(p.age <span class="op">+</span> <span class="dv">1</span>)                 <span class="co"># TypeError: can&#39;t add int to str</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Caught:&quot;</span>, e)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Object at time of error:&quot;</span>, <span class="bu">repr</span>(p))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Debug object: Person(name=&#x27;Grace Hopper&#x27;, age=&#x27;85&#x27;)
+Caught: can only concatenate str (not &quot;int&quot;) to str
+Object at time of error: Person(name=&#x27;Grace Hopper&#x27;, age=&#x27;85&#x27;)</pre></div>
+
+</section>
+<section
+id="adding-object-representation-in-f-strings-r-inside-f-strings"
+class="level3">
+<h3>Adding Object Representation in f-strings: <code>!r</code> inside
+f-strings</h3>
+<p>In f-strings:</p>
+<ul>
+<li><code>{value}</code> uses <code>str(value)</code></li>
+<li><code>{value!r}</code> uses <code>repr(value)</code></li>
+</ul>
+<p>That’s why <code>__repr__()</code> often uses <code>!r</code>:</p>
+<ul>
+<li>strings show quotes (helpful!)</li>
+<li>types are clearer during debugging</li>
+</ul>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>name <span class="op">=</span> <span class="st">&quot;Ada&quot;</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">&quot;</span>)     <span class="co"># Ada                                  (str)</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>name<span class="sc">!r}</span><span class="ss">&quot;</span>)   <span class="co"># &#39;Ada&#39;                                (repr)</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> Person(<span class="st">&quot;Alan Turing&quot;</span>, <span class="dv">41</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">&quot;</span>)        <span class="co"># Alan Turing is 41                    (str)</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>p<span class="sc">!r}</span><span class="ss">&quot;</span>)      <span class="co"># Person(name=&#39;Alan Turing&#39;, age=41)   (repr)</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Ada
+&#x27;Ada&#x27;
+Alan Turing is 41
+Person(name=&#x27;Alan Turing&#x27;, age=41)</pre></div>
+
+</section>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture05-part1/"><span class="label">← Previous</span>Lecture
+5 · Part 1: Error &amp; Exception Handling</a>
+<a class="next" href="../lecture05-part3/"><span class="label">Next →</span>Lecture
+5 · Part 3: Error &amp; Exception Handling</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

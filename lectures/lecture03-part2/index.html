@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Introduction to Object Oriented
+Programming · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture03-part1/"><span class="label">← Previous</span>Lecture
+3 · Part 1: Introduction to Object Oriented Programming</a>
+<a class="next" href="../lecture03-part3/"><span class="label">Next →</span>Lecture
+3 · Part 3: Introduction to Object Oriented Programming</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 3 · Part 2</div>
+<h1>Introduction to Object Oriented Programming</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#class-definitions" id="toc-class-definitions">Class
+Definitions</a></li>
+<li><a href="#objects-instances" id="toc-objects-instances">Objects
+(Instances)</a></li>
+<li><a href="#accessing-object-attributes-and-methods"
+id="toc-accessing-object-attributes-and-methods">Accessing Object
+Attributes and Methods</a></li>
+<li><a href="#object-assignment" id="toc-object-assignment">Object
+Assignment</a></li>
+<li><a href="#printing-objects" id="toc-printing-objects">Printing
+Objects</a></li>
+<li><a href="#class-comments" id="toc-class-comments">Class
+Comments</a></li>
+<li><a href="#instance-methods" id="toc-instance-methods">Instance
+Methods</a></li>
+<li><a href="#deleting-objects" id="toc-deleting-objects">Deleting
+Objects</a></li>
+<li><a href="#intrinsic-attributes"
+id="toc-intrinsic-attributes">Intrinsic attributes</a></li>
+<li><a href="#demo" id="toc-demo">Demo</a></li>
+</ul>
+</nav>
+<section id="class-definitions" class="level2">
+<h2>Class Definitions</h2>
+<section id="the-basics" class="level3">
+<h3>The Basics</h3>
+<p>A class definition begins the keyword <code>class</code>, followed by
+its name <code>NameOfClass</code>, ending with colon <code>:</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NameOfClass:</span></code></pre></div>
+<p>Within the class block, we have three main ingredents:</p>
+<ul>
+<li><code>__init__</code> (initialiser/constructor)</li>
+<li><code>attributes</code> (data definitions)</li>
+<li><code>methods</code> (behaviour)</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NameOfClass:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">__init__</span> <span class="co"># initialiser/constructor</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    attributes</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    methods</span></code></pre></div>
+<p><strong>Remark:</strong> Following the naming convention from the <a
+href="https://peps.python.org/pep-0008/#naming-conventions">Python
+docs</a>:</p>
+<blockquote>
+<p>Class names should normally use the CapWords (CamelCase)
+convention.</p>
+</blockquote>
+</section>
+<section id="example-labsample-class" class="level3">
+<h3>Example: <code>LabSample</code> Class</h3>
+<p>Lets construct a <code>LabSample</code> class.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LabSample:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, sample_id, units):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sample_id <span class="op">=</span> sample_id</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.units <span class="op">=</span> units</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.measurements <span class="op">=</span> []  <span class="co"># empty list of floats</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add_measurement(<span class="va">self</span>, value):</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">&quot;&quot;&quot;Add a single measurement.&quot;&quot;&quot;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.measurements.append(<span class="bu">float</span>(value))</span></code></pre></div>
+<p>Lets break this down the above code into it’s main parts:</p>
+<ul>
+<li><code>__init__</code></li>
+<li><code>self</code></li>
+<li>attributes</li>
+<li>methods</li>
+</ul>
+<section id="the-initializer-__init__" class="level4">
+<h4>The initializer <code>__init__</code></h4>
+<p>The special method <code>__init__</code> is the
+<strong>initializer</strong> (sometimes called a
+<em>constructor</em>).</p>
+<ul>
+<li>It specifies what information must be provided when we create a new
+<code>LabSample</code>.</li>
+<li>In this case, we must provide a <code>sample_id</code> and
+<code>units</code>.</li>
+<li>The initializer also sets up an empty list <code>measurements</code>
+so the object is ready to store measurements.</li>
+</ul>
+<p>Inside <code>__init__</code>, the values are stored on the object
+using <code>self</code>:</p>
+<ul>
+<li><code>self.sample_id = sample_id</code></li>
+<li><code>self.units = units</code></li>
+<li><code>self.measurements = []</code></li>
+</ul>
+</section>
+<section id="referring-to-one-self" class="level4">
+<h4>Referring to one-<code>self</code></h4>
+<p><code>self</code> is the name we use (by convention) for <strong>this
+object</strong>. Inside the class, <code>self</code> lets you refer to
+the specific instance you are building or working with.</p>
+<p><strong>In <code>__init__</code>:</strong></p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, sample_id, units):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.sample_id <span class="op">=</span> sample_id</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.units <span class="op">=</span> units</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.measurements <span class="op">=</span> []</span></code></pre></div>
+<ul>
+<li>Think of <code>self</code> as the new <code>LabSample</code> object
+being created.</li>
+<li><code>self.sample_id</code>, <code>self.units</code>, and
+<code>self.measurements</code> are the object’s own stored data.</li>
+</ul>
+</section>
+<section id="attributes" class="level4">
+<h4>Attributes</h4>
+<p>The <code>LabSample</code> class has three
+<strong>attributes</strong> (also called <strong>instance
+variables</strong>):</p>
+<ul>
+<li><code>sample_id</code> : an identifier for the sample (e.g.,
+<code>"PH-017"</code>)</li>
+<li><code>units</code> : the measurement units (e.g., <code>"pH"</code>,
+<code>"V"</code>, <code>"g"</code>)</li>
+<li><code>measurements</code> : a list that stores the numeric readings
+for that sample</li>
+</ul>
+<p>Attributes are defined within the <code>__init__</code> method:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, sample_id, units):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.sample_id <span class="op">=</span> sample_id</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.units <span class="op">=</span> units</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.measurements <span class="op">=</span> []</span></code></pre></div>
+</section>
+<section id="methods" class="level4">
+<h4>Methods</h4>
+<p>Methods define the behaviour of our class. In the case of
+<code>LabSample</code> we introduced an <code>add_measurement</code>
+method. This method allows us to add measurements to the list attribute
+<code>self.measurements</code>.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_measurement(<span class="va">self</span>, value):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Add a single measurement.&quot;&quot;&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.measurements.append(<span class="bu">float</span>(value))</span></code></pre></div>
+</section>
+</section>
+</section>
+<section id="objects-instances" class="level2">
+<h2>Objects (Instances)</h2>
+<section id="creating-objects-instances-of-a-class" class="level3">
+<h3>Creating Objects (Instances) of a Class</h3>
+<ul>
+<li>New objects (instances) of a class are created by calling the class
+name like a function.</li>
+<li>You pass in the values needed by <code>__init__</code> (except for
+<code>self</code>, which Python supplies automatically).</li>
+</ul>
+</section>
+<section id="example-labsample-instances" class="level3">
+<h3>Example: <code>LabSample</code> Instances</h3>
+<p>Lets create two <code>LabSample</code> instances:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> LabSample(<span class="st">&quot;PH-017&quot;</span>, <span class="st">&quot;pH&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>s2 <span class="op">=</span> LabSample(<span class="st">&quot;V-204&quot;</span>, <span class="st">&quot;V&quot;</span>)</span></code></pre></div>
+<ul>
+<li><p>The variable <code>s1</code> holds a reference to a
+<code>LabSample</code> object whose attributes store:</p>
+<ul>
+<li><code>sample_id = "PH-017"</code></li>
+<li><code>units = "pH"</code></li>
+<li><code>measurements = []</code> (an empty list to start)</li>
+</ul></li>
+<li><p>The variable <code>s2</code> references a different
+<code>LabSample</code> object with:</p>
+<ul>
+<li><code>sample_id = "V-204"</code></li>
+<li><code>units = "V"</code></li>
+<li><code>measurements = []</code></li>
+</ul></li>
+<li><p>These variables reference <strong>separate objects</strong>.</p>
+<ul>
+<li>They have the same kinds of attributes and can use the same methods
+(like <code>add_measurement</code>), but each object stores its own
+values.</li>
+</ul></li>
+</ul>
+<figure class="nb-figure"><img src="labsample_init.png?v=9fa434b0" alt="A visual representation of s1 and s2 referrences two different instances of LabSample" style="width:400px"><figcaption><strong>Figure 2.</strong> A visual representation of s1 and s2 referrences two different instances of LabSample</figcaption></figure>
+
+</section>
+</section>
+<section id="accessing-object-attributes-and-methods" class="level2">
+<h2>Accessing Object Attributes and Methods</h2>
+<section id="attributes-1" class="level3">
+<h3>Attributes</h3>
+<p>We can access attributes held by <code>s1</code> and <code>s2</code>
+by using the <em>dot notation</em>:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Accessing sample id</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>s1_id <span class="op">=</span> s1.sample_id</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>s2_id <span class="op">=</span> s2.sample_id</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s1 sample id: </span><span class="sc">{</span>s1_id<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s2 sample id: </span><span class="sc">{</span>s2_id<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">s1 sample id: PH-017
+s2 sample id: V-204</pre></div>
+
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Accessing units</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>s1_units <span class="op">=</span> s1.units</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>s2_units <span class="op">=</span> s2.units</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s1 units: </span><span class="sc">{</span>s1_units<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s2 units: </span><span class="sc">{</span>s2_units<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">s1 units: pH
+s2 units: V</pre></div>
+
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Accessing measurements</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>s1_measurements <span class="op">=</span> s1.measurements</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>s2_measurements <span class="op">=</span> s2.measurements</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s1 measurements: </span><span class="sc">{</span>s1_measurements<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s2 measurements: </span><span class="sc">{</span>s2_measurements<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">s1 measurements: []
+s2 measurements: []</pre></div>
+
+</section>
+<section id="methods-1" class="level3">
+<h3>Methods</h3>
+<p>As we saw in the previous code block, the <code>measurements</code>
+lists for <code>s1</code> and <code>s2</code> are empty. It would be
+useful if the <code>LabSample</code> class included some built-in
+behaviour for adding measurements to these samples.</p>
+<p>That is the purpose of the <code>add_measurement</code> method. Using
+<em>dot notation</em>, we can call <code>add_measurement</code> to store
+new measurements in our <code>s1</code> and <code>s2</code> objects.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding measuresments to s1</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>s1.add_measurement(<span class="fl">6.98</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>s1.add_measurement(<span class="fl">7.01</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>s1.add_measurement(<span class="fl">6.99</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding measurements to s2</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>s2.add_measurement(<span class="fl">4.93</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>s2.add_measurement(<span class="fl">4.88</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>s2.add_measurement(<span class="fl">4.91</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s1 measurements: </span><span class="sc">{</span>s1_measurements<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s2 measurements: </span><span class="sc">{</span>s2_measurements<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">s1 measurements: [6.98, 7.01, 6.99]
+s2 measurements: [4.93, 4.88, 4.91]</pre></div>
+
+</section>
+</section>
+<section id="object-assignment" class="level2">
+<h2>Object Assignment</h2>
+<section id="identifying-objects" class="level3">
+<h3>Identifying Objects</h3>
+<p>When assigning an object to a variable it comes with its own unique
+identifier in memory.</p>
+<ul>
+<li>Even if two samples had the same <code>sample_id</code> and
+<code>units</code>, they would still be separate objects.</li>
+<li>You can see an object’s identifier using id():</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;id(s1):&quot;</span>, <span class="bu">id</span>(s1))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;id(s2):&quot;</span>, <span class="bu">id</span>(s2))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">id(s1): 135516573644080
+id(s2): 135516573632176</pre></div>
+
+</section>
+<section id="caution-with-assignment" class="level3">
+<h3>Caution with Assignment</h3>
+<p>When you create a <code>LabSample</code> instance, the variable does
+<strong>not</strong> store the whole object.</p>
+<ul>
+<li>It stores a <strong>reference</strong> (address) to the object in
+memory.</li>
+</ul>
+<p>What happens if we assign one variable to another?</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reinitialize s1</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> LabSample(<span class="st">&quot;PH-017&quot;</span>, <span class="st">&quot;pH&quot;</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Reinitialize s2</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>s2 <span class="op">=</span> LabSample(<span class="st">&quot;V-204&quot;</span>, <span class="st">&quot;V&quot;</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Assigning a new variable sx to s1</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>sx <span class="op">=</span> s1</span></code></pre></div>
+<figure class="nb-figure"><img src="assignment_1.png?v=e2dd3422" alt="A visual representation of s1 and s2 referrences two different instances of LabSample" style="width:400px"><figcaption><strong>Figure 2.</strong> A visual representation of s1 and s2 referrences two different instances of LabSample</figcaption></figure>
+
+<p>The assignment <code>sx = s1</code> does not create a new
+LabSample.</p>
+<p>It copies the reference, so <code>s1</code> and <code>sx</code> now
+point to the same object:</p>
+<ul>
+<li>Both <code>s1</code> and <code>sx</code> point to the same address
+in memeory,</li>
+<li>and have the same object IDs.</li>
+</ul>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing their addresses</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sx)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">&lt;__main__.LabSample object at 0x7b40693d00e0&gt;
+&lt;__main__.LabSample object at 0x7b40693d00e0&gt;</pre></div>
+
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparing their IDs</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;id(s1):&quot;</span>, <span class="bu">id</span>(s1))</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;id(sx):&quot;</span>, <span class="bu">id</span>(sx))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">id(s1): 135516573728992
+id(sx): 135516573728992</pre></div>
+
+</section>
+<section id="why-this-matters" class="level3">
+<h3>Why this Matters</h3>
+<section
+id="1-changing-the-object-through-one-variable-affects-what-the-other-variable-sees"
+class="level4">
+<h4>1. Changing the object through one variable affects what the other
+variable sees:</h4>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s1 measurements: </span><span class="sc">{</span>s1<span class="sc">.</span>measurements<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Adding measurement to sample sx&quot;</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>sx.add_measurement(<span class="fl">6.98</span>) <span class="co"># Adding a mesaurement to sx</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s1 measurements: </span><span class="sc">{</span>s1<span class="sc">.</span>measurements<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;sx measurements: </span><span class="sc">{</span>sx<span class="sc">.</span>measurements<span class="sc">}</span><span class="ss">&quot;</span>)  <span class="co"># s1 also shows the new measurement</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">s1 measurements: []
+Adding measurement to sample sx
+s1 measurements: [6.98]
+sx measurements: [6.98]</pre></div>
+
+<figure class="nb-figure"><img src="assignment_2.png?v=8bfd526a" alt="A visual representation of s1 and s2 referrences two different instances of LabSample" style="width:400px"><figcaption><strong>Figure 2.</strong> A visual representation of s1 and s2 referrences two different instances of LabSample</figcaption></figure>
+
+</section>
+<section
+id="2-if-s1-is-later-reassigned-to-a-different-object-that-does-not-change-what-sx-references"
+class="level4">
+<h4>2. If <code>s1</code> is later reassigned to a different object,
+that does not change what <code>sx</code> references:</h4>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reassigning s1 to s2</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> s2  <span class="co"># s1 now references a different object</span></span></code></pre></div>
+<figure class="nb-figure"><img src="assignment_3.png?v=184b6dbc" alt="A visual representation of s1 and s2 referrences two different instances of LabSample" style="width:400px"><figcaption><strong>Figure 2.</strong> A visual representation of s1 and s2 referrences two different instances of LabSample</figcaption></figure>
+
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># s1 no longer referrences the same object in memory as sx</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s1 referrences address: </span><span class="sc">{</span>s1<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s2 referrences address: </span><span class="sc">{</span>s2<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;sx referrences address: </span><span class="sc">{</span>sx<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">s1 referrences address: &lt;__main__.LabSample object at 0x7b40693bb530&gt;
+s2 referrences address: &lt;__main__.LabSample object at 0x7b40693bb530&gt;
+sx referrences address: &lt;__main__.LabSample object at 0x7b40693d00e0&gt;</pre></div>
+
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># s1 measurements are now empty</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s1 measurements: </span><span class="sc">{</span>s1<span class="sc">.</span>measurements<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;s2 measurements: </span><span class="sc">{</span>s2<span class="sc">.</span>measurements<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;sx measurements: </span><span class="sc">{</span>sx<span class="sc">.</span>measurements<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">s1 measurements: []
+s2 measurements: []
+sx measurements: [6.98]</pre></div>
+
+</section>
+</section>
+</section>
+<section id="printing-objects" class="level2">
+<h2>Printing Objects</h2>
+<section id="default-string-representation-__str__" class="level3">
+<h3>Default String Representation <code>__str__</code></h3>
+<p>In earlier examples, we printed details about a
+<code>LabSample</code> by directly accessing its attributes (for
+example, <code>sample_id</code>, <code>units</code>, and
+<code>measurements</code>). The downside is that we need to know the
+<em>internal structure</em> of the class in order to print something
+meaningful.</p>
+<p>It is often more convenient if the object itself knows how to
+describe itself as a string. In Python, we do this by defining a special
+method called <code>__str__</code>. This method should <strong>return a
+string</strong> that represents the object in a useful, readable
+way.</p>
+<p>The method signature is:</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span></code></pre></div>
+<p><strong>Remark:</strong> Methods that start and end with double
+underscores (like <code>__init__</code> and <code>__str__</code>) are
+special methods in Python. We will see more of these later, but for now
+we will focus on <code>__str__</code>.</p>
+<section id="adding-str-to-labsample" class="level4">
+<h4>Adding <strong>str</strong> to LabSample</h4>
+<p>Here is a version of LabSample with a simple <code>__str__</code>
+method:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LabSample:</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, sample_id, units):</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sample_id <span class="op">=</span> sample_id</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.units <span class="op">=</span> units</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.measurements <span class="op">=</span> []  <span class="co"># list of floats</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add_measurement(<span class="va">self</span>, value):</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.measurements.append(<span class="bu">float</span>(value))</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Build a readable one-line summary of the object</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        n <span class="op">=</span> <span class="bu">len</span>(<span class="va">self</span>.measurements)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f&quot;sample id: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>sample_id<span class="sc">}</span><span class="ss">, units: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>units<span class="sc">}</span><span class="ss">, sample size: </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">&quot;</span></span></code></pre></div>
+<p><strong>Remarks:</strong></p>
+<ul>
+<li><p>We build the output string using the object’s attributes:
+<code>self.sample_id</code>and <code>self.units</code>.</p></li>
+<li><p>defined a new variable <code>n</code> that holds the number of
+samples in <code>self.measurements</code></p></li>
+</ul>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initializing two instances of LapSamples s1 and s2</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> LabSample(<span class="st">&quot;PH-017&quot;</span>, <span class="st">&quot;pH&quot;</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>s2 <span class="op">=</span> LabSample(<span class="st">&quot;V-204&quot;</span>, <span class="st">&quot;V&quot;</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding two measurements to s1</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>s1.add_measurement(<span class="fl">6.98</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>s1.add_measurement(<span class="fl">7.01</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding 1 measurement to s2</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>s2.add_measurement(<span class="fl">4.93</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s2)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">sample id: PH-017, units: pH, sample size: 2
+sample id: V-204, units: V, sample size: 1</pre></div>
+
+<p><strong>Remark:</strong></p>
+<p>By defining <code>__str__</code>, you are overriding the default
+printing behaviour for your class. The default printing behaviour shows
+a generic object description:</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1)</span></code></pre></div>
+<p>Output:</p>
+<pre class="raw"><code>&lt;__main__.LabSample object at 0x7acb5d3d3590&gt;</code></pre>
+<p>With <code>__str__</code>, <code>print(s1)</code> uses the string you
+return from <code>__str__</code> instead.</p>
+</section>
+</section>
+</section>
+<section id="class-comments" class="level2">
+<h2>Class Comments</h2>
+<section id="adding-docstrings" class="level3">
+<h3>Adding Docstrings</h3>
+<p>It is common to include a short description of what a class
+represents and what it is used for.</p>
+<ul>
+<li>In Python, this is usually done with a <strong>docstring</strong>
+placed directly under the <code>class</code> header.</li>
+<li>A docstring is written using triple quotes
+(<code>""" ... """</code>) and can span multiple lines.</li>
+</ul>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LabSample:</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Represents a lab sample with repeated measurements (e.g., pH, voltage, mass).&quot;&quot;&quot;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, sample_id, units):</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sample_id <span class="op">=</span> sample_id</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.units <span class="op">=</span> units</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.measurements <span class="op">=</span> []  <span class="co"># list of floats</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add_measurement(<span class="va">self</span>, value):</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.measurements.append(<span class="bu">float</span>(value))</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(LabSample.__doc__)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Represents a lab sample with repeated measurements (e.g., pH, voltage, mass).</pre></div>
+
+</section>
+</section>
+<section id="instance-methods" class="level2">
+<h2>Instance Methods</h2>
+<p>An <strong>instance method</strong> is behaviour that belongs to an
+object (an instance) of a class.</p>
+<p>Instance methods always include <code>self</code> as the first
+parameter.</p>
+<ul>
+<li><code>self</code> gives the method access to the object’s own
+attributes (like <code>self.measurements</code>).</li>
+</ul>
+<p>Instance methods can:</p>
+<ul>
+<li>take input parameters,</li>
+<li>return a value,</li>
+<li>or do both.</li>
+</ul>
+<section id="example" class="level3">
+<h3>Example:</h3>
+<p>Suppose we want each <code>LabSample</code> to be able to report the
+<strong>average</strong> of its measurements:</p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mean(<span class="va">self</span>):</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Return the average measurement, or None if there are no measurements.&quot;&quot;&quot;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(<span class="va">self</span>.measurements) <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sum</span>(<span class="va">self</span>.measurements) <span class="op">/</span> <span class="bu">len</span>(<span class="va">self</span>.measurements)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LabSample:</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Represents a lab sample with repeated measurements (e.g., pH, voltage, mass).&quot;&quot;&quot;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, sample_id, units):</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sample_id <span class="op">=</span> sample_id</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.units <span class="op">=</span> units</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.measurements <span class="op">=</span> []</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add_measurement(<span class="va">self</span>, value):</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.measurements.append(<span class="bu">float</span>(value))</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Adding a new method mean()</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> mean(<span class="va">self</span>):</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">&quot;&quot;&quot;Return the average measurement, or None if there are no measurements.&quot;&quot;&quot;</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(<span class="va">self</span>.measurements) <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">sum</span>(<span class="va">self</span>.measurements) <span class="op">/</span> <span class="bu">len</span>(<span class="va">self</span>.measurements)</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Build a readable one-line summary of the object</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>            n <span class="op">=</span> <span class="bu">len</span>(<span class="va">self</span>.measurements)</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="ss">f&quot;sample id: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>sample_id<span class="sc">}</span><span class="ss">, units: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>units<span class="sc">}</span><span class="ss">, sample size: </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> LabSample(<span class="st">&quot;PH-017&quot;</span>, <span class="st">&quot;pH&quot;</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>s1.add_measurement(<span class="fl">6.98</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>s1.add_measurement(<span class="fl">7.01</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>avg <span class="op">=</span> s1.mean()</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Mean for </span><span class="sc">{</span>s1<span class="sc">.</span>sample_id<span class="sc">}</span><span class="ss"> = </span><span class="sc">{</span>avg<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>s1<span class="sc">.</span>units<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Mean for PH-017 = 6.995 pH</pre></div>
+
+</section>
+</section>
+<section id="deleting-objects" class="level2">
+<h2>Deleting Objects</h2>
+<section id="the-keyword-del" class="level3">
+<h3>The keyword <code>del</code></h3>
+<p>After you create an object (an <code>int</code>, a <code>bool</code>,
+or a user-defined object like <code>LabSample</code>), you may later
+stop using it.</p>
+<ul>
+<li>Python provides the keyword <code>del</code> to remove a variable
+name.</li>
+<li>This breaks the connection between the variable and the object it
+referenced.</li>
+<li>After that, you can no longer use that variable to access the
+object.</li>
+</ul>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> LabSample(<span class="st">&quot;PH-017&quot;</span>, <span class="st">&quot;pH&quot;</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">sample id: PH-017, units: pH, sample size: 0</pre></div>
+
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> s1</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+Cell In[22], line 2
+      1 del s1
+----&gt; 2 print(s1)
+
+NameError: name &#x27;s1&#x27; is not defined</span></pre></div>
+
+</section>
+<section id="why-might-you-delete-an-object" class="level3">
+<h3>Why might you delete an object?</h3>
+<p>Sometimes you delete objects to free up memory when you know they are
+no longer needed (especially if they store lots of data).</p>
+<p>You might also delete a variable to prevent accidental reuse later in
+a long program or notebook (so you don’t mistakenly keep working with
+old data).</p>
+</section>
+</section>
+<section id="intrinsic-attributes" class="level2">
+<h2>Intrinsic attributes</h2>
+<p>(built-in information on classes and objects)</p>
+<section id="common-intrinsic-attributes-on-classes" class="level3">
+<h3>Common intrinsic attributes on <strong>classes</strong></h3>
+<ul>
+<li><code>__name__</code> : the name of the class</li>
+<li><code>__module__</code> : the module (file) where the class is
+defined</li>
+<li><code>__bases__</code> : the base class(es) it inherits from (we’ll
+return to inheritance later)</li>
+<li><code>__dict__</code> : a dictionary containing the class contents
+(attributes, including methods)</li>
+<li><code>__doc__</code> : the class docstring</li>
+</ul>
+</section>
+<section id="common-intrinsic-attributes-on-objects-instances"
+class="level3">
+<h3>Common intrinsic attributes on <strong>objects</strong>
+(instances)</h3>
+<ul>
+<li><code>__class__</code> : the class that the object is an instance
+of</li>
+<li><code>__dict__</code> : a dictionary of the object’s attributes (its
+stored data)</li>
+</ul>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: printing intrinsic attributes for `LabSample`</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an instance</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> LabSample(<span class="st">&quot;PH-017&quot;</span>, <span class="st">&quot;pH&quot;</span>)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">12</span>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Class attributes&quot;</span>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(LabSample.<span class="va">__name__</span>)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(LabSample.__module__)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(LabSample.__doc__)</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(LabSample.__dict__)</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;-&quot;</span><span class="op">*</span><span class="dv">12</span>)</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Object attributes&quot;</span>)</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1.__class__)</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1.__dict__)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">------------
+Class attributes
+LabSample
+__main__
+Represents a lab sample with repeated measurements (e.g., pH, voltage, mass).
+{&#x27;__module__&#x27;: &#x27;__main__&#x27;, &#x27;__doc__&#x27;: &#x27;Represents a lab sample with repeated measurements (e.g., pH, voltage, mass).&#x27;, &#x27;__init__&#x27;: &lt;function LabSample.__init__ at 0x7b40693dc4a0&gt;, &#x27;add_measurement&#x27;: &lt;function LabSample.add_measurement at 0x7b40693dc680&gt;, &#x27;mean&#x27;: &lt;function LabSample.mean at 0x7b40693dc720&gt;, &#x27;__str__&#x27;: &lt;function LabSample.__str__ at 0x7b40693dc7c0&gt;, &#x27;__dict__&#x27;: &lt;attribute &#x27;__dict__&#x27; of &#x27;LabSample&#x27; objects&gt;, &#x27;__weakref__&#x27;: &lt;attribute &#x27;__weakref__&#x27; of &#x27;LabSample&#x27; objects&gt;}
+------------
+Object attributes
+&lt;class &#x27;__main__.LabSample&#x27;&gt;
+{&#x27;sample_id&#x27;: &#x27;PH-017&#x27;, &#x27;units&#x27;: &#x27;pH&#x27;, &#x27;measurements&#x27;: []}</pre></div>
+
+</section>
+</section>
+<section id="demo" class="level2">
+<h2>Demo</h2>
+<section id="labsample" class="level3">
+<h3><code>LabSample</code></h3>
+<p>Download the files <code>LabSample.py</code> and
+<code>labsample_demo.py</code> from the <em>Lab Sample Demo</em> folder
+on Moodle. You will need both source files in the same directory for the
+demo to run correctly.</p>
+<p><strong>Remarks:</strong></p>
+<ul>
+<li><code>LabSample.py</code> contains only the class
+<code>LabSample</code>. It is common to store a class in it’s own source
+file named after that class; in our case <code>LabSample.py</code>. Some
+extra methods were added and the <code>__str__</code> method has been
+changed a bit (go take a look before running the demo on your own)</li>
+<li><code>labsample_demo.py</code> is the source file that runs the
+demo. It imports the class <code>LabSample</code> from
+<code>LabSample.py</code>.</li>
+</ul>
+</section>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture03-part1/"><span class="label">← Previous</span>Lecture
+3 · Part 1: Introduction to Object Oriented Programming</a>
+<a class="next" href="../lecture03-part3/"><span class="label">Next →</span>Lecture
+3 · Part 3: Introduction to Object Oriented Programming</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Searching and Sorting · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture10-part3/"><span class="label">← Previous</span>Lecture
+10 · Part 3: Linear Data Structures (Continued)</a>
+<a class="next" href="../lecture11-part2/"><span class="label">Next →</span>Lecture
+11 · Part 2: Searching and Sorting</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 11 · Part 1</div>
+<h1>Searching and Sorting</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#searching-algorithms"
+id="toc-searching-algorithms">Searching Algorithms</a></li>
+<li><a href="#linear-search" id="toc-linear-search">Linear
+Search</a></li>
+<li><a href="#binary-search" id="toc-binary-search">Binary
+Search</a></li>
+<li><a href="#search-complexity-comparison"
+id="toc-search-complexity-comparison">Search Complexity
+Comparison</a></li>
+</ul>
+</nav>
+<section id="searching-algorithms" class="level2">
+<h2>Searching Algorithms</h2>
+<section id="what-is-a-searching-algorithm" class="level3">
+<h3>What is a Searching Algorithm?</h3>
+<p>A searching algorithm is a step-by-step procedure used to locate a
+specific item (or determine its absence) within a collection of
+data.</p>
+<p>Searching is one of the most fundamental operations in computer
+science</p>
+</section>
+<section id="real-world-applications" class="level3">
+<h3>Real-World Applications</h3>
+<ul>
+<li><strong>Web Search Engines</strong> — Google, Bing, and DuckDuckGo
+index billions of pages and retrieve relevant results in
+milliseconds.</li>
+<li><strong>Database Queries</strong> — Every SQL <code>SELECT</code>
+relies on efficient search techniques under the hood.</li>
+<li><strong>GPS &amp; Navigation</strong> — Finding the shortest route
+between two points involves searching through graphs of roads and
+intersections.</li>
+<li><strong>E-Commerce</strong> — Product catalogs use search to match
+filters, keywords, and recommendations to inventory.</li>
+<li><strong>Spell Checkers &amp; Autocomplete</strong> — Your phone
+keyboard searches a dictionary of words as you type each letter.</li>
+<li><strong>Genomics &amp; Bioinformatics</strong> — Researchers search
+through DNA sequences to find gene patterns and mutations.</li>
+</ul>
+</section>
+<section id="common-searching-algorithms-we-will-cover" class="level3">
+<h3>Common Searching Algorithms We Will Cover</h3>
+<section id="linear-search---check-every-element-one-by-one"
+class="level4">
+<h4>Linear Search - check every element one by one</h4>
+<figure class="nb-figure"><img src="seqsearch.png?v=57569aa4" alt="Sequential Search of a List of Integers" style="width:400px"><figcaption><strong>Figure. </strong> Sequential Search of a List of Integers</figcaption></figure>
+
+</section>
+<section id="binary-search---divide-and-conquer-requires-sorted-data"
+class="level4">
+<h4>Binary Search - divide and conquer (requires sorted data)</h4>
+<figure class="nb-figure"><img src="binsearch.png?v=7da4f0bb" alt="Binary Search of an Ordered List of Integers" style="width:400px"><figcaption><strong>Figure. </strong> Binary Search of an Ordered List of Integers</figcaption></figure>
+
+</section>
+</section>
+</section>
+<section id="linear-search" class="level2">
+<h2>Linear Search</h2>
+<section id="how-it-works" class="level3">
+<h3>How It Works</h3>
+<ol type="1">
+<li>Start at the first element</li>
+<li>Compare the current element with the target</li>
+<li>If it matches, return the index</li>
+<li>If not, move to the next element</li>
+<li>If you reach the end, the target is not found</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> linear_search(lst, target):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Return the index of the first occurrence of target in lst,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">    or -1 if target is not in lst.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> idx, _ <span class="kw">in</span> <span class="bu">enumerate</span>(lst):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> lst[idx] <span class="op">==</span> target:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> idx</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> random.choices(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">11</span>), k<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>targets <span class="op">=</span> [data[<span class="dv">3</span>],<span class="dv">99</span>]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> targets:</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> linear_search(data, t)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result <span class="op">==</span> <span class="op">-</span><span class="dv">1</span>:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>t<span class="sc">}</span><span class="ss"> not found&quot;</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>t<span class="sc">}</span><span class="ss"> found at index </span><span class="sc">{</span>result<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[4, 2, 10, 8, 9, 5, 7, 1, 8, 2]
+8 found at index 3
+99 not found</pre></div>
+
+</section>
+<section id="built-in-linear-search" class="level3">
+<h3>Built-in Linear Search</h3>
+<p>Python has it’s own built in linear search:</p>
+<section id="listindex" class="level4">
+<h4><code>list.index()</code></h4>
+<p>The <code>index()</code> method performs a <strong>linear
+search</strong> and returns the <strong>index position</strong> of the
+first matching element.</p>
+<p>If the element is not found, it raises a <code>ValueError</code>.</p>
+<p>You can also pass optional <code>start</code> and <code>stop</code>
+arguments to search within a slice of the list.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">20</span>, <span class="dv">40</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>targets <span class="op">=</span> [<span class="dv">20</span>, <span class="dv">50</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> targets:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># list.index(x) rasies ValueError if x us not found</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span>t<span class="sc">}</span><span class="ss"> found at index </span><span class="sc">{</span>data<span class="sc">.</span>index(t)<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ValueError</span> <span class="im">as</span> err:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(err)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">20 found at index 1
+50 is not in list</pre></div>
+
+</section>
+<section id="the-in-operator" class="level4">
+<h4>The <code>in</code> Operator</h4>
+<p>The <code>in</code> operator checks whether a value exists in a
+collection.</p>
+<p><strong>Note:</strong> It’s implementation depends on the data
+structure (<code>List</code> vs <code>Set</code>) (see Final Remarks
+below)</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">20</span>, <span class="dv">40</span>]</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="dv">20</span> <span class="kw">in</span> data)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="dv">50</span> <span class="kw">in</span> data)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">True
+False</pre></div>
+
+</section>
+</section>
+<section id="comparing-listindex-and-in-vs-linear_search"
+class="level3">
+<h3>Comparing <code>list.index</code> and <code>in</code> vs
+<code>linear_search</code></h3>
+<p>Let’s compare our <code>linear_search</code> with Pythons built in
+<code>list.index()</code> method and <code>in</code> operator.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_searches(arr, target):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Compares the python list.index and in operator to our linear search</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">        arr - list of numbers to search</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">        target - the number to search for</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">        </span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns times for each search (list.index,in,linear_search)</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    start1 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    arr.index(target)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    stop1 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    start2 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    target <span class="kw">in</span> arr</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    stop2 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    start3 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    linear_search(arr,target)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    stop3 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> stop1<span class="op">-</span>start1, stop2<span class="op">-</span>start2, stop3<span class="op">-</span>start3</span></code></pre></div>
+<section id="experiment" class="level4">
+<h4>Experiment</h4>
+<p>From the list <code>vals = [0,1,2,...,10,000,000]</code> we will:</p>
+<ul>
+<li>Generate a list of 100 random numbers; <code>nums</code></li>
+<li>For each number <code>x</code> in <code>nums</code>, time the three
+linear search algorithms via
+<ul>
+<li><code>compare_searches(vals, x)</code></li>
+</ul></li>
+<li>Plot the results</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Experiment</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>arr <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">10000001</span>))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>targets <span class="op">=</span> <span class="bu">sorted</span>(random.choices(arr, k<span class="op">=</span><span class="dv">100</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>times <span class="op">=</span> {t: compare_searches(arr, t) <span class="cf">for</span> t <span class="kw">in</span> targets}</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>results_linear <span class="op">=</span> {<span class="st">&#39;list.index()&#39;</span>:{t:times[t][<span class="dv">0</span>] <span class="cf">for</span> t <span class="kw">in</span> times}, </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;in operator&#39;</span>:{t:times[t][<span class="dv">1</span>] <span class="cf">for</span> t <span class="kw">in</span> times}, </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;linear_search()&#39;</span>:{t:times[t][<span class="dv">2</span>] <span class="cf">for</span> t <span class="kw">in</span> times}}</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+Cell In[6], line 5
+      2 arr = list(range(10000001))
+      3 targets = sorted(random.choices(arr, k=100))
+----&gt; 5 times = {t: compare_searches(arr, t) for t in targets}
+      6 results_linear = {&#x27;list.index()&#x27;:{t:times[t][0] for t in times}, 
+      7     &#x27;in operator&#x27;:{t:times[t][1] for t in times}, 
+      8     &#x27;linear_search()&#x27;:{t:times[t][2] for t in times}}
+
+NameError: name &#x27;compare_searches&#x27; is not defined</span></pre></div>
+
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> benchmark <span class="im">import</span> plot_results</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>plot_results(results_linear, title<span class="op">=</span><span class="st">&quot;Linear Search Benchmarks&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+Cell In[7], line 3
+      1 from benchmark import plot_results
+----&gt; 3 plot_results(results_linear, title=&quot;Linear Search Benchmarks&quot;)
+
+NameError: name &#x27;results_linear&#x27; is not defined</span></pre></div>
+
+</section>
+</section>
+<section id="observations" class="level3">
+<h3>Observations</h3>
+<ul>
+<li><p>All three searches are <strong>linear</strong> — time grows
+proportionally with the amount of data:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></p></li>
+<li><p>The <code>list.index</code> method and <code>in</code> operator
+is quicker than our implementation</p>
+<ul>
+<li>Both <code>list.index</code> and <code>in</code> are written in
+<strong>C</strong> — much faster than a Python loop.</li>
+</ul></li>
+</ul>
+<p><strong>Takeway:</strong></p>
+<ul>
+<li>Always look for native Python standard library functions before
+writing your own!</li>
+</ul>
+</section>
+<section id="final-remark" class="level3">
+<h3>Final Remark</h3>
+<p>The <code>in</code> operators implemenation depends on the data
+structure:</p>
+<ul>
+<li>For Lists and Tuples, Python performs a <strong>linear
+search</strong>
+<ul>
+<li>complexity is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></li>
+</ul></li>
+<li>For Sets and Dictionaries, Python uses a <strong>hash table
+lookup</strong> (discussed later) — it computes a hash (unique-ish id)
+of the target value and jumps directly to the correct bucket.
+<ul>
+<li>time complexity of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>,
+making it dramatically faster for large collections.</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Searching a list vs a set — same syntax, very different performance</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>data_list <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">10_000_000</span>))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>data_set <span class="op">=</span> <span class="bu">set</span>(data_list)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> <span class="dv">9_999_999</span>  <span class="co"># Worst case for linear search</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># List: O(n) — scans all 10 million elements</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> time.time()</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>found <span class="op">=</span> target <span class="kw">in</span> data_list</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;List search: </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> start<span class="sc">:.4f}</span><span class="ss">s&quot;</span>)  <span class="co"># ~0.1-0.3s</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Set: O(1) — hash lookup, nearly instant</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> time.time()</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>found <span class="op">=</span> target <span class="kw">in</span> data_set</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Set search:  </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> start<span class="sc">:.6f}</span><span class="ss">s&quot;</span>)  <span class="co"># ~0.000001s</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">List search: 0.0472s
+Set search:  0.000048s</pre></div>
+
+</section>
+</section>
+<section id="binary-search" class="level2">
+<h2>Binary Search</h2>
+<section id="introduction" class="level3">
+<h3>Introduction</h3>
+<p>Binary search is an alternative to linear search — much faster, but
+<strong>the list must be sorted first</strong>.</p>
+<p><strong>Real-life example:</strong> Finding a name in a phone
+book:</p>
+<ul>
+<li>Open to the middle</li>
+<li>Immediately know which <strong>half</strong> to look in next</li>
+<li>After 2 checks, you’ve eliminated <strong>3/4</strong> of the
+entries!</li>
+</ul>
+<p>Each step divides the remaining data in half –&gt; <strong>divide and
+conquer</strong></p>
+</section>
+<section id="how-it-works-1" class="level3">
+<h3>How It Works</h3>
+<p><strong>Requires sorted data</strong></p>
+<ol type="1">
+<li>Set <code>low=0</code> and <code>high=len-1</code></li>
+<li>Calculate <code>mid = (low + high)//2</code></li>
+<li>If <code>arr[mid] == target</code>, return <code>mid</code></li>
+<li>If <code>target &gt; arr[mid]</code>, search right half</li>
+<li>If <code>target &lt; arr[mid]</code>, search left half</li>
+<li>Repeat until <code>low &gt; high </code></li>
+</ol>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> binary_search(arr, target):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    low <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    high <span class="op">=</span> <span class="bu">len</span>(arr) <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> low <span class="op">&lt;=</span> high:</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        mid <span class="op">=</span> (low <span class="op">+</span> high) <span class="op">//</span> <span class="dv">2</span> <span class="co"># Grab middle value</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> arr[mid] <span class="op">==</span> target:</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> mid</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> arr[mid] <span class="op">&lt;</span> target:</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>            low <span class="op">=</span> mid <span class="op">+</span> <span class="dv">1</span>       <span class="co"># Searching right half</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>            high <span class="op">=</span> mid <span class="op">-</span> <span class="dv">1</span>      <span class="co"># Search the left half</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span>                   <span class="co"># If target not found, return -1</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>sorted_data <span class="op">=</span> [<span class="dv">21</span>, <span class="dv">33</span>, <span class="dv">34</span>, <span class="dv">56</span>, <span class="dv">60</span>, <span class="dv">75</span>, <span class="dv">77</span>, <span class="dv">90</span>, <span class="dv">121</span>, <span class="dv">130</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> target <span class="kw">in</span> [<span class="dv">121</span>, <span class="dv">999</span>]:</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> binary_search(sorted_data, target)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;target:&quot;</span>, target, <span class="ss">f&quot;, Found at index </span><span class="sc">{</span>result<span class="sc">}</span><span class="ss">&quot;</span> <span class="cf">if</span> result <span class="op">!=</span> <span class="op">-</span><span class="dv">1</span> <span class="cf">else</span> <span class="st">&quot;, Not Found&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">target: 121 , Found at index 8
+target: 999 , Not Found</pre></div>
+
+
+    <div>
+      <style>
+        
+    :root{
+      --lt-bg: var(--jp-layout-color1, #ffffff);
+      --lt-panel: var(--jp-layout-color2, #f7f7f7);
+      --lt-text: var(--jp-content-font-color1, #111111);
+      --lt-muted: var(--jp-content-font-color2, #444444);
+      --lt-border: var(--jp-border-color2, #dddddd);
+      --lt-link: var(--jp-brand-color1, #2c7be5);
+    }
+    
+
+        .lt-wrap {
+          background: var(--lt-bg);
+          color: var(--lt-text);
+          padding: 18px;
+          border-radius: 10px;
+          max-width: 1100px;
+          margin: 0 auto 0 0;
+          border: 1px solid var(--lt-border);
+          font-family: Arial, sans-serif;
+        }
+
+        .lt-title {
+          margin: 0 0 6px 0;
+          font-size: 20px;
+        }
+
+        .lt-desc {
+          margin: 0 0 12px 0;
+          color: var(--lt-muted);
+          font-size: 15px;
+        }
+
+        .lt-btn {
+          display: inline-block;
+          margin: 0 auto 14px auto;
+          padding: 10px 16px;
+
+          background: #f1f3f5;
+          color: #000000;
+
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: 600;
+
+          border: 1px solid #cfd4da;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+        }
+
+        .lt-btn:hover {
+          background: #e2e6ea;
+        }
+
+        .lt-button-wrap {
+          text-align: center;
+        }
+
+        .lt-center {
+          display: flex;
+          justify-content: flex-start;
+        }
+
+        .lt-frame {
+          width: 900px;
+          height: 600px;
+          border: 1px solid var(--lt-border);
+          border-radius: 10px;
+          background: #ffffff; /* avoids transparency */
+        }
+      </style>
+
+      <div class="lt-wrap" style="margin: 0 auto 0 0;">
+        
+        <p class="lt-desc">Click the button to open in a new tab, or use the embedded view below.</p>
+
+        <a class="lt-btn" href="https://pythontutor.com/iframe-embed.html#code=import%20random%0A%0Adef%20binary_search%28arr,%20target%29%3A%0A%20%20%20%20low%20%3D%200%0A%20%20%20%20high%20%3D%20len%28arr%29%20-%201%0A%20%20%20%20print%28&#x27;look%20between%20index&#x27;,%20low,%20&#x27;and&#x27;,%20high%29%0A%0A%20%20%20%20while%20low%20%3C%3D%20high%3A%0A%20%20%20%20%20%20%20%20mid%20%3D%20%28low%20%2B%20high%29%20//%202%0A%20%20%20%20%20%20%20%20print%28&#x27;middle%20set%20to&#x27;,%20mid%29%0A%20%20%20%20%20%20%20%20if%20arr%5Bmid%5D%20%3D%3D%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20mid%0A%20%20%20%20%20%20%20%20elif%20arr%5Bmid%5D%20%3C%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20low%20%3D%20mid%20%2B%201%0A%20%20%20%20%20%20%20%20%20%20%20%20print%28&#x27;middle&#x27;,%20mid,%20&#x27;has%20value&#x27;,%20arr%5Bmid%5D,%20&#x27;,%20so%20look%20between%20index&#x27;,%20low,%20&#x27;and&#x27;,%20high%29%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20high%20%3D%20mid%20-%201%0A%20%20%20%20%20%20%20%20%20%20%20%20print%28&#x27;index&#x27;,%20mid,%20&#x27;has&#x27;,%20arr%5Bmid%5D,%20&#x27;,%20so%20look%20between%20index&#x27;,%20low,%20&#x27;and&#x27;,%20high%29%0A%0A%20%20%20%20return%20-1%0A%0Asorted_vals%20%3D%20sorted%28random.choices%28list%28range%281,%2021%29%29,%20k%3D10%29%29%0Aprint%28sorted_vals%29%0Abinary_search%28sorted_vals,%20sorted_vals%5B8%5D%29&amp;codeDivHeight=400&amp;codeDivWidth=350&amp;curInstr=0&amp;origin=opt-frontend.js&amp;py=311&amp;startStepMode=first" target="_blank" rel="noopener">Open in PythonTutor</a>
+
+        <div class="lt-center" style="display: flex; justify-content: flex-start;">
+          <iframe class="lt-frame" src="https://pythontutor.com/iframe-embed.html#code=import%20random%0A%0Adef%20binary_search%28arr,%20target%29%3A%0A%20%20%20%20low%20%3D%200%0A%20%20%20%20high%20%3D%20len%28arr%29%20-%201%0A%20%20%20%20print%28&#x27;look%20between%20index&#x27;,%20low,%20&#x27;and&#x27;,%20high%29%0A%0A%20%20%20%20while%20low%20%3C%3D%20high%3A%0A%20%20%20%20%20%20%20%20mid%20%3D%20%28low%20%2B%20high%29%20//%202%0A%20%20%20%20%20%20%20%20print%28&#x27;middle%20set%20to&#x27;,%20mid%29%0A%20%20%20%20%20%20%20%20if%20arr%5Bmid%5D%20%3D%3D%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20mid%0A%20%20%20%20%20%20%20%20elif%20arr%5Bmid%5D%20%3C%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20low%20%3D%20mid%20%2B%201%0A%20%20%20%20%20%20%20%20%20%20%20%20print%28&#x27;middle&#x27;,%20mid,%20&#x27;has%20value&#x27;,%20arr%5Bmid%5D,%20&#x27;,%20so%20look%20between%20index&#x27;,%20low,%20&#x27;and&#x27;,%20high%29%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20high%20%3D%20mid%20-%201%0A%20%20%20%20%20%20%20%20%20%20%20%20print%28&#x27;index&#x27;,%20mid,%20&#x27;has&#x27;,%20arr%5Bmid%5D,%20&#x27;,%20so%20look%20between%20index&#x27;,%20low,%20&#x27;and&#x27;,%20high%29%0A%0A%20%20%20%20return%20-1%0A%0Asorted_vals%20%3D%20sorted%28random.choices%28list%28range%281,%2021%29%29,%20k%3D10%29%29%0Aprint%28sorted_vals%29%0Abinary_search%28sorted_vals,%20sorted_vals%5B8%5D%29&amp;codeDivHeight=400&amp;codeDivWidth=350&amp;curInstr=0&amp;origin=opt-frontend.js&amp;py=311&amp;startStepMode=first" frameborder="0" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+    
+
+</section>
+<section id="recursive-binary-search" class="level3">
+<h3>Recursive Binary Search</h3>
+<p>We can also write binary search recursively — the function calls
+itself on a smaller half each time.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> binary_search_recursive(lst, target):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(lst) <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        midpoint <span class="op">=</span> <span class="bu">len</span>(lst) <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> lst[midpoint] <span class="op">==</span> target:</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> midpoint</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> lst[midpoint] <span class="op">&lt;</span> target:</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>            result <span class="op">=</span> binary_search_recursive(lst[midpoint <span class="op">+</span> <span class="dv">1</span>:], target)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span> <span class="cf">if</span> result <span class="op">==</span> <span class="op">-</span><span class="dv">1</span> <span class="cf">else</span> result <span class="op">+</span> midpoint <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> binary_search_recursive(lst[:midpoint], target)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>sorted_data <span class="op">=</span> [<span class="dv">21</span>, <span class="dv">33</span>, <span class="dv">34</span>, <span class="dv">56</span>, <span class="dv">60</span>, <span class="dv">75</span>, <span class="dv">77</span>, <span class="dv">90</span>, <span class="dv">121</span>, <span class="dv">130</span>]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> target <span class="kw">in</span> [<span class="dv">34</span>, <span class="dv">999</span>]:</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> binary_search_recursive(sorted_data, target)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;target:&quot;</span>, target, <span class="ss">f&quot;, Found at index </span><span class="sc">{</span>result<span class="sc">}</span><span class="ss">&quot;</span> <span class="cf">if</span> result <span class="op">!=</span> <span class="op">-</span><span class="dv">1</span> <span class="cf">else</span> <span class="st">&quot;, Not Found&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">target: 34 , Found at index 2
+target: 999 , Not Found</pre></div>
+
+
+    <div>
+      <style>
+        
+    :root{
+      --lt-bg: var(--jp-layout-color1, #ffffff);
+      --lt-panel: var(--jp-layout-color2, #f7f7f7);
+      --lt-text: var(--jp-content-font-color1, #111111);
+      --lt-muted: var(--jp-content-font-color2, #444444);
+      --lt-border: var(--jp-border-color2, #dddddd);
+      --lt-link: var(--jp-brand-color1, #2c7be5);
+    }
+    
+
+        .lt-wrap {
+          background: var(--lt-bg);
+          color: var(--lt-text);
+          padding: 18px;
+          border-radius: 10px;
+          max-width: 1100px;
+          margin: 0 auto 0 0;
+          border: 1px solid var(--lt-border);
+          font-family: Arial, sans-serif;
+        }
+
+        .lt-title {
+          margin: 0 0 6px 0;
+          font-size: 20px;
+        }
+
+        .lt-desc {
+          margin: 0 0 12px 0;
+          color: var(--lt-muted);
+          font-size: 15px;
+        }
+
+        .lt-btn {
+          display: inline-block;
+          margin: 0 auto 14px auto;
+          padding: 10px 16px;
+
+          background: #f1f3f5;
+          color: #000000;
+
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: 600;
+
+          border: 1px solid #cfd4da;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+        }
+
+        .lt-btn:hover {
+          background: #e2e6ea;
+        }
+
+        .lt-button-wrap {
+          text-align: center;
+        }
+
+        .lt-center {
+          display: flex;
+          justify-content: flex-start;
+        }
+
+        .lt-frame {
+          width: 900px;
+          height: 600px;
+          border: 1px solid var(--lt-border);
+          border-radius: 10px;
+          background: #ffffff; /* avoids transparency */
+        }
+      </style>
+
+      <div class="lt-wrap" style="margin: 0 auto 0 0;">
+        
+        <p class="lt-desc">Click the button to open in a new tab, or use the embedded view below.</p>
+
+        <a class="lt-btn" href="https://pythontutor.com/iframe-embed.html#code=def%20binary_search_recursive%28lst,%20target%29%3A%0A%20%20%20%20if%20len%28lst%29%20%3D%3D%200%3A%0A%20%20%20%20%20%20%20%20return%20-1%0A%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20midpoint%20%3D%20len%28lst%29%20//%202%0A%20%20%20%20%20%20%20%20if%20lst%5Bmidpoint%5D%20%3D%3D%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20midpoint%0A%20%20%20%20%20%20%20%20elif%20lst%5Bmidpoint%5D%20%3C%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20result%20%3D%20binary_search_recursive%28lst%5Bmidpoint%20%2B%201%3A%5D,%20target%29%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20-1%20if%20result%20%3D%3D%20-1%20else%20result%20%2B%20midpoint%20%2B%201%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20binary_search_recursive%28lst%5B%3Amidpoint%5D,%20target%29%0A%0A%0Asorted_data%20%3D%20%5B21,%2033,%2034,%2056,%2060,%2075,%2077,%2090,%20121,%20130%5D%0A%0Afor%20target%20in%20%5B34,%20999%5D%3A%0A%20%20%20%20result%20%3D%20binary_search_recursive%28sorted_data,%20target%29%0A%20%20%20%20print%28%22target%3A%22,%20target,%20f%22,%20Found%20at%20index%20%7Bresult%7D%22%20if%20result%20!%3D%20-1%20else%20%22,%20Not%20Found%22%29&amp;codeDivHeight=400&amp;codeDivWidth=350&amp;curInstr=0&amp;origin=opt-frontend.js&amp;py=311&amp;startStepMode=first" target="_blank" rel="noopener">Open in PythonTutor</a>
+
+        <div class="lt-center" style="display: flex; justify-content: flex-start;">
+          <iframe class="lt-frame" src="https://pythontutor.com/iframe-embed.html#code=def%20binary_search_recursive%28lst,%20target%29%3A%0A%20%20%20%20if%20len%28lst%29%20%3D%3D%200%3A%0A%20%20%20%20%20%20%20%20return%20-1%0A%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20midpoint%20%3D%20len%28lst%29%20//%202%0A%20%20%20%20%20%20%20%20if%20lst%5Bmidpoint%5D%20%3D%3D%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20midpoint%0A%20%20%20%20%20%20%20%20elif%20lst%5Bmidpoint%5D%20%3C%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20result%20%3D%20binary_search_recursive%28lst%5Bmidpoint%20%2B%201%3A%5D,%20target%29%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20-1%20if%20result%20%3D%3D%20-1%20else%20result%20%2B%20midpoint%20%2B%201%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20binary_search_recursive%28lst%5B%3Amidpoint%5D,%20target%29%0A%0A%0Asorted_data%20%3D%20%5B21,%2033,%2034,%2056,%2060,%2075,%2077,%2090,%20121,%20130%5D%0A%0Afor%20target%20in%20%5B34,%20999%5D%3A%0A%20%20%20%20result%20%3D%20binary_search_recursive%28sorted_data,%20target%29%0A%20%20%20%20print%28%22target%3A%22,%20target,%20f%22,%20Found%20at%20index%20%7Bresult%7D%22%20if%20result%20!%3D%20-1%20else%20%22,%20Not%20Found%22%29&amp;codeDivHeight=400&amp;codeDivWidth=350&amp;curInstr=0&amp;origin=opt-frontend.js&amp;py=311&amp;startStepMode=first" frameborder="0" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+    
+
+</section>
+<section id="binary-search-analysis" class="level3">
+<h3>Binary Search Analysis</h3>
+<p>Each comparison eliminates <strong>half</strong> the remaining
+items:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Comparisons</th>
+<th style="text-align: center;">Items Remaining</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac displaystyle="true"><mi>n</mi><mn>2</mn></mfrac><annotation encoding="application/x-tex">\dfrac{n}{2}</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac displaystyle="true"><mi>n</mi><mn>4</mn></mfrac><annotation encoding="application/x-tex">\dfrac{n}{4}</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac displaystyle="true"><mi>n</mi><mn>8</mn></mfrac><annotation encoding="application/x-tex">\dfrac{n}{8}</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>⋮</mi><annotation encoding="application/x-tex">\vdots</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>⋮</mi><annotation encoding="application/x-tex">\vdots</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">k</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac displaystyle="true"><mi>n</mi><msup><mn>2</mn><mi>k</mi></msup></mfrac><annotation encoding="application/x-tex">\dfrac{n}{2^k}</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p>Worst case
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>:</p>
+<p>$ \begin{align} \frac{n}{2<sup>{k+1}} &lt; 1 \leq \frac{n}{2</sup>k}
+&amp;\rightarrow \frac{n}{2} &lt; 2^k \leq n \ &amp;\rightarrow
+\log_2(n) - \log_2(2) &lt; k \leq \log_2(n) \ &amp;\rightarrow \log_2(n)
+-1 &lt; k \leq \log_2(n) \end{align} $</p>
+<p>But
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+is a positive integer, thus:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><msub><mo>log</mo><mn>2</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+k = \log_2(n)
+</annotation></semantics></math>.</p>
+<p>In other words, the time complexity for binary search is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(\log_2 n)</annotation></semantics></math></p>
+<p>Worst case for 10,000,000 items:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10_000_001</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Max comparisons for n=</span><span class="sc">{</span>n<span class="sc">:,}</span><span class="ss">: </span><span class="sc">{</span><span class="bu">int</span>(np.ceil(np.log2(n)))<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Max comparisons for n=10,000,001: 24</pre></div>
+
+</section>
+<section id="built-in-binary-search" class="level3">
+<h3>Built-In Binary Search</h3>
+<section id="the-bisect-module" class="level4">
+<h4>The <code>bisect</code> Module</h4>
+<p>The <code>bisect</code> module implements <strong>binary
+search</strong> on sorted sequences. It is written in C under the hood,
+making it extremely fast. The key functions are:</p>
+<ul>
+<li><code>bisect_left(arr, target)</code> — finds the leftmost insertion
+point for <code>target</code> in sorted list <code>arr</code>. If
+<code>target</code> is already present, the insertion point is before
+(to the left of) any existing entries.</li>
+<li><code>bisect_right(arr, target)</code> — finds the rightmost
+insertion point. If <code>target</code> is already present, the
+insertion point is after (to the right of) existing entries.</li>
+<li><code>insort_left(arr, target)</code> and
+<code>insort_right(arr, target)</code> — insert <code>target</code> into
+a while keeping <code>arr</code> sorted.</li>
+</ul>
+<p>The search itself is <strong>O(log n)</strong>, but insertion with
+<code>insort</code> is <strong>O(n)</strong> because shifting elements
+in a list takes linear time.</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bisect</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># bisect_left vs bisect_right</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>sorted_data <span class="op">=</span> [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">50</span>]</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># bisect_left: insertion point BEFORE existing 30s</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>left_insert_point <span class="op">=</span> bisect.bisect_left(sorted_data, target)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Left insertion point of </span><span class="sc">{</span>target<span class="sc">}</span><span class="ss">: index </span><span class="sc">{</span>left_insert_point<span class="sc">}</span><span class="ss">&quot;</span>)   <span class="co"># 2</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># bisect_right: insertion point AFTER existing 30s</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>right_insert_point <span class="op">=</span> bisect.bisect_right(sorted_data, target)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Right insertion point of </span><span class="sc">{</span>target<span class="sc">}</span><span class="ss">: index </span><span class="sc">{</span>right_insert_point<span class="sc">}</span><span class="ss">&quot;</span>)  <span class="co"># 5</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Left insertion point of 30: index 2
+Right insertion point of 30: index 5</pre></div>
+
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Using bisect to build a binary search function</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> binary_search_bisect(sorted_list, target):</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Use bisect to perform an exact-match binary search.&quot;&quot;&quot;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    i <span class="op">=</span> bisect.bisect_left(sorted_list, target)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">&lt;</span> <span class="bu">len</span>(sorted_list) <span class="kw">and</span> sorted_list[i] <span class="op">==</span> target:</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> i</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> target <span class="kw">in</span> [<span class="dv">30</span>, <span class="dv">999</span>]:</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> binary_search_bisect(sorted_data, target)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;target:&quot;</span>, target, <span class="ss">f&quot;, Found at index </span><span class="sc">{</span>result<span class="sc">}</span><span class="ss">&quot;</span> <span class="cf">if</span> result <span class="op">!=</span> <span class="op">-</span><span class="dv">1</span> <span class="cf">else</span> <span class="st">&quot;, Not Found&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">target: 30 , Found at index 2
+target: 999 , Not Found</pre></div>
+
+</section>
+</section>
+<section id="comparing-binary-search-implementations" class="level3">
+<h3>Comparing Binary Search Implementations</h3>
+<p>Lets time and plot our three binary search implementations:</p>
+<ul>
+<li><code>binary_search()</code></li>
+<li><code>binary_search_rec()</code></li>
+<li><code>binary_search_bisect()</code> –&gt; uses Pythons built in
+<code>bisect</code> module</li>
+</ul>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Setup --- </span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> time_func(arr, target, func):</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    start <span class="op">=</span> time.perf_counter()</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    func(arr, target)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    end <span class="op">=</span> time.perf_counter()</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> end <span class="op">-</span> start</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># We will use the same arr and targets from our linear search benmarch comparison (see above)</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># arr = list(range(10000001))</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co"># targets = sorted(random.choices(arr, k=100))</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>results_bin <span class="op">=</span> {<span class="st">&#39;binary_search()&#39;</span>:{t:time_func(arr, t, binary_search) <span class="cf">for</span> t <span class="kw">in</span> targets}, </span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;binary_search_recursive()&#39;</span>:{t:time_func(arr, t, binary_search_recursive) <span class="cf">for</span> t <span class="kw">in</span> targets}, </span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;binary_search_bisect()&#39;</span>:{t:time_func(arr, t, binary_search_bisect) <span class="cf">for</span> t <span class="kw">in</span> targets}}</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>plot_results(results_bin, title<span class="op">=</span><span class="st">&#39;Binary Search Algorithm Benchmarks&#39;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+Cell In[18], line 1
+----&gt; 1 plot_results(results_bin, title=&#x27;Binary Search Algorithm Benchmarks&#x27;)
+
+NameError: name &#x27;results_bin&#x27; is not defined</span></pre></div>
+
+</section>
+<section id="remarks" class="level3">
+<h3>Remarks</h3>
+<ul>
+<li>All three binary search algorithms have the same complexity
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mi>o</mi><msub><mi>g</mi><mn>2</mn></msub><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(log_2 n)</annotation></semantics></math></li>
+<li>The recursive binary search performs the worst (most likely due to
+the pushing and popping from the call stack)</li>
+<li>Both our own binary search algorithm and bisect have roughly the
+same performance.</li>
+</ul>
+</section>
+</section>
+<section id="search-complexity-comparison" class="level2">
+<h2>Search Complexity Comparison</h2>
+<section id="timing-linear-vs-binary-search" class="level3">
+<h3>Timing: Linear vs Binary Search</h3>
+<p>Binary search is so fast it barely registers on the same graph as
+linear search!</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># unpacking our linear and binary results into a single dictionary</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> {<span class="op">**</span>results_linear, <span class="op">**</span>results_bin}</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>plot_results(results, title<span class="op">=</span><span class="st">&#39;Linear vs Binary Search Comparisons&#39;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+Cell In[19], line 2
+      1 # unpacking our linear and binary results into a single dictionary
+----&gt; 2 results = {**results_linear, **results_bin}
+      3 plot_results(results, title=&#x27;Linear vs Binary Search Comparisons&#x27;)
+
+NameError: name &#x27;results_linear&#x27; is not defined</span></pre></div>
+
+</section>
+<section id="summary-choosing-the-right-tool" class="level3">
+<h3>Summary: Choosing the Right Tool</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Tool</th>
+<th style="text-align: center;">Algorithm</th>
+<th style="text-align: center;">Time</th>
+<th style="text-align: center;">Returns</th>
+<th style="text-align: center;">Raises Error?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>x in list</code></td>
+<td style="text-align: center;">Linear search</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></td>
+<td style="text-align: center;">True / False</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>x in set</code></td>
+<td style="text-align: center;">Hash lookup</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+amort</td>
+<td style="text-align: center;">True / False</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>list.index(x)</code></td>
+<td style="text-align: center;">Linear search</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></td>
+<td style="text-align: center;">Index position</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>bisect_left()</code></td>
+<td style="text-align: center;">Binary search</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></td>
+<td style="text-align: center;">Insertion point</td>
+<td style="text-align: center;">No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rule of thumb:</strong></p>
+<ul>
+<li>Use <code>in</code> with a <strong>set</strong> for fast membership
+checks.</li>
+<li>Use <code>bisect</code> when working with <strong>sorted
+data</strong> you need to search repeatedly.</li>
+<li>Use <code>list.index()</code> when you need the
+<strong>position</strong> and the list is small or unsorted.</li>
+</ul>
+<p><strong>Next up:</strong> Sorting algorithms — how do we get a sorted
+list in the first place?</p>
+</section>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture10-part3/"><span class="label">← Previous</span>Lecture
+10 · Part 3: Linear Data Structures (Continued)</a>
+<a class="next" href="../lecture11-part2/"><span class="label">Next →</span>Lecture
+11 · Part 2: Searching and Sorting</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

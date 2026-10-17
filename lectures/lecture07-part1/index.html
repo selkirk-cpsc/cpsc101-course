@@ -1,0 +1,1306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text/Binary IO · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture06-part2/"><span class="label">← Previous</span>Lecture
+6 · Part 2: Polymorphism &amp; Duck Typing</a>
+<a class="next" href="../lecture07-part2/"><span class="label">Next →</span>Lecture
+7 · Part 2: Text/Binary IO</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 7 · Part 1</div>
+<h1>Text/Binary IO</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#understanding-text-files"
+id="toc-understanding-text-files">Understanding Text Files</a></li>
+<li><a href="#the-file-lifecycle-and-paths"
+id="toc-the-file-lifecycle-and-paths">The File Lifecycle and
+Paths</a></li>
+<li><a href="#opening-files-and-file-modes"
+id="toc-opening-files-and-file-modes">Opening Files and File
+Modes</a></li>
+<li><a href="#reading-files" id="toc-reading-files">Reading
+Files</a></li>
+<li><a href="#writing-files" id="toc-writing-files">Writing
+Files</a></li>
+</ul>
+</nav>
+<section id="introduction" class="level2">
+<h2>Introduction</h2>
+<section id="why-text-io-matters" class="level3">
+<h3>Why Text I/O Matters</h3>
+<p>Up to now, most of our programs have interacted only with the user
+through the console.</p>
+<p>Real programs rarely work this way.</p>
+<p>Instead of:</p>
+<ul>
+<li>asking the user to type data every time</li>
+<li>printing results that disappear when the program ends</li>
+</ul>
+<p>Programs often:</p>
+<ul>
+<li>read input from text files</li>
+<li>write output to text files</li>
+</ul>
+<p>Text I/O allows programs to:</p>
+<ul>
+<li>work with large amounts of data</li>
+<li>store results permanently</li>
+<li>communicate with other programs</li>
+<li>run without direct user interaction</li>
+</ul>
+<p>This lecture introduces how Python programs read and write
+<strong>text data</strong> using files.</p>
+</section>
+<section id="from-console-programs-to-file-driven-programs"
+class="level3">
+<h3>From Console Programs to File-Driven Programs</h3>
+<p>So far, our programs have relied on:</p>
+<ul>
+<li><code>input()</code> to receive data</li>
+<li><code>print()</code> to display results</li>
+</ul>
+<p>This works well for:</p>
+<ul>
+<li>small examples</li>
+<li>interactive programs</li>
+<li>learning basic control flow</li>
+</ul>
+<p>However, console-based input/output has limitations:</p>
+<ul>
+<li>users must re-enter data every run</li>
+<li>data is lost when the program ends</li>
+<li>programs cannot easily process large datasets</li>
+</ul>
+<p>File-driven programs solve these problems by:</p>
+<ul>
+<li>reading input from text files</li>
+<li>writing results to text files</li>
+<li>separating data from code</li>
+</ul>
+<p>In this lecture, we shift from: <strong>interactive programs</strong>
+–&gt; <strong>data-driven programs</strong></p>
+</section>
+</section>
+<section id="understanding-text-files" class="level2">
+<h2>Understanding Text Files</h2>
+<section id="what-is-a-text-file" class="level3">
+<h3>What Is a Text File?</h3>
+<p>A text file is a file that stores data as
+<strong>characters</strong>.</p>
+<p>Text files are:</p>
+<ul>
+<li>human-readable</li>
+<li>editable with simple text editors</li>
+<li>commonly used for data, logs, and configuration</li>
+</ul>
+<p>Examples of text files:</p>
+<ul>
+<li><code>.txt</code></li>
+<li><code>.csv</code></li>
+<li><code>.log</code></li>
+<li><code>.json</code> (we will see this later)</li>
+</ul>
+<p>Important idea:</p>
+<ul>
+<li>A file’s <em>extension</em> is only a convention</li>
+<li>What matters is how the data is stored and read</li>
+</ul>
+<p>In Python, when we work with text files:</p>
+<ul>
+<li>data is read as strings</li>
+<li>data is written as strings</li>
+<li>Python handles character encoding for us (talk more about this
+later)</li>
+</ul>
+</section>
+<section id="examples" class="level3">
+<h3>Examples:</h3>
+<ul>
+<li><p><code>.txt</code> (Plain Text)</p>
+<p>A simple text file with one piece of data per line.</p>
+<pre class="text"><code>Alan Turing
+Ada Lovelace
+Tim Berners-Lee
+Grace Hopper</code></pre></li>
+<li><p><code>.csv</code> (Comma-Separated Values)</p>
+<p>Structured text data, often used for tables.</p>
+<pre class="csv"><code>name,age,city
+Alan Turing,21,Maida Vale
+Ada Lovelace,19,London
+Tim Berners-Lee,22,London</code></pre></li>
+<li><p><code>.log</code> (Log File)</p>
+<p>Text files used to record events over time.</p>
+<pre class="log"><code>2026-02-07 10:15:32 INFO Program started
+2026-02-07 10:15:33 WARNING Invalid input detected
+2026-02-07 10:15:35 INFO Program finished</code></pre></li>
+<li><p><code>.json</code> (JavaScript Object Notation)</p>
+<p>Structured text using key–value pairs.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Alice&quot;</span><span class="fu">,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;age&quot;</span><span class="fu">:</span> <span class="dv">21</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">&quot;enrolled&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
+</ul>
+</section>
+<section id="text-files-vs-binary-files" class="level3">
+<h3>Text Files vs Binary Files</h3>
+<p>Not all files store data as readable text.</p>
+<p>There are two broad categories of files:</p>
+<ul>
+<li><strong>Text files</strong></li>
+<li><strong>Binary files</strong></li>
+</ul>
+<p>Text files:</p>
+<ul>
+<li>store data as characters</li>
+<li>are human-readable</li>
+<li>are opened in <em>text mode</em></li>
+<li>examples: <code>.txt</code>, <code>.csv</code>, <code>.log</code>,
+<code>.json</code></li>
+</ul>
+<p>Binary files:</p>
+<ul>
+<li>store raw bytes</li>
+<li>are not human-readable</li>
+<li>are opened in <em>binary mode</em></li>
+<li>examples: images, audio files, compiled programs</li>
+</ul>
+<p>In this part of the lecture we focus on <strong>text
+I/O</strong>.</p>
+<p>Later we will introduce Binary I/O</p>
+</section>
+</section>
+<section id="the-file-lifecycle-and-paths" class="level2">
+<h2>The File Lifecycle and Paths</h2>
+<section id="the-file-lifecycle-open--readwrite--close" class="level3">
+<h3>The File Lifecycle: Open –&gt; Read/Write –&gt; Close</h3>
+<p>Working with a file usually follows the same 3-step lifecycle:</p>
+<ol type="1">
+<li><p><strong>Open</strong> the file</p>
+<ul>
+<li>connect your program to a file on disk</li>
+<li>choose how you want to use it (read / write / append)</li>
+</ul></li>
+<li><p><strong>Read or Write</strong></p>
+<ul>
+<li>reading: bring text from the file into your program (as
+strings)</li>
+<li>writing: send text from your program into the file</li>
+</ul></li>
+<li><p><strong>Close</strong> the file</p>
+<ul>
+<li>release the resource</li>
+<li>ensure data is fully written</li>
+<li>prevent bugs caused by “dangling” open files</li>
+</ul></li>
+</ol>
+<p><strong>Important:</strong> If you skip the close step:</p>
+<ul>
+<li>data may not be saved correctly</li>
+<li>you can waste system resources</li>
+<li>later file operations may fail or behave strangely</li>
+</ul>
+<p><strong>Files are external resources - your program must manage them
+carefully.</strong></p>
+</section>
+<section id="file-paths-and-file-names" class="level3">
+<h3>File Paths and File Names</h3>
+<p>To open a file, Python needs to know <em>where it is</em>.</p>
+<p>A <strong>file path</strong> tells the operating system how to locate
+a file.</p>
+<p>Two common types of paths:</p>
+<section id="1-relative-paths" class="level4">
+<h4>1) Relative paths</h4>
+<p>A path <em>relative to your program’s current working
+directory</em>.</p>
+<p>Examples:</p>
+<ul>
+<li><code>"data.txt"</code></li>
+<li><code>"data/people.csv"</code></li>
+<li><code>"logs/run.log"</code></li>
+</ul>
+<p>Relative paths are useful when:</p>
+<ul>
+<li>your project has folders (data/, logs/, output/)</li>
+<li>you want your program to work on different computers</li>
+</ul>
+</section>
+<section id="2-absolute-paths" class="level4">
+<h4>2) Absolute paths</h4>
+<p>A full path from the root of the file system.</p>
+<p>Example (Linux):</p>
+<ul>
+<li><code>"/home/ryan/project/data.txt"</code></li>
+</ul>
+<p>Absolute paths are useful when:</p>
+<ul>
+<li>you need an exact location</li>
+<li>but they are less portable between computers</li>
+</ul>
+<p>Important note:</p>
+<ul>
+<li>“file not found” errors are often just <strong>path
+problems</strong></li>
+<li>always know what your current working directory is</li>
+</ul>
+</section>
+</section>
+<section id="pathlib-module" class="level3">
+<h3><code>pathlib</code> module</h3>
+<p>Python also provides a module called
+<strong><code>pathlib</code></strong> that represents paths as
+<em>objects</em>.</p>
+<p>This modulo is a modern, standard way to work with paths. Some of the
+advantages are:</p>
+<ul>
+<li>it can make path handling cleaner and less error-prone</li>
+<li>it works nicely across operating systems (Windows / macOS /
+Linux)</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Relative path (relative to the current working directory)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>rel_path <span class="op">=</span> Path(<span class="st">&quot;data&quot;</span>) <span class="op">/</span> <span class="st">&quot;people.txt&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Relative path:&quot;</span>, rel_path)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Current working directory (where relative paths start from)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>cwd_path <span class="op">=</span> Path.cwd()</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;CWD:&quot;</span>, cwd_path)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the relative path into an absolute path</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>abs_path <span class="op">=</span> rel_path.resolve()</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Absolute path:&quot;</span>, abs_path)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Relative path: data/people.txt
+CWD: /home/ryan/git/cpsc101/lectures/lecture07
+Absolute path: /home/ryan/git/cpsc101/lectures/lecture07/data/people.txt</pre></div>
+
+<p><strong>Remark:</strong> We will not dig any further on how to use
+this module, but it’s worth knowing that it exists.</p>
+</section>
+</section>
+<section id="opening-files-and-file-modes" class="level2">
+<h2>Opening Files and File Modes</h2>
+<section id="the-open-function" class="level3">
+<h3>The <code>open()</code> Function</h3>
+<p>To work with a file, you first call:</p>
+<p><code>open(path, mode)</code></p>
+<ul>
+<li><code>path</code> is a string naming the file (often a relative
+path)</li>
+<li><code>mode</code> is a string that controls how you will use the
+file</li>
+</ul>
+<p>Some common modes are:</p>
+<ul>
+<li><code>"r"</code> - Read</li>
+<li><code>"w"</code> - Write</li>
+<li><code>"a"</code> - Append</li>
+</ul>
+<p><strong>Remark:</strong> Choosing the correct mode matters because it
+affects:</p>
+<ul>
+<li>whether the file must exist</li>
+<li>whether old data is preserved or destroyed</li>
+<li>where new text will go at the end</li>
+</ul>
+<p>We will look into the different modes in more details soon.</p>
+</section>
+<section id="textiowrapper-object" class="level3">
+<h3>TextIOWrapper Object</h3>
+<p>When you call <code>open(path, mode)</code>, Python creates a
+<strong>file object</strong>.</p>
+<p>Internally, this is a <code>TextIOWrapper</code> object</p>
+<p>This object:</p>
+<ul>
+<li>represents a connection between your program and a file on disk</li>
+<li>knows <em>how</em> the file may be used (read, write, append)</li>
+<li>keeps track of a current position in the file (the file cursor)</li>
+<li>provides methods like <code>read()</code>, <code>write()</code>, and
+<code>close()</code></li>
+</ul>
+<p>You should think of the file object as a <strong>handle</strong>, not
+the file itself.</p>
+<p><strong>Remarks:</strong></p>
+<ul>
+<li>the <em>type</em> of object (<code>TextIOWrapper</code>) is the same
+for read, write, and append</li>
+<li>the <strong>mode controls behavior</strong>, not the object’s
+class</li>
+<li>the file object (handler) doesn’t contain any data. It creates a
+connection to the file on disk</li>
+</ul>
+<figure class="nb-figure"><img src="file_handler.png?v=27d3aa26" alt="A visual representation of a file handler" style="width:600px"><figcaption><strong>Figure 1.</strong> A visual representation of a file handler</figcaption></figure>
+
+</section>
+<section id="opening-a-file-in-read-mode-r" class="level3">
+<h3>Opening a File in Read Mode (<code>"r"</code>)</h3>
+<p>Read mode is used when:</p>
+<ul>
+<li>the file already exists</li>
+<li>you want to read its contents without changing them</li>
+</ul>
+<p>Behavior:</p>
+<ul>
+<li>file cursor starts at the beginning of file</li>
+<li>writing is not allowed</li>
+<li>file contents are preserved</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> <span class="st">&quot;poem.txt&quot;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>file_handler <span class="op">=</span> <span class="bu">open</span>(path, <span class="st">&quot;r&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;file_handler is an instance of&quot;</span>, <span class="bu">type</span>(file_handler).<span class="va">__name__</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;repr(file_handler):&quot;</span>, <span class="bu">repr</span>(file_handler))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Current cursor position:&quot;</span>, file_handler.tell())</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>file_handler.close() <span class="co"># Always remember to close an open file when your done</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">file_handler is an instance of TextIOWrapper
+repr(file_handler): &lt;_io.TextIOWrapper name=&#x27;poem.txt&#x27; mode=&#x27;r&#x27; encoding=&#x27;utf-8&#x27;&gt;
+Current cursor position: 0</pre></div>
+
+<ul>
+<li><p><code>file_handler is an instance of TextIOWrapper</code></p>
+<ul>
+<li><code>open()</code> returned a <strong>text-mode file
+object</strong></li>
+<li>it behaves like a stream of characters</li>
+<li>it supports methods like <code>read()</code>,
+<code>readline()</code>, iteration, and <code>write()</code> (depending
+on mode)</li>
+</ul></li>
+<li><p><code>repr(file_handler): &lt;_io.TextIOWrapper name='people.txt' mode='r' encoding='UTF-8'&gt;</code></p>
+<ul>
+<li><code>name='poem.txt'</code> –&gt; the file on disk this object is
+connected to</li>
+<li><code>mode='r'</code> –&gt; the file was opened for <strong>reading
+only</strong></li>
+<li><code>encoding='UTF-8'</code> –&gt; bytes from disk are decoded into
+text using UTF-8</li>
+<li>the <code>_io.</code> prefix indicates this is Python’s built-in I/O
+implementation</li>
+</ul></li>
+<li><p><code>Current cursor position: 0</code></p>
+<ul>
+<li>the file cursor (read position) is at the <strong>start of the
+file</strong></li>
+<li>the next read will begin at character position 0</li>
+<li>reading moves the cursor forward automatically as data is
+consumed</li>
+</ul></li>
+</ul>
+</section>
+<section id="closing-an-open-connection-close" class="level3">
+<h3>Closing an Open Connection: <code>close()</code></h3>
+<p>Closing an open connect to a file on disk does not deleted the file
+handler</p>
+<figure class="nb-figure"><img src="fh_close.png?v=8b253ac3" alt="A visual representation of a file handler closing open connection" style="width:600px"><figcaption><strong>Figure 2.</strong> A visual representation of a file handler closing open connection</figcaption></figure>
+
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> <span class="st">&quot;poem.txt&quot;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>file_handler <span class="op">=</span> <span class="bu">open</span>(path, <span class="st">&quot;r&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)  <span class="co"># Creating a file handler in read mode &quot;r&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>file_handler.close()                              <span class="co"># Closing the open file</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(file_handler)                               <span class="co"># file_handle still exits after closing the open connection</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">&lt;_io.TextIOWrapper name=&#x27;poem.txt&#x27; mode=&#x27;r&#x27; encoding=&#x27;utf-8&#x27;&gt;</pre></div>
+
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>file_handler.read()             <span class="co"># rasies a ValueError since connection has been closed</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+Cell In[4], line 1
+----&gt; 1 file_handler.read()             # rasies a ValueError since connection has been closed
+
+ValueError: I/O operation on closed file.</span></pre></div>
+
+</section>
+<section id="summary-tables-of-modes-including--modes" class="level3">
+<h3>Summary Tables of Modes (Including <code>+</code> Modes)</h3>
+<section id="table-1-file-modes-and-descriptions" class="level4">
+<h4>Table 1: File Modes and Descriptions</h4>
+<table>
+<thead>
+<tr class="header">
+<th>Mode</th>
+<th>Descriptions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>"r"</code></td>
+<td>Read an existing file from the start.</td>
+</tr>
+<tr class="even">
+<td><code>"w"</code></td>
+<td>Create or overwrite a file and write from the start.</td>
+</tr>
+<tr class="odd">
+<td><code>"a"</code></td>
+<td>Append to the end of a file (create it if missing).</td>
+</tr>
+<tr class="even">
+<td><code>"r+"</code></td>
+<td>Read and write an existing file, starting at the beginning.</td>
+</tr>
+<tr class="odd">
+<td><code>"w+"</code></td>
+<td>Create or overwrite a file, then allow both reading and
+writing.</td>
+</tr>
+<tr class="even">
+<td><code>"a+"</code></td>
+<td>Append to a file and allow reading (writes always go to the
+end).</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="table-2-file-modes-and-technical-behavior" class="level4">
+<h4>Table 2: File Modes and Technical Behavior</h4>
+<table>
+<thead>
+<tr class="header">
+<th>Mode</th>
+<th>File Must Exist</th>
+<th>Existing Data</th>
+<th>Cursor Starts</th>
+<th>Read</th>
+<th>Write</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>"r"</code></td>
+<td>Yes</td>
+<td>Preserved</td>
+<td>Beginning</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><code>"w"</code></td>
+<td>No</td>
+<td>Erased</td>
+<td>Beginning</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>"a"</code></td>
+<td>No</td>
+<td>Preserved</td>
+<td>End</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>"r+"</code></td>
+<td>Yes</td>
+<td>Preserved</td>
+<td>Beginning</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>"w+"</code></td>
+<td>No</td>
+<td>Erased</td>
+<td>Beginning</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>"a+"</code></td>
+<td>No</td>
+<td>Preserved</td>
+<td>End</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="table-3-available-read-and-write-methods-by-mode"
+class="level4">
+<h4>Table 3: Available Read and Write Methods by Mode</h4>
+<table>
+<thead>
+<tr class="header">
+<th>Mode</th>
+<th><code>read()</code></th>
+<th><code>readline()</code></th>
+<th>Iteration (<code>for line in f</code>)</th>
+<th><code>write()</code></th>
+<th><code>writelines()</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>"r"</code></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><code>"w"</code></td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>"a"</code></td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>"r+"</code></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>"w+"</code></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>"a+"</code></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mode-guidelines" class="level4">
+<h4>Mode Guidelines</h4>
+<ul>
+<li>Use <code>"r"</code> when you only need to read.</li>
+<li>Use <code>"w"</code> when you want to replace the file
+completely.</li>
+<li>Use <code>"a"</code> when you want to add entries over time.</li>
+<li>Use <code>"+"</code> modes only when you have a clear plan for:
+<ul>
+<li>cursor position (use <code>seek()</code>, <code>tell()</code>
+methods)</li>
+<li>when you read vs when you write</li>
+<li>whether overwriting or appending is intended</li>
+</ul></li>
+</ul>
+<p><strong>Remarks:</strong></p>
+<ul>
+<li>There are some classic “gotchas” that can occure when using the
+<code>"+"</code> modes. So use the <code>"+"</code> modes with
+care.</li>
+<li>For the remaining of the lecture we will only be covering the basic
+modes:
+<ul>
+<li><code>"r"</code>, <code>"w"</code>, <code>"a"</code></li>
+</ul></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="reading-files" class="level2">
+<h2>Reading Files</h2>
+<section id="reading-text-files" class="level3">
+<h3>Reading Text Files</h3>
+<p>When you read from a text file in Python:</p>
+<ul>
+<li>the data is read from the disk (where the text file lives)</li>
+<li>copied to memory as <em>strings</em> (where your program can now
+access)</li>
+</ul>
+<figure class="nb-figure"><img src="fh_read.png?v=5f820f58" alt="A visual representation of reading a file" style="width:600px"><figcaption><strong>Figure 3.</strong> A visual representation of reading a file</figcaption></figure>
+
+<p>Common reading patterns:</p>
+<ol type="1">
+<li>Read the entire file at once (good for small files)</li>
+<li>Read one line at a time (good for large files)</li>
+<li>Loop over the file</li>
+</ol>
+<p>In all cases, you:</p>
+<ul>
+<li>open the file in <code>"r"</code> mode</li>
+<li>read using a method (or iteration)</li>
+<li>close the file</li>
+</ul>
+</section>
+<section id="common-reading-methods-read-and-readline" class="level3">
+<h3>Common Reading Methods: <code>read()</code> and
+<code>readline()</code></h3>
+<p>Python file objects provide multiple ways to read text.</p>
+<section id="read" class="level4">
+<h4><code>read()</code></h4>
+<ul>
+<li>reads the <em>entire remaining file</em> into a single string</li>
+<li>useful for small files</li>
+<li>can be <strong>memory-heavy</strong> for large files</li>
+</ul>
+</section>
+<section id="readline" class="level4">
+<h4><code>readline()</code></h4>
+<ul>
+<li>reads <strong>one line</strong> (up to and including the newline, if
+present)</li>
+<li>useful when you want to control reading step-by-step</li>
+<li>returns an empty string <code>""</code> when you reach the end of
+the file</li>
+</ul>
+<p><strong>Remark:</strong></p>
+<ul>
+<li>Both methods return <strong>strings</strong></li>
+<li>Newline characters (<code>"\n"</code>) are part of what you
+read</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --------------------------------- #</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Demo: read() reads the whole file #</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --------------------------------- #</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem.txt&quot;</span>, <span class="st">&quot;r&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>contents <span class="op">=</span> fh.read()</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>fh.close()</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(contents)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">*-------------*
+“Love is binary,
+twofold. You do or you don’t.
+And programming? One.”
+By Emily T.
+*-------------*</pre></div>
+
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ----------------------------------------- #</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Demo: readline() reads one line at a time #</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ----------------------------------------- #</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem.txt&quot;</span>, <span class="st">&quot;r&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;cursor position: </span><span class="sc">{</span>fh<span class="sc">.</span>tell()<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>) <span class="co"># tell() returns the cursor position</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>line1 <span class="op">=</span> fh.readline()</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Call readline() - Line 1: </span><span class="sc">{</span>line1<span class="sc">}</span><span class="ss">&quot;</span>, end<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;cursor position: </span><span class="sc">{</span>fh<span class="sc">.</span>tell()<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>line2 <span class="op">=</span> fh.readline()</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Call readline() - Line 2: </span><span class="sc">{</span>line2<span class="sc">}</span><span class="ss">&quot;</span>, end<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;cursor position: </span><span class="sc">{</span>fh<span class="sc">.</span>tell()<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>line3 <span class="op">=</span> fh.readline()</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Call readline() - Line 3: </span><span class="sc">{</span>line3<span class="sc">}</span><span class="ss">&quot;</span>, end<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;cursor position: </span><span class="sc">{</span>fh<span class="sc">.</span>tell()<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">cursor position: 0
+
+Call readline() - Line 1: *-------------*
+cursor position: 16
+
+Call readline() - Line 2: “Love is binary,
+cursor position: 35
+
+Call readline() - Line 3: twofold. You do or you don’t.
+cursor position: 67</pre></div>
+
+<figure class="nb-figure"><img src="fh_curser.png?v=900bbe31" alt="A visual representation of reading a file line by line" style="width:800px"><figcaption><strong>Figure 4.</strong> A visual representation of reading a file line by line</figcaption></figure>
+
+</section>
+</section>
+<section id="moving-the-cursor-with-seek" class="level3">
+<h3>Moving the cursor with <code>seek()</code></h3>
+<p>You can also control the cursor position using the
+<code>seek()</code> method of the <code>TextIOWrapper</code> class:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --------------------------------------------- #</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Demo: Using seek() to control cursor position #</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --------------------------------------------- #</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem.txt&quot;</span>, <span class="st">&quot;r&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;cursor position: </span><span class="sc">{</span>fh<span class="sc">.</span>tell()<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>) <span class="co"># tell() returns the cursor position</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>line1 <span class="op">=</span> fh.readline()</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Call readline() - Line 1: </span><span class="sc">{</span>line1<span class="sc">}</span><span class="ss">&quot;</span>, end<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;cursor position: </span><span class="sc">{</span>fh<span class="sc">.</span>tell()<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>cursor_pos <span class="op">=</span> fh.tell()  <span class="co"># saving the cursor position (beginning of second line)</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>line2 <span class="op">=</span> fh.readline()</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Call readline() - Line 2: </span><span class="sc">{</span>line2<span class="sc">}</span><span class="ss">&quot;</span>, end<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;cursor position: </span><span class="sc">{</span>fh<span class="sc">.</span>tell()<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>fh.seek(cursor_pos)     <span class="co"># setting cursor position by at the beginning of line 2</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>line2 <span class="op">=</span> fh.readline()   <span class="co"># reading line two a second time</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Call readline() - Line 2: </span><span class="sc">{</span>line2<span class="sc">}</span><span class="ss">&quot;</span>, end<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;cursor position: </span><span class="sc">{</span>fh<span class="sc">.</span>tell()<span class="sc">}</span><span class="ch">\n</span><span class="ss">&quot;</span>)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">cursor position: 0
+
+Call readline() - Line 1: *-------------*
+cursor position: 16
+
+Call readline() - Line 2: “Love is binary,
+cursor position: 35
+
+Call readline() - Line 2: “Love is binary,
+cursor position: 35</pre></div>
+
+</section>
+<section id="iterating-over-a-text-file" class="level3">
+<h3>Iterating Over a Text File</h3>
+<p>In Python, a file object is <strong>iterable</strong>.</p>
+<p>This means:</p>
+<ul>
+<li>you can loop directly over a file handle</li>
+<li>each iteration gives you <strong>one line at a time</strong></li>
+<li>this is the most common and Pythonic way to read text files</li>
+</ul>
+<p>Benefits of iteration:</p>
+<ul>
+<li>simple syntax</li>
+<li>memory-efficient (one line at a time)</li>
+<li>works well for large files</li>
+</ul>
+<p><strong>Important detail:</strong></p>
+<ul>
+<li>each line includes the newline character <code>"\n"</code> at the
+end</li>
+<li>you often need to clean or strip the line before processing</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------- #</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Demo: iterating over a file line by line #</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------------- #</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem.txt&quot;</span>, <span class="st">&quot;r&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> line <span class="kw">in</span> fh:</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(line)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">*-------------*
+
+“Love is binary,
+
+twofold. You do or you don’t.
+
+And programming? One.”
+
+By Emily T.
+
+*-------------*</pre></div>
+
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ------------------------------ --- #</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Demo: stripping newline characters #</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ------------------------------ --- #</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem.txt&quot;</span>, <span class="st">&quot;r&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> line <span class="kw">in</span> fh:</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    cleaned_line <span class="op">=</span> line.strip() <span class="co"># cleaning up &#39;\n&#39;</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(cleaned_line)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">*-------------*
+“Love is binary,
+twofold. You do or you don’t.
+And programming? One.”
+By Emily T.
+*-------------*</pre></div>
+
+</section>
+<section id="parsing-date" class="level3">
+<h3>Parsing Date</h3>
+<p>When you read from a text file, Python gives you
+<strong>strings</strong>.</p>
+<p>That means your program must decide:</p>
+<ul>
+<li>what each line <em>means</em></li>
+<li>how to break it into pieces (if needed)</li>
+<li>how to convert pieces into the right types (int, float, etc.)</li>
+</ul>
+<p>In Python, parsing is usually done with:</p>
+<ul>
+<li>string methods (like <code>split</code>, <code>strip</code>)</li>
+<li>type conversion functions (like <code>int</code>,
+<code>float</code>)</li>
+<li>your own validation checks</li>
+</ul>
+<p><strong>Remark:</strong> <strong>Text I/O is easy. Interpreting the
+text correctly is the real work.</strong></p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Demo: reading lines and &quot;parsing&quot; basic information from them</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem.txt&quot;</span>, <span class="st">&quot;r&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fh.read())</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>fh.seek(<span class="dv">0</span>) <span class="co"># move pointer back to beginning</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">*-------------*
+“Love is binary,
+twofold. You do or you don’t.
+And programming? One.”
+By Emily T.
+*-------------*
+0</pre></div>
+
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> idx, line <span class="kw">in</span> <span class="bu">enumerate</span>(fh):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">#print(line)</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    line <span class="op">=</span> line.strip()</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Skip empty lines</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> line <span class="op">==</span> <span class="st">&quot;&quot;</span> <span class="kw">or</span> (<span class="st">&quot;*&quot;</span> <span class="kw">in</span> line):</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Example parsing idea: count words in each line</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> line.split()</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Line </span><span class="sc">{</span>idx<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss"> Word count:&quot;</span>, <span class="bu">len</span>(words))</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Line 2 Word count: 3
+Line 3 Word count: 6
+Line 4 Word count: 3
+Line 5 Word count: 3</pre></div>
+
+<p><strong>Remark:</strong></p>
+<p><code>for idx, item in enumerate(&lt;iterable&gt;)</code> lets you
+loop over an iterable and keep track of the index. In term of our file
+handle <code>fh</code>, we can loop over the lines <em>and</em> keep
+track of line numbers.</p>
+<ul>
+<li><code>idx</code> is the line index (starting at 0 by default)</li>
+<li><code>line</code> is the current line from the file</li>
+</ul>
+<p>Since <code>idx</code> starts at 0, the line number is
+<code>idx + 1</code> (<code>f"Line {idx+1} Word count:"</code>) (You can
+also write <code>enumerate(f, start=1)</code> to start counting at
+1.)</p>
+</section>
+</section>
+<section id="writing-files" class="level2">
+<h2>Writing Files</h2>
+<section id="writing-text-files" class="level3">
+<h3>Writing Text Files</h3>
+<p>Writing to a text file means sending <strong>strings</strong> from
+your program (in memory) into a file (to disk).</p>
+<figure class="nb-figure"><img src="fh_write.png?v=91546d83" alt="A visual representation of writing to a file" style="width:600px"><figcaption><strong>Figure 5.</strong> A visual representation of writing to a file</figcaption></figure>
+
+<p>Common reasons to write text files:</p>
+<ul>
+<li>save results (so they persist after the program ends)</li>
+<li>generate reports</li>
+<li>create logs (record what happened)</li>
+<li>export data for other programs</li>
+</ul>
+<p>Basic work flow:</p>
+<ol type="1">
+<li>open the file in a writing mode</li>
+<li>write strings to the file</li>
+<li>close the file</li>
+</ol>
+</section>
+<section id="overwriting-vs-appending-data" class="level3">
+<h3>Overwriting vs Appending Data</h3>
+<p>When writing text files, two modes are easy to confuse:</p>
+<section id="w-write-mode-overwrites" class="level4">
+<h4><code>"w"</code> Write mode (overwrites)</h4>
+<ul>
+<li>starts writing at the beginning of the file</li>
+<li><strong>erases existing contents</strong></li>
+<li>good for “generate a fresh output file”</li>
+</ul>
+</section>
+<section id="a-append-mode-adds-to-end" class="level4">
+<h4><code>"a"</code> Append mode (adds to end)</h4>
+<ul>
+<li>keeps existing contents</li>
+<li>writes new text at the end</li>
+<li>good for logs and “add one more record”</li>
+</ul>
+<p>Rule of thumb:</p>
+<ul>
+<li>Use <code>"w"</code> when you want a clean restart</li>
+<li>Use <code>"a"</code> when you want to keep history</li>
+</ul>
+</section>
+</section>
+<section id="common-writing-methods-write-and-writelines"
+class="level3">
+<h3>Common Writing Methods: <code>write()</code> and
+<code>writelines()</code></h3>
+<p>Python file objects provide multiple ways to write text.</p>
+<section id="write" class="level4">
+<h4><code>write()</code></h4>
+<ul>
+<li>writes a <strong>single string</strong> to the file at the current
+file cursor position</li>
+<li>returns the <strong>number of characters written</strong></li>
+<li>does <strong>not</strong> add a newline automatically</li>
+<li>you must include <code>"\n"</code> yourself if you want line
+breaks</li>
+</ul>
+</section>
+<section id="writelines" class="level4">
+<h4><code>writelines()</code></h4>
+<ul>
+<li>writes a <strong>sequence of strings</strong> (e.g., list of
+strings) to the file</li>
+<li>writes them <strong>exactly as given</strong></li>
+<li>does <strong>not</strong> add newlines automatically between
+items</li>
+<li>returns <code>None</code></li>
+</ul>
+<p>Key idea:</p>
+<ul>
+<li>Both methods expect <strong>strings</strong></li>
+<li>Newline characters (<code>"\n"</code>) are part of what you write
+(you must add them)</li>
+</ul>
+</section>
+</section>
+<section id="demo-writing-to-file-in-w-mode" class="level3">
+<h3>Demo: Writing to file in ‘w’ mode</h3>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write(): single string</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;w&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>fh.write(<span class="st">&quot;*  *  *  *  *</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>fh.write(<span class="st">&quot;Type, type, type away</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>fh.write(<span class="st">&quot;Compile. Run. Hip hip hooray!</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>fh.write(<span class="st">&quot;No error today!”</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>fh.write(<span class="st">&quot;By Samantha W.</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>fh.write(<span class="st">&quot;*  *  *  *  *</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>fh.close()</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Read back the file to see the result</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;r&quot;</span>, encoding<span class="op">=</span><span class="st">&quot;utf-8&quot;</span>)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fh.read())</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">*  *  *  *  *
+Type, type, type away
+Compile. Run. Hip hip hooray!
+No error today!”
+By Samantha W.
+*  *  *  *  *</pre></div>
+
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># writelines(): many strings at once</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>new_poem <span class="op">=</span> [</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Overwriting file with new poem:</span><span class="ch">\n</span><span class="st">&quot;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;*  *  *  *  *</span><span class="ch">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;The modem humming.</span><span class="ch">\n</span><span class="st">&quot;</span>, </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Code rapidly compiling.</span><span class="ch">\n</span><span class="st">&quot;</span>, </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Click. Perfect success.</span><span class="ch">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;By Stephanie S.</span><span class="ch">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;*  *  *  *  *</span><span class="ch">\n</span><span class="st">&quot;</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;w&quot;</span>) <span class="co"># Overwrites the contents of &quot;poem2.txt&quot;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>fh.writelines(new_poem)     <span class="co"># writes each string exactly as provided</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>fh.close()</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Read back the file to see the result</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;r&quot;</span>)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fh.read())</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Overwriting file with new poem:
+*  *  *  *  *
+The modem humming.
+Code rapidly compiling.
+Click. Perfect success.
+By Stephanie S.
+*  *  *  *  *</pre></div>
+
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Common gotcha: writelines() does NOT insert &quot;\n&quot;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>new_poem <span class="op">=</span> [</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;*  *  *  *  *&quot;</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;The modem humming.&quot;</span>, </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Code rapidly compiling.&quot;</span>, </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Click. Perfect success.&quot;</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;By Stephanie S.&quot;</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;*  *  *  *  *&quot;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;w&quot;</span>) <span class="co"># Overwrites the contents of &quot;poem2.txt&quot;</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>fh.writelines(new_poem)     <span class="co"># writes each string exactly as provided</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>fh.close()</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Read back the file to see the result</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;r&quot;</span>)</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fh.read())</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">*  *  *  *  *The modem humming.Code rapidly compiling.Click. Perfect success.By Stephanie S.*  *  *  *  *</pre></div>
+
+</section>
+<section id="demo-writing-to-file-in-a-mode" class="level3">
+<h3>Demo: Writing to file in ‘a’ mode</h3>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clearing peom2.txt for demo</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;w&quot;</span>).close()</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>poem <span class="op">=</span> [</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;*  *  *  *  *</span><span class="ch">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Type, type, type away</span><span class="ch">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Compile. Run. Hip hip hooray!</span><span class="ch">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;No error today!</span><span class="ch">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;By Samantha W.</span><span class="ch">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;*  *  *  *  *</span><span class="ch">\n</span><span class="st">&quot;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;a&quot;</span>) <span class="co"># mode: append</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>fh.writelines(poem)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>fh.close()</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Read back the file to see the result</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;r&quot;</span>)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fh.read())</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">*  *  *  *  *
+Type, type, type away
+Compile. Run. Hip hip hooray!
+No error today!
+By Samantha W.
+*  *  *  *  *</pre></div>
+
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>new_poem <span class="op">=</span> [</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;The modem humming.</span><span class="ch">\n</span><span class="st">&quot;</span>, </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Code rapidly compiling.</span><span class="ch">\n</span><span class="st">&quot;</span>, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Click. Perfect success.</span><span class="ch">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;By Stephanie S.</span><span class="ch">\n</span><span class="st">&quot;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;*  *  *  *  *</span><span class="ch">\n</span><span class="st">&quot;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;a&quot;</span>) <span class="co"># mode: append</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>fh.writelines(new_poem)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>fh.close()</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Read back the file to see the result</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>fh <span class="op">=</span> <span class="bu">open</span>(<span class="st">&quot;poem2.txt&quot;</span>, <span class="st">&quot;r&quot;</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fh.read())</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>fh.close()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">*  *  *  *  *
+Type, type, type away
+Compile. Run. Hip hip hooray!
+No error today!
+By Samantha W.
+*  *  *  *  *
+The modem humming.
+Code rapidly compiling.
+Click. Perfect success.
+By Stephanie S.
+*  *  *  *  *</pre></div>
+
+</section>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture06-part2/"><span class="label">← Previous</span>Lecture
+6 · Part 2: Polymorphism &amp; Duck Typing</a>
+<a class="next" href="../lecture07-part2/"><span class="label">Next →</span>Lecture
+7 · Part 2: Text/Binary IO</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

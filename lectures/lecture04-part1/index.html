@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inheritance · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture03-part3/"><span class="label">← Previous</span>Lecture
+3 · Part 3: Introduction to Object Oriented Programming</a>
+<a class="next" href="../lecture04-part2/"><span class="label">Next →</span>Lecture
+4 · Part 2: Inheritance</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 4 · Part 1</div>
+<h1>Inheritance</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#inheritance-in-a-class-hierarchy"
+id="toc-inheritance-in-a-class-hierarchy">Inheritance in a Class
+Hierarchy</a></li>
+<li><a href="#terminology-around-inheritance"
+id="toc-terminology-around-inheritance">Terminology Around
+Inheritance</a></li>
+</ul>
+</nav>
+<section id="introduction" class="level2">
+<h2>Introduction</h2>
+<ul>
+<li><strong>Inheritance</strong> is a core feature of Object-Oriented
+Programming (OOP).</li>
+<li>It lets one class <strong>reuse</strong> data (attributes) and
+behaviour (methods) from another class.</li>
+<li>In Python, inheritance helps you avoid <strong>duplicating
+code</strong> and makes it easier to maintain.</li>
+</ul>
+<section id="inheritance-means" class="level3">
+<h3>Inheritance means:</h3>
+<p><em>A new class can build on an existing class</em>.</p>
+</section>
+<section id="example" class="level3">
+<h3>Example</h3>
+<p>Suppose we start with a <code>Person</code>:</p>
+<ul>
+<li>attributes: <code>name</code>, <code>age</code></li>
+<li>method: <code>birthday()</code></li>
+</ul>
+<figure class="nb-figure"><img src="person_class.png?v=2a3bbec8" alt="Person Class" style="width:200px"><figcaption><strong>Figure 1.</strong> Person Class</figcaption></figure>
+
+<p>Now we want an <code>Employee</code>:</p>
+<ul>
+<li>employees also have <code>name</code>, <code>age</code>, and
+<code>birthday()</code></li>
+<li>plus: <code>id</code> and <code>calculate_pay()</code></li>
+</ul>
+<figure class="nb-figure"><img src="employee_class.png?v=f629fade" alt="Employee Class" style="width:200px"><figcaption><strong>Figure 2.</strong> Employee Class</figcaption></figure>
+
+<p>We <em>could</em> copy/paste <code>name</code>, <code>age</code>, and
+<code>birthday()</code> into <code>Employee</code> but that causes
+problems:</p>
+<ul>
+<li>it’s inefficient (duplicate work)</li>
+<li>if you fix a bug in <code>Person.birthday()</code>, you might forget
+to fix the copied version in <code>Employee</code></li>
+</ul>
+<p><strong>Fix:</strong> define shared behaviour once, reuse it
+everywhere.</p>
+</section>
+</section>
+<section id="inheritance-in-a-class-hierarchy" class="level2">
+<h2>Inheritance in a Class Hierarchy</h2>
+<section id="example-hierarchy-conceptual" class="level3">
+<h3>Example hierarchy (conceptual)</h3>
+<ul>
+<li><code>Person</code> (general)
+<ul>
+<li><code>Employee</code> (more specific)
+<ul>
+<li><code>SalesPerson</code> (even more specific)</li>
+</ul></li>
+</ul></li>
+</ul>
+<p>Inheritance means:</p>
+<ul>
+<li><code>Employee</code> automatically gets everything from
+<code>Person</code></li>
+<li><code>SalesPerson</code> automatically gets everything from
+<code>Employee</code> (and therefore from <code>Person</code> too)</li>
+</ul>
+</section>
+<section id="python-syntax-for-inheritance" class="level3">
+<h3>Python syntax for inheritance</h3>
+<p>General pattern:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SubClassName(BaseClassName):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    classbody</span></code></pre></div>
+<ul>
+<li>The base class goes in parentheses after the subclass name.</li>
+<li>The subclass automatically inherits all attributes/methods from the
+base class.</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, age):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.name <span class="op">=</span> name</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.age <span class="op">=</span> age</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> birthday(<span class="va">self</span>):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Happy birthday you were&quot;</span>, <span class="va">self</span>.age)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.age <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;You are now&quot;</span>, <span class="va">self</span>.age)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Employee(Person):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, age, <span class="bu">id</span>):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run Person&#39;s initializer first</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(name, age)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.<span class="bu">id</span> <span class="op">=</span> <span class="bu">id</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> calculate_pay(<span class="va">self</span>, hours_worked):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        rate_of_pay <span class="op">=</span> <span class="fl">7.50</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.age <span class="op">&gt;=</span> <span class="dv">21</span>:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            rate_of_pay <span class="op">+=</span> <span class="fl">2.50</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> hours_worked <span class="op">*</span> rate_of_pay</span></code></pre></div>
+</section>
+<section id="what-just-happened-in-employee" class="level3">
+<h3>What just happened in Employee?</h3>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Employee(Person):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, age, <span class="bu">id</span>):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run Person&#39;s initializer first</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(name, age)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.<span class="bu">id</span> <span class="op">=</span> <span class="bu">id</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> calculate_pay(<span class="va">self</span>, hours_worked):</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        rate_of_pay <span class="op">=</span> <span class="fl">7.50</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.age <span class="op">&gt;=</span> <span class="dv">21</span>:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            rate_of_pay <span class="op">+=</span> <span class="fl">2.50</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> hours_worked <span class="op">*</span> rate_of_pay</span></code></pre></div>
+<ol type="1">
+<li><code>Employee(Person)</code> means:
+<ul>
+<li>Employee <strong>inherits from</strong> Person.</li>
+</ul></li>
+</ol>
+<figure class="nb-figure"><img src="person_employee.png?v=3006aba1" alt="Employee inherits from Person" style="width:200px"><figcaption><strong>Figure 3.</strong> Employee inherits from Person</figcaption></figure>
+
+<ol start="2" type="1">
+<li><p><code>super().__init__(name, age)</code> means:</p>
+<ul>
+<li>Call the base-class (<code>Person</code>) constructor so name and
+age get set up properly.</li>
+</ul>
+<p>Convention:</p>
+<ul>
+<li>put <code>super().__init__(...)</code> near the start of
+<code>__init__</code></li>
+<li>so base-class initialization happens before subclass-specific
+setup</li>
+</ul></li>
+<li><p>What each class has:</p>
+<p>A <code>Person</code> has:</p>
+<ul>
+<li>attributes: <code>name</code>, <code>age</code></li>
+<li>methods: <code>birthday()</code></li>
+</ul>
+<p>An <code>Employee</code> has:</p>
+<ul>
+<li>attributes: <code>name</code>, <code>age</code>,
+<code>id</code></li>
+<li>methods: <code>birthday()</code>,
+<code>calculate_pay(...)</code></li>
+</ul></li>
+<li><p>Inherited attributes are used normally:</p>
+<ul>
+<li><code>employee.calculate_pay(40)</code> can use
+<code>self.age</code></li>
+<li>even though <code>age</code> was defined in <code>Person</code></li>
+</ul>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Employee(Person):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, age, <span class="bu">id</span>):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Run Person&#39;s initializer first</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>      <span class="bu">super</span>().<span class="fu">__init__</span>(name, age)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      <span class="va">self</span>.<span class="bu">id</span> <span class="op">=</span> <span class="bu">id</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> calculate_pay(<span class="va">self</span>, hours_worked):</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      rate_of_pay <span class="op">=</span> <span class="fl">7.50</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="va">self</span>.age <span class="op">&gt;=</span> <span class="dv">21</span>:</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>          rate_of_pay <span class="op">+=</span> <span class="fl">2.50</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> hours_worked <span class="op">*</span> rate_of_pay</span></code></pre></div></li>
+</ol>
+</section>
+<section id="example-code-continued" class="level3">
+<h3>Example Code Continued:</h3>
+<ul>
+<li>Create an instance of a <code>Person</code> and assign it to the
+variable <code>hopper</code></li>
+<li>Create an instance of an <code>Employee</code>, which inherites from
+<code>Person</code>, and assign it to the variable
+<code>turing</code></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Creating an instance of Person&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>hopper <span class="op">=</span> Person(<span class="st">&quot;Grace Hopper&quot;</span>, <span class="dv">54</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;hopper.age:&quot;</span>, hopper.age)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>hopper.birthday()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;hopper.age:&quot;</span>, hopper.age)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;-&quot;</span> <span class="op">*</span> <span class="dv">25</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Creating an instance of Employee&quot;</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>turing <span class="op">=</span> Employee(<span class="st">&quot;Alan Turing&quot;</span>, <span class="dv">51</span>, <span class="dv">7468</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>turing.birthday()</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;turing.calculate_pay(40):&quot;</span>, turing.calculate_pay(<span class="dv">40</span>))</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;-&quot;</span> <span class="op">*</span> <span class="dv">25</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Creating an instance of Person
+hopper.age: 54
+Happy birthday you were 54
+You are now 55
+hopper.age: 55
+-------------------------
+Creating an instance of Employee
+Happy birthday you were 51
+You are now 52
+turing.calculate_pay(40): 400.0
+-------------------------</pre></div>
+
+</section>
+<section id="introducing-salesperson-class" class="level3">
+<h3>Introducing <code>SalesPerson</code> Class</h3>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SalesPerson(Employee):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, name, age, <span class="bu">id</span>, region, sales):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run Employee&#39;s initializer (which runs Person&#39;s too)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(name, age, <span class="bu">id</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.region <span class="op">=</span> region</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sales <span class="op">=</span> sales</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> bonus(<span class="va">self</span>):</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.sales <span class="op">*</span> <span class="fl">0.5</span></span></code></pre></div>
+</section>
+<section id="what-does-salesperson-inherit" class="level3">
+<h3>What does SalesPerson inherit?</h3>
+<p><code>SalesPerson(Employee)</code> means SalesPerson gets:</p>
+<p>From <code>Person</code>:</p>
+<ul>
+<li><code>name</code>, <code>age</code></li>
+<li><code>birthday()</code></li>
+</ul>
+<p>From <code>Employee</code>:</p>
+<ul>
+<li><code>id</code></li>
+<li><code>calculate_pay(...)</code></li>
+</ul>
+<p>Plus its own:</p>
+<ul>
+<li><code>region</code>, <code>sales</code></li>
+<li><code>bonus()</code></li>
+</ul>
+<p>So a <code>SalesPerson</code> has the most features because it sits
+lowest in the hierarchy.</p>
+<figure class="nb-figure"><img src="person_employee_salesperson.png?v=9d613b68" alt="SalesPerson inherits from Employee whom inherits from Person" style="width:200px"><figcaption><strong>Figure 4.</strong> SalesPerson inherits from Employee whom inherits from Person</figcaption></figure>
+
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Creating an instance of SalesPerson&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>margaret <span class="op">=</span> SalesPerson(<span class="st">&quot;Margaret Hamilton&quot;</span>, <span class="dv">21</span>, <span class="dv">4712</span>, <span class="st">&quot;USA&quot;</span>, <span class="fl">30000.0</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>margaret.birthday()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;margaret.calculate_pay(40):&quot;</span>, margaret.calculate_pay(<span class="dv">40</span>))</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;margaret.bonus():&quot;</span>, margaret.bonus())</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Creating an instance of SalesPerson
+Happy birthday you were 21
+You are now 22
+margaret.calculate_pay(40): 400.0
+margaret.bonus(): 15000.0</pre></div>
+
+</section>
+<section id="remarks" class="level3">
+<h3>Remarks:</h3>
+<ol type="1">
+<li><p>Creating subclasses does <strong>not</strong> change the base
+class.</p>
+<ul>
+<li><code>Person</code> does <em>not</em> gain an <code>id</code>,
+<code>region</code>, or <code>sales</code>.</li>
+</ul></li>
+<li><p>Capabilities depend on the class:</p>
+<ul>
+<li>All three (<code>Person</code>, <code>Employee</code>,
+<code>SalesPerson</code>) have access to: <code>birthday()</code></li>
+<li>Only <code>Employee</code>, <code>SalesPerson</code> have access to:
+<code>calculate_pay(...)</code></li>
+<li>Only <code>SalesPerson</code> has access to:
+<code>bonus()</code></li>
+</ul></li>
+<li><p>The <code>Person</code> &lt;– <code>Employee</code> &lt;–
+<code>SalesPerson</code> hierarchy demonstrates an <em>“is-a”
+relationship</em>: an <code>Employee</code> is a <code>Person</code>,
+and a <code>SalesPerson</code> is an <code>Employee</code>.</p>
+<p><em>Class hierarchies</em> that follow an <em>“is-a”
+relationship</em>, where each subclass is a more specialized version of
+its parent class, are commonly used in object-oriented programming.</p>
+<p>In contrast, there is also a <em>“has-a” relationship</em>, where an
+object <strong>contains</strong> or <strong>owns</strong> another object
+as a part of itself through <em>composition</em> (a field/attribute). We
+will discuss <em>“has-a” relationships</em> later this
+semester.</p></li>
+</ol>
+</section>
+</section>
+<section id="terminology-around-inheritance" class="level2">
+<h2>Terminology Around Inheritance</h2>
+<p>We will wrap-up this short introduction to inheritance by turning our
+attention to common <em>terms</em> used in most OOP languages (including
+Python)</p>
+<section id="class" class="level3">
+<h3>Class</h3>
+<ul>
+<li>A <strong>class</strong> defines:
+<ul>
+<li><strong>data</strong> (attributes / fields)</li>
+<li><strong>behaviour</strong> (methods / functions that operate on that
+data)</li>
+</ul></li>
+</ul>
+</section>
+<section id="subclass-child--derived-class" class="level3">
+<h3>Subclass (child / derived class)</h3>
+<ul>
+<li>A <strong>subclass</strong> is a class that
+<strong>inherits</strong> from another class.</li>
+<li>Example: <code>Employee</code> might inherit from
+<code>Person</code>.</li>
+<li>A subclass is still a normal class:
+<ul>
+<li>it can add new attributes/methods</li>
+<li>it can override methods</li>
+</ul></li>
+<li>Any class can have <strong>many subclasses</strong>.</li>
+</ul>
+</section>
+<section id="superclass-parent--base-class" class="level3">
+<h3>Superclass (parent / base class)</h3>
+<ul>
+<li>A <strong>superclass</strong> is the class that another class
+inherits from.</li>
+<li>Example: <code>Person</code> is the superclass of
+<code>Employee</code>.</li>
+<li>In Python, a class can have <strong>one or more
+superclasses</strong>.</li>
+</ul>
+<figure class="nb-figure"><img src="superclass_class_subclass.png?v=5b09c492" alt="Superclass &lt;-- Class &lt;-- Subclass hierachy" style="width:400px"><figcaption><strong>Figure 5.</strong> Superclass <-- Class <-- Subclass hierachy</figcaption></figure>
+
+</section>
+<section id="single-vs-multiple-inheritance" class="level3">
+<h3>Single vs Multiple Inheritance</h3>
+<ul>
+<li><strong>Single inheritance</strong>: a class inherits from exactly
+<strong>one</strong> superclass.
+<ul>
+<li>Example: Java only supports single inheritance for classes.</li>
+</ul></li>
+<li><strong>Multiple inheritance</strong>: a class can inherit from
+<strong>more than one</strong> superclass.
+<ul>
+<li>Python supports this (e.g., <code>class C(A, B): ...</code>)</li>
+<li>We will discuss multiple inheritance later</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture03-part3/"><span class="label">← Previous</span>Lecture
+3 · Part 3: Introduction to Object Oriented Programming</a>
+<a class="next" href="../lecture04-part2/"><span class="label">Next →</span>Lecture
+4 · Part 2: Inheritance</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

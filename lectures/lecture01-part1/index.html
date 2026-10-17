@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orientation · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+
+<a class="next" href="../lecture01-part2/"><span class="label">Next →</span>Lecture
+1 · Part 2: Python Basics</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 1 · Part 1</div>
+<h1>Orientation</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introduction-and-history"
+id="toc-introduction-and-history">Introduction and history</a></li>
+<li><a href="#getting-started" id="toc-getting-started">Getting
+started</a></li>
+<li><a href="#python-vs-c" id="toc-python-vs-c">Python vs C</a></li>
+</ul>
+</nav>
+<section id="introduction-and-history" class="level2">
+<h2>Introduction and history</h2>
+<section id="what-is-python" class="level3">
+<h3>What is Python?</h3>
+<p>“Python is a widely used general-purpose, high-level programming
+language. Its design philosophy emphasizes code readability.” <em><a
+href="http://en.wikipedia.org/wiki/Python_(programming_language)">wiki</a></em></p>
+<p>“Python is powerful… and fast; plays well with others; runs
+everywhere; is friendly &amp; easy to learn; is Open.” <em><a
+href="http://www.python.org/about/">python.org</a></em></p>
+</section>
+<section id="why-use-python" class="level3">
+<h3>Why Use Python?</h3>
+<section id="readable-and-interpreted" class="level4">
+<h4>Readable and interpreted</h4>
+<ul>
+<li>Not compiled (computer executes in order)</li>
+<li>Easy to develop, debug, and share</li>
+</ul>
+</section>
+<section id="easy-to-learn-powerful-and-fast" class="level4">
+<h4>Easy to learn, powerful, and fast</h4>
+<ul>
+<li>High-level and dynamically typed</li>
+<li>Interfaces with compiled languages (e.g., C, C++, Fortran)</li>
+<li>Versitile libraries “under the hood”</li>
+</ul>
+</section>
+<section id="open-and-frees" class="level4">
+<h4>Open and frees</h4>
+<ul>
+<li>Community support and development</li>
+<li>Skills transfer without overhead (no site lisence)</li>
+</ul>
+</section>
+</section>
+<section id="example-uses-for-python" class="level3">
+<h3>Example uses for Python</h3>
+<ul>
+<li>General programming (e.g., clock applet in Ubuntu)</li>
+<li>Video games (e.g., <a href="http://www.ubisoft.com">Ubisoft</a> in
+Montreal)</li>
+<li>Web development (e.g., <a
+href="http://www.pinterest.com">Pinterest</a>, <a
+href="http://www.instagram.com">Instagram</a>)</li>
+<li>Data analysis (e.g., visulalization, multi dimensional data,
+statisitics)</li>
+<li>Scripting (e.g,. automating system tasks, smart file
+manipulation)</li>
+</ul>
+</section>
+</section>
+<section id="getting-started" class="level2">
+<h2>Getting started</h2>
+<section id="python-source-files-py" class="level3">
+<h3>Python Source Files (<code>.py</code>)</h3>
+<p>All Python source files use the extension <code>.py</code> (for C
+source files we use the extension <code>.c</code>).</p>
+<p>A basic example is:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># hello.py</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Hello, World&quot;</span>)</span></code></pre></div>
+<p>We can run this file with:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> python3 ./hello.py</span></code></pre></div>
+<p>Notice that we did not have to compile <code>hello.py</code> first.
+Python is an interpreted language, so we run the source file directly
+with the Python interpreter.</p>
+<p>The difference between interpreted and compiled languages will be
+discussed below.</p>
+</section>
+<section id="python-virtual-environments" class="level3">
+<h3>Python Virtual Environments</h3>
+<p>When you write C programs, you mostly think about:</p>
+<ul>
+<li>the <strong>compiler</strong> (<code>gcc</code>)</li>
+<li>your <strong>source files</strong></li>
+<li>and maybe a few installed libraries</li>
+</ul>
+<p>With Python, we also have to think about
+<strong>environments</strong>.</p>
+</section>
+<section id="what-is-a-python-environment" class="level3">
+<h3>What Is a Python Environment?</h3>
+<p>A <strong>Python environment</strong> is:</p>
+<p>A specific Python installation <strong>plus</strong> a collection of
+installed Python packages.</p>
+<p>You can think of it as a <strong>self-contained workspace</strong>
+for Python code.</p>
+<p>Each environment has:</p>
+<ul>
+<li>its own Python version (e.g. 3.10, 3.11)</li>
+<li>its own set of installed packages (e.g. <code>numpy</code>,
+<code>scipy</code>, <code>matplotlib</code>; common packages used for
+scientific computing)</li>
+</ul>
+</section>
+<section id="why-do-we-need-environments" class="level3">
+<h3>Why Do We Need Environments?</h3>
+<p>Different projects often need <strong>different packages</strong> or
+<strong>different versions</strong> of the same package.</p>
+<p>Examples:</p>
+<ul>
+<li>Project A needs <code>scipy</code> version 1.26</li>
+<li>Project B needs <code>scipy</code> version 2.0</li>
+<li>Your course might need a stable set of packages for the whole
+term</li>
+</ul>
+<p>If everything is installed globally in one place, these requirements
+can <strong>conflict</strong>.</p>
+<p>Environments solve this by letting each project have:</p>
+<p>Its <strong>own isolated set</strong> of Python packages.</p>
+</section>
+<section id="setting-up-python-environments" class="level3">
+<h3>Setting up Python Environments</h3>
+<p>I will walk you through how to setup a python environment during this
+weeks lab.</p>
+<p>However, if you are keen to setup a python environment before the
+lab, intstructions on how to do so can be found on Moodle <a
+href="https://learn.selkirk.ca/mod/resource/view.php?id=558058&amp;forceview=1">here</a>.</p>
+</section>
+<section id="running-python-code" class="level3">
+<h3>Running Python Code</h3>
+<p>Once you have your Python environment setup and activatived, you can
+run Python in a few different ways:</p>
+<ul>
+<li>Interactively in a REPL (<strong>R</strong>ead
+<strong>E</strong>valuate <strong>P</strong>rint <strong>L</strong>oop)
+(<code>python</code> or <code>ipython</code>)</li>
+<li>From a script file (<code>.py</code>)</li>
+<li>In a Jupyter notebook (like this one)</li>
+</ul>
+<p>We will explore all these different methods during this weeks lab.
+But if you can’t wait until then, try the following steps given
+below:</p>
+<ol type="1">
+<li><p>Open a new terminal: <code>Ctrl-` </code> (VSCode),
+<code>Ctrl-Alt-T</code> (Ubuntu), or search for ‘PowerShell’ in the
+Start</p></li>
+<li><p>Interact with Python in REPL:</p>
+<ul>
+<li>Launch the python terminal</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">$</span> python</span></code></pre></div>
+<ul>
+<li>Launch the ipython terminal</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">$</span> ipython</span></code></pre></div></li>
+<li><p>Or launch jupyter notebook</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">$</span> jupyter-notebook <span class="op">&lt;</span>filename<span class="op">&gt;</span></span></code></pre></div>
+<pre><code>-- or --</code></pre>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>    <span class="ex">$</span> python <span class="at">-m</span> notebook    </span></code></pre></div></li>
+</ol>
+<p>Notes:</p>
+<ol type="1">
+<li>The <code>&lt;filename&gt;</code> is optional, you can use the
+built-in file browswer to open your notebook</li>
+<li>Depending on your machine, python might actaully be version 2 rather
+than 3, on Ubuntu you may have to type <code>python3</code></li>
+</ol>
+</section>
+</section>
+<section id="python-vs-c" class="level2">
+<h2>Python vs C</h2>
+<section id="conceptual-differences" class="level3">
+<h3>Conceptual Differences</h3>
+<p>Before we begin writing Python programs, it is important to
+understand how Python differs from the C language you used in your
+previous course. Although both are imperative programming languages,
+their design goals and programming models are quite different.</p>
+</section>
+<section id="interpreted-vs-compiled" class="level3">
+<h3>Interpreted vs. Compiled</h3>
+<p>One of the biggest differences between C and Python is <strong>how
+programs run</strong>.<br />
+This affects performance, debugging, portability, and development
+workflow.</p>
+<section id="what-happens-in-a-compiled-language-like-c" class="level4">
+<h4>What Happens in a Compiled Language (like C)?</h4>
+<p>C is a <strong>compiled language</strong>, which means:</p>
+<ol type="1">
+<li>You write source code (<code>.c</code> files).</li>
+<li>A compiler (e.g., <code>gcc</code>) translates it into
+<strong>machine code</strong> for a specific CPU.</li>
+<li>The result is a binary executable (e.g., <code>a.out</code>,
+<code>program.exe</code>).</li>
+<li>When you run the program, the CPU executes the precompiled machine
+instructions directly.</li>
+</ol>
+<p><strong>Advantages of Compilation</strong></p>
+<ul>
+<li><strong>Very fast execution</strong> (close to the hardware).</li>
+<li>Compiler catches many errors before the program runs.</li>
+<li>Memory layout and performance optimizations are predictable.</li>
+<li>Good for system programming, embedded devices, real-time
+applications.</li>
+</ul>
+<p><strong>Disadvantages</strong></p>
+<ul>
+<li>Requires a compilation step before running.</li>
+<li>You must recompile for different operating systems or CPU
+architectures.</li>
+<li>Debugging can sometimes require special tools.</li>
+</ul>
+</section>
+<section id="what-happens-in-an-interpreted-language-like-python"
+class="level4">
+<h4>What Happens in an Interpreted Language (like Python)?</h4>
+<p>Python is an <strong>interpreted language</strong>, meaning:</p>
+<ol type="1">
+<li>You write source code (<code>.py</code> files).</li>
+<li>The Python interpreter reads your program <strong>line by
+line</strong>, translating it into actions at runtime.</li>
+<li>Python first converts code to <strong>bytecode</strong>, then
+executes it using the <strong>Python Virtual Machine
+(PVM)</strong>.</li>
+</ol>
+<p>This process looks like:</p>
+<p>your_program.py
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+Python Interpreter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+bytecode
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+Python Virtual Machine → output</p>
+<p><strong>Advantages of Interpretation</strong></p>
+<ul>
+<li><strong>No compilation phase</strong> → run code immediately.</li>
+<li>Rapid development and experimentation (great for learning,
+prototyping, data science).</li>
+<li>Highly portable: the same Python file runs on Windows, macOS, Linux
+without recompiling.</li>
+<li>Easier debugging—errors reference the exact line of Python
+code.</li>
+</ul>
+<p><strong>Disadvantages</strong></p>
+<ul>
+<li>Usually slower than compiled code because each instruction is
+processed at runtime.</li>
+<li>Higher memory overhead.</li>
+<li>Some optimizations that compilers do automatically are not
+available.</li>
+</ul>
+<p>For more information about <strong>bytecode</strong> and the
+<strong>Python Virtual Machine (PVM)</strong>, check out this article <a
+href="https://opensource.com/article/18/4/introduction-python-bytecode">here</a>.</p>
+</section>
+</section>
+<section id="why-does-this-matter" class="level3">
+<h3>Why Does This Matter?</h3>
+<p>When transitioning from C to Python:</p>
+<ul>
+<li>You will notice <strong>faster iteration</strong>: write code
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+run immediately
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+fix mistakes quickly.</li>
+<li>You will lose the performance advantages of compiled languages.</li>
+<li>You will encounter <strong>runtime type errors</strong> instead of
+compile-time type errors.</li>
+<li>Python encourages exploration; C encourages precision and
+planning.</li>
+</ul>
+<p>These differences shape how programs are designed and how you work as
+a programmer.</p>
+</section>
+<section id="indentation-vs-curly-braces-and-semicolons" class="level3">
+<h3>Indentation vs. Curly Braces and Semicolons</h3>
+<ul>
+<li><strong>C</strong> uses <code>{}</code> to define code blocks and
+<code>;</code> to terminate statements.</li>
+<li><strong>Python</strong> uses <strong>indentation</strong> to
+structure code blocks and does <strong>not</strong> require
+semicolons.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<p><em>C Syntac</em></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>x <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;Positive</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><em>Python Syntac</em></p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> x <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Positive&quot;</span>)</span></code></pre></div>
+</section>
+<section id="dynamic-vs-static-typing" class="level3">
+<h3>Dynamic vs. Static Typing</h3>
+<ul>
+<li><strong>C</strong> requires explicit type declarations (e.g.,
+<code>int x;</code>, <code>double y;</code>).</li>
+<li><strong>Python</strong> determines the type of a variable at
+runtime.</li>
+<li>This allows faster development but requires you to be careful with
+variable usage.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<p><strong>C Static Typing</strong></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> x <span class="op">=</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> y <span class="op">=</span> <span class="fl">3.14</span><span class="op">;</span></span></code></pre></div>
+<p><strong>Python Dyamic Typing</strong></p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="fl">3.14</span></span></code></pre></div>
+</section>
+<section id="c-types-vs-python-native-types" class="level3">
+<h3>C Types vs. Python Native Types</h3>
+<p>Python does not require explicit type declarations like C does, but
+it still has rich built-in types. The table below compares common C
+types with their closest Python equivalents.</p>
+<table>
+<thead>
+<tr class="header">
+<th>C Type</th>
+<th>Example Declaration</th>
+<th>Python Equivalent</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>int</code></td>
+<td><code>int x = 10;</code></td>
+<td><code>int</code></td>
+<td>Python integers have arbitrary precision (no overflow).</td>
+</tr>
+<tr class="even">
+<td><code>float</code></td>
+<td><code>float f = 3.14f;</code></td>
+<td><code>float</code></td>
+<td>Python floats are double-precision (like C
+<code>double</code>).</td>
+</tr>
+<tr class="odd">
+<td><code>double</code></td>
+<td><code>double d = 9.81;</code></td>
+<td><code>float</code></td>
+<td>Python has no separate <code>double</code> type; <code>float</code>
+is 64-bit IEEE-754.</td>
+</tr>
+<tr class="even">
+<td><code>char</code></td>
+<td><code>char c = 'A';</code></td>
+<td><code>str</code></td>
+<td>Python has no <code>char</code>; single-character strings are used
+instead.</td>
+</tr>
+<tr class="odd">
+<td><code>char[]</code> (C-string)</td>
+<td><code>char s[] = "hi";</code></td>
+<td><code>str</code></td>
+<td>Python strings are immutable and Unicode-based.</td>
+</tr>
+<tr class="even">
+<td><code>bool</code> / <code>_Bool</code></td>
+<td><code>bool flag = true;</code></td>
+<td><code>bool</code></td>
+<td>Python booleans are <code>True</code> and <code>False</code>.</td>
+</tr>
+<tr class="odd">
+<td>Arrays</td>
+<td><code>int a[10];</code></td>
+<td><code>list</code></td>
+<td>Python lists can grow/shrink dynamically and hold mixed types.</td>
+</tr>
+<tr class="even">
+<td>Pointers</td>
+<td><code>int *p;</code></td>
+<td><em>N/A</em></td>
+<td>Python does not expose pointers directly; everything is a
+reference.</td>
+</tr>
+<tr class="odd">
+<td><code>struct</code></td>
+<td><code>struct point { ... };</code></td>
+<td><code>class</code> / <code>dict</code></td>
+<td>Python uses classes or dictionaries for structured data.</td>
+</tr>
+<tr class="even">
+<td><code>void*</code></td>
+<td>Generic pointer</td>
+<td><em>N/A</em></td>
+<td>Python variables can store any object dynamically.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Takeaways:</strong></p>
+<ul>
+<li>Python simplifies type usage by automatically determining types at
+runtime.</li>
+<li>Python integers do <strong>not overflow</strong>, unlike 32-bit C
+integers.</li>
+<li>Python <code>float</code> corresponds to <strong>C’s
+double</strong>, not <code>float</code>.</li>
+<li>Python has no direct equivalent to pointers, but all variables are
+references to objects.</li>
+<li>Strings are much more flexible and Unicode-aware compared to C
+strings.</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Demonstrating Python types</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">10</span>          <span class="co"># int</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="fl">3.14</span>        <span class="co"># float (double precision)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> <span class="st">&#39;A&#39;</span>         <span class="co"># str of length 1</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> <span class="st">&quot;Hello&quot;</span>     <span class="co"># str</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>flag <span class="op">=</span> <span class="va">True</span>     <span class="co"># bool</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the type of each of the variables assigned above using the built-in type() function</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x, <span class="st">&quot;:&quot;</span>, <span class="bu">type</span>(x))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(y, <span class="st">&quot;:&quot;</span>, <span class="bu">type</span>(y))</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(c, <span class="st">&quot;:&quot;</span>, <span class="bu">type</span>(c))</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s, <span class="st">&quot;:&quot;</span>, <span class="bu">type</span>(s))</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(flag, <span class="st">&quot;:&quot;</span>, <span class="bu">type</span>(flag))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">10 : &lt;class &#x27;int&#x27;&gt;
+3.14 : &lt;class &#x27;float&#x27;&gt;
+A : &lt;class &#x27;str&#x27;&gt;
+Hello : &lt;class &#x27;str&#x27;&gt;
+True : &lt;class &#x27;bool&#x27;&gt;</pre></div>
+
+</section>
+<section id="no-header-files--no-required-main-function" class="level3">
+<h3>No Header Files / No Required <code>main()</code> Function</h3>
+<p>In C, programs begin at <code>main()</code> and often require
+<em>header files</em>.</p>
+<p>In Python, execution starts at the top of the script, and no header
+files are needed.</p>
+<p>Python has a <code>main()</code> convention, (optional and will be
+covered in more detail later in the course).</p>
+<p><strong>Example:</strong></p>
+<p><em>C Syntax</em></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;Hello World</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><em>Python Syntax</em></p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Hello World&quot;</span>)</span></code></pre></div>
+</section>
+<section id="standard-libraries-include-vs-import" class="level3">
+<h3>Standard Libraries: <code>#include</code> vs
+<code>import</code></h3>
+<p>In both C and Python, you rarely write <em>everything</em> from
+scratch.<br />
+Instead, you use <strong>standard libraries</strong> that provide useful
+functions.</p>
+<p>C uses <strong>header files</strong> (e.g.
+<code>stdio.h</code>).<br />
+Python uses <strong>modules</strong> (e.g. <code>math</code>,
+<code>random</code>).</p>
+</section>
+<section id="c-using-include" class="level3">
+<h3>C: Using <code>#include</code></h3>
+<p>In C, you bring in standard library functions using
+<code>#include</code> and a header file:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;Hello, world!</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+</section>
+<section id="python-using-import" class="level3">
+<h3>Python: Using import</h3>
+<p>In Python, you bring in extra functionality using <code>import</code>
+and a <em>module</em> name (a <em>module</em> is simply a
+<code>.py</code> file):</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(math.sqrt(<span class="dv">9</span>))</span></code></pre></div>
+<p>You can also import specific names:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> math <span class="im">import</span> sqrt</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sqrt(<span class="dv">9</span>))</span></code></pre></div>
+<p>In the above example</p>
+<ul>
+<li><code>sqrt</code> is imported directly into the current file’s
+<em>namespace</em> (A <em>namespace</em> is like a labeled box of names.
+<code>math</code> is one box, my file is another box.
+<code>import</code> lets me use names from another box.).</li>
+<li>You don’t need to write <code>math.sqrt</code>, just
+<code>sqrt</code>.</li>
+</ul>
+</section>
+<section id="input-and-output" class="level3">
+<h3>Input and Output</h3>
+<p>In C, you might write:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> x<span class="op">;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">&quot;Enter a number: &quot;</span><span class="op">);</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>scanf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d</span><span class="st">&quot;</span><span class="op">,</span> <span class="op">&amp;</span>x<span class="op">);</span></span></code></pre></div>
+<p>In Python:</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="bu">input</span>(<span class="st">&quot;Enter a number: &quot;</span>)  <span class="co"># returns a string</span></span></code></pre></div>
+<p>If you want a number, you must convert it:</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="bu">int</span>(<span class="bu">input</span>(<span class="st">&quot;Enter an integer: &quot;</span>))</span></code></pre></div>
+</section>
+<section id="functions-definition-and-use" class="level3">
+<h3>Functions: Definition and Use</h3>
+<p>Python functions differ from C functions in several important
+ways.</p>
+<section id="key-differences-at-a-glance" class="level4">
+<h4>Key Differences at a Glance</h4>
+<ul>
+<li>Python does <strong>not</strong> require function prototypes</li>
+<li>Python does <strong>not</strong> specify return types</li>
+<li>Python does <strong>not</strong> specify parameter types</li>
+<li>Python functions can return <strong>multiple values</strong></li>
+<li>Python functions are defined using indentation, not braces</li>
+</ul>
+</section>
+<section id="function-definition-syntax" class="level4">
+<h4>Function Definition Syntax</h4>
+<p><strong>C Syntax</strong></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> square<span class="op">(</span><span class="dt">int</span> x<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">*</span> x<span class="op">;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> result <span class="op">=</span> square<span class="op">(</span><span class="dv">5</span><span class="op">);</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d\n</span><span class="st">&quot;</span><span class="op">,</span> result<span class="op">);</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>Python Syntax</strong></p>
+<p>In Python, indentation is syntactic, not stylistic.</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> square(x):</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">*</span> x</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> square(<span class="dv">5</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span></code></pre></div>
+<p><strong>Warning</strong>: Incorrect indentation will causes
+errors:</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> absolute(x):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> x <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-</span>x</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> x</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">  Cell In[2], line 2
+    if x &lt; 0:
+    ^
+IndentationError: expected an indented block after function definition on line 1
+</span></pre></div>
+
+<p>Here is the corrected version with proper indentation:</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> absolute(x):</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x <span class="op">&lt;</span> <span class="dv">0</span>:</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">-</span>x</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(absolute(<span class="op">-</span><span class="dv">5</span>))   <span class="co"># 5</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(absolute(<span class="dv">3</span>))    <span class="co"># 3</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">5
+3</pre></div>
+
+<p>We will explore Python functions in much more depth in Lecture 2
+(Part 2).</p>
+</section>
+</section>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+
+<a class="next" href="../lecture01-part2/"><span class="label">Next →</span>Lecture
+1 · Part 2: Python Basics</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

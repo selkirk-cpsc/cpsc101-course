@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linear Data Structures (Continued) · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture10-part1/"><span class="label">← Previous</span>Lecture
+10 · Part 1: Linear Data Structures (Continued)</a>
+<a class="next" href="../lecture10-part3/"><span class="label">Next →</span>Lecture
+10 · Part 3: Linear Data Structures (Continued)</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 10 · Part 2</div>
+<h1>Linear Data Structures (Continued)</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#balancing-parentheses"
+id="toc-balancing-parentheses">Balancing Parentheses</a></li>
+<li><a href="#balanced-symbols-general-case"
+id="toc-balanced-symbols-general-case">Balanced Symbols (General
+Case)</a></li>
+<li><a href="#evaluating-expressions"
+id="toc-evaluating-expressions">Evaluating Expressions</a></li>
+</ul>
+</nav>
+<section id="balancing-parentheses" class="level2">
+<h2>Balancing Parentheses</h2>
+<section id="what-does-balanced-mean" class="level3">
+<h3>What Does Balanced Mean?</h3>
+<p>Parentheses are <strong>balanced</strong> when:</p>
+<ol type="1">
+<li>Every <strong>opening parenthesis</strong> <code>(</code> has a
+matching <strong>closing parenthesis</strong> <code>)</code>.</li>
+<li>Parentheses are <strong>properly nested</strong>.</li>
+</ol>
+<p>Examples of <strong>balanced parentheses</strong>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>   (()()()())</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>   (((())))</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>   (()((())()))</span></code></pre></div>
+<p>Examples of <strong>unbalanced parentheses</strong>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>   ((((((())   <span class="co"># missing closing parenthesis</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>   )()()(      <span class="co"># not properly nested</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>   (()()(()    <span class="co"># missing closing parenthesis</span></span></code></pre></div>
+</section>
+<section id="applications" class="level3">
+<h3>Applications</h3>
+<p>Recognizing balanced symbols is important in many applications, such
+as:</p>
+<ul>
+<li>programming language parsers</li>
+<li>compilers</li>
+<li>expression evaluation</li>
+</ul>
+<section id="goal" class="level4">
+<h4>Goal</h4>
+<p>Write a program that determines whether a string of parentheses is
+balanced:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>par_checker(<span class="st">&quot;(((())))&quot;</span>)  <span class="co"># returns True</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>par_checker(<span class="st">&quot;(()&quot;</span>)       <span class="co"># returns False</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">### Observation</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>As we read a string <span class="op">**</span><span class="im">from</span> left to right<span class="op">**</span>: </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> The <span class="op">**</span>most recent opening parenthesis<span class="op">**</span> must match the <span class="op">**</span><span class="bu">next</span> closing parenthesis<span class="op">**</span>.</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Matching occurs <span class="im">from</span> the <span class="op">**</span>inside out<span class="op">**</span>.</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>Example:</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>div style<span class="op">=</span><span class="st">&quot;vertical-align: middle; margin: 1em 0;&quot;</span><span class="op">&gt;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>a <span class="bu">id</span><span class="op">=</span><span class="st">&quot;fig-tuple&quot;</span><span class="op">&gt;&lt;/</span>a<span class="op">&gt;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>img src<span class="op">=</span><span class="st">&quot;simpleparcheck.png&quot;</span> width<span class="op">=</span><span class="st">&quot;500&quot;</span> style<span class="op">=</span><span class="st">&quot;display: inline-block;&quot;</span><span class="op">&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;</span>div style<span class="op">=</span><span class="st">&quot;font-size: 0.9em; color: #555; margin-top: 0.3em;&quot;</span><span class="op">&gt;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">&lt;</span>strong<span class="op">&gt;</span>Figure <span class="fl">2.</span> <span class="op">&lt;/</span>strong<span class="op">&gt;</span> Matching Parentheses</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;/</span>div<span class="op">&gt;</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>Matching order:</span></code></pre></div>
+<pre><code>1st close --&gt; matches most recent open
+2nd close --&gt; matches the earlier open</code></pre>
+<pre><code>
+This is exactly the behavior of a **stack** (**Last-In, First-Out (LIFO)**).
+
+### Balanced Parentheses Algorithm
+
+We can solve the problem using a **stack**.
+
+Algorithm outline:
+
+1. Start with an **empty stack**.
+2. Scan the string **from left to right**.
+3. If an **opening parenthesis** is encountered:
+   - push it onto the stack.
+4. If a **closing parenthesis** is encountered:
+   - pop the stack.
+5. If a closing parenthesis appears when the stack is empty:
+   - the expression is **not balanced**.
+6. After processing the entire string:
+   - the stack should be **empty** for the expression to be balanced.
+
+#### Important conditions:
+
+- If we **cannot pop** when encountering a closing parenthesis --&gt; unbalanced.
+- If the **stack is not empty at the end** --&gt; unbalanced.
+
+Only when:
+
+- all symbols are processed **and**
+- the stack is empty
+
+do we conclude the parentheses are **balanced**.
+
+### Implementation
+
+```python
+from ArrayStack import  ArrayStack
+
+def par_checker(symbolString):
+
+    s = ArrayStack()
+    balanced = True         # tracks whether the string remains valid
+    index = 0               # moves through the string one symbol at a time
+
+    while index &lt; len(symbolString) and balanced:
+
+        symbol = symbolString[index]
+
+        if symbol == &quot;(&quot;:   # Opening parentheses are pushed onto the stack
+            s.push(symbol)
+
+        else:
+            if s.is_empty(): # If the stack is empty when encountering `)`, the string is invalid
+                balanced = False
+            else:           # Closing parentheses trigger popping a previous opening parenthesis
+                s.pop()
+
+        index = index + 1
+
+    return balanced and s.is_empty() # Checks for balanced conditions</code></pre>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(par_checker(<span class="st">&quot;((()))&quot;</span>))     <span class="co"># properly nested parentheses</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(par_checker(<span class="st">&quot;(()&quot;</span>))        <span class="co"># missing a closing parenthesis</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(par_checker(<span class="st">&quot;)(()&quot;</span>))       <span class="co"># incorrect nested parentheses</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">True
+False
+False</pre></div>
+
+</section>
+</section>
+</section>
+<section id="balanced-symbols-general-case" class="level2">
+<h2>Balanced Symbols (General Case)</h2>
+<section id="understanding-the-general-case" class="level3">
+<h3>Understanding the General Case</h3>
+<p>In many programming languages, <strong>multiple types of symbols must
+be balanced and properly nested</strong>.</p>
+<p>Examples in Python:</p>
+<ul>
+<li><code>()</code> –&gt; used for <strong>tuples</strong> and
+<strong>arithmetic expressions</strong></li>
+<li><code>[]</code> –&gt; used for <strong>lists</strong></li>
+<li><code>{}</code> –&gt; used for <strong>dictionaries</strong></li>
+</ul>
+<p>A valid expression must satisfy two conditions:</p>
+<ol type="1">
+<li>Every <strong>opening symbol</strong> has a corresponding
+<strong>closing symbol</strong>.</li>
+<li>The <strong>types of symbols must match</strong>.</li>
+</ol>
+<section id="examples-of-balanced-symbol-strings" class="level4">
+<h4>Examples of Balanced Symbol Strings</h4>
+<p>The following symbol strings are <strong>properly
+balanced</strong>:</p>
+<pre><code>    { { ( [ ] [ ] ) } ( ) }
+    [ [ { { ( ( ) ) } } ] ]
+    [ ] [ ] [ ] ( ) { }</code></pre>
+<p>Properties of these examples:</p>
+<ul>
+<li>every opening symbol has a closing symbol</li>
+<li>symbols close in the <strong>correct order</strong></li>
+<li>each symbol type matches correctly</li>
+</ul>
+</section>
+<section id="examples-of-unbalanced-symbol-strings" class="level4">
+<h4>Examples of Unbalanced Symbol Strings</h4>
+<p>The following examples are <strong>not balanced</strong>:</p>
+<pre><code>    ( [ ) ]
+    ( ( ( ) ] ) )
+    [ { ( ) ]</code></pre>
+<p>Common problems include:</p>
+<ul>
+<li><strong>closing the wrong symbol type</strong></li>
+<li><strong>missing closing symbols</strong></li>
+<li><strong>incorrect nesting order</strong></li>
+</ul>
+</section>
+</section>
+<section id="extending-the-parentheses-algorithm" class="level3">
+<h3>Extending the Parentheses Algorithm</h3>
+<p>The previous parentheses-checking algorithm can be <strong>extended
+easily</strong>.</p>
+<p>The core stack idea remains the same:</p>
+<ol type="1">
+<li>Scan the string <strong>from left to right</strong>.</li>
+<li><strong>Push opening symbols</strong> onto the stack.</li>
+<li>When a <strong>closing symbol appears</strong>, pop the stack.</li>
+<li>Check whether the popped symbol <strong>matches the closing
+symbol</strong>.</li>
+</ol>
+<p>If the symbols do not match, the string is <strong>not
+balanced</strong>.</p>
+<p>At the end:</p>
+<ul>
+<li>the stack must be <strong>empty</strong></li>
+<li>otherwise some symbols were never matched</li>
+</ul>
+</section>
+<section id="balanced-symbol-algorithm" class="level3">
+<h3>Balanced Symbol Algorithm</h3>
+<p>Additional logic is required:</p>
+<p>When a closing symbol is encountered:</p>
+<ul>
+<li>remove the <strong>top opening symbol</strong></li>
+<li>check that the parentheses <strong>match</strong></li>
+</ul>
+<p>Example matches:</p>
+<pre><code>( matches )
+[ matches ]
+{ matches }</code></pre>
+<p>Example mismatches:</p>
+<pre><code>( does not match ]
+[ does not match )
+{ does not match )</code></pre>
+<p>A helper function can be used to perform this comparison.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> matches(<span class="bu">open</span>, close):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    opens <span class="op">=</span> <span class="st">&quot;([{&quot;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    closers <span class="op">=</span> <span class="st">&quot;)]}&quot;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> opens.index(<span class="bu">open</span>) <span class="op">==</span> closers.index(close)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(matches(<span class="st">&quot;{&quot;</span>, <span class="st">&quot;}&quot;</span>))</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(matches(<span class="st">&quot;[&quot;</span>, <span class="st">&quot;)&quot;</span>))</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(matches(<span class="st">&quot;(&quot;</span>, <span class="st">&quot;}&quot;</span>))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">True
+False
+False</pre></div>
+
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ArrayStack <span class="im">import</span>  ArrayStack</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> par_checker(symbolString):</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> ArrayStack()</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    balanced <span class="op">=</span> <span class="va">True</span>             <span class="co"># tracks whether the strings remains valid</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    index <span class="op">=</span> <span class="dv">0</span>                   <span class="co"># moves through the sting one symbol at a time</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> index <span class="op">&lt;</span> <span class="bu">len</span>(symbolString) <span class="kw">and</span> balanced:</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        symbol <span class="op">=</span> symbolString[index]</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> symbol <span class="kw">in</span> <span class="st">&quot;([{&quot;</span>:     <span class="co"># Openning parenthese are pushed onto the stack</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>            s.push(symbol)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> s.is_empty():    <span class="co"># If the stack is empty when encounterings a closed parenthese, string is invalid </span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>                balanced <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:               <span class="co"># Closing parenthese trigger popping a previous opening parenthesis</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>                top <span class="op">=</span> s.pop()</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="kw">not</span> matches(top, symbol):    <span class="co"># Checking if top of stack matches closing parenthese</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>                    balanced <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>        index <span class="op">=</span> index <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> balanced <span class="kw">and</span> s.is_empty()   <span class="co"># Checks for balanced conditions</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(par_checker(<span class="st">&#39;{({([][])}())}&#39;</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(par_checker(<span class="st">&#39;[{()]&#39;</span>))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">True
+False</pre></div>
+
+</section>
+<section id="applications-1" class="level3">
+<h3>Applications</h3>
+<p>Stacks play a crucial role in <strong>processing programming
+languages</strong>.</p>
+<p>Examples include:</p>
+<ul>
+<li>checking <strong>balanced expressions</strong></li>
+<li>parsing <strong>program syntax</strong></li>
+<li>evaluating <strong>mathematical expressions</strong></li>
+</ul>
+<p>Almost every programming language contains <strong>nested
+structures</strong>, and stacks are the natural data structure for
+managing them.</p>
+</section>
+</section>
+<section id="evaluating-expressions" class="level2">
+<h2>Evaluating Expressions</h2>
+<section id="infix-notation" class="level3">
+<h3>Infix Notation</h3>
+<p><strong>Infix notation</strong> is the standard way we write
+arithmetic expressions:</p>
+<ul>
+<li>The <strong>operator is placed between</strong> its operands</li>
+</ul>
+<p>Examples:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span> <span class="op">+</span> <span class="dv">2</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>(<span class="dv">3</span> <span class="op">+</span> <span class="dv">2</span>) <span class="op">*</span> <span class="dv">4</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>(<span class="dv">8</span> <span class="op">-</span> <span class="dv">3</span>) <span class="op">/</span> <span class="dv">5</span></span></code></pre></div>
+</section>
+<section id="postfix-notation-reverse-polish-notation" class="level3">
+<h3>Postfix Notation (Reverse Polish Notation)</h3>
+<p><strong>Postfix notation</strong> is a way of writing arithmetic
+expressions:</p>
+<ul>
+<li>The <strong>operator comes after</strong> its operands</li>
+<li>No parentheses are needed</li>
+<li>The order of operations is <strong>unambiguous</strong></li>
+</ul>
+<p>Examples:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Infix Expression</th>
+<th style="text-align: left;">Postfix Expression</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>A + B * C + D</code></td>
+<td style="text-align: left;"><code>A B C * + D +</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>(A + B) * (C + D)</code></td>
+<td style="text-align: left;"><code>A B + C D + *</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>A * B + C * D</code></td>
+<td style="text-align: left;"><code>A B * C D * +</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>A + B + C + D</code></td>
+<td style="text-align: left;"><code>A B + C + D +</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="applications-2" class="level3">
+<h3>Applications</h3>
+<p>Postfix notation is important because it provides a <strong>simple
+and reliable way</strong> to evaluate expressions.</p>
+<p>In standard (infix) notation:</p>
+<ul>
+<li>Expressions require <strong>parentheses</strong> and
+<strong>precedence rules</strong> (PEMDAS)</li>
+<li>Evaluation can be <strong>ambiguous</strong> without strict
+rules</li>
+<li>More complex for computers to parse and evaluate</li>
+</ul>
+<p>Postfix notation removes this complexity:</p>
+<ul>
+<li>No parentheses needed</li>
+<li>No precedence rules required</li>
+<li>Evaluation order is <strong>built into the expression</strong></li>
+</ul>
+<section id="where-is-it-used" class="level4">
+<h4>Where Is It Used?</h4>
+<ul>
+<li><strong>Calculators</strong> (especially stack-based
+calculators)</li>
+<li><strong>Compilers and interpreters</strong> (expression
+evaluation)</li>
+<li><strong>Programming languages</strong> (internal expression
+parsing)</li>
+<li><strong>Mathematical software systems</strong></li>
+</ul>
+</section>
+</section>
+<section id="infix--postfix-operator-handling" class="level3">
+<h3>Infix –&gt; Postfix (Operator Handling)</h3>
+<p>Converting from Infix (standard) notation to Postfix can be done with
+a Stack.</p>
+<p>Below we walk through the steps how how this can be done.</p>
+<p><strong>Note:</strong> We will <strong>not</strong> be dealing with
+the case where the infix expressions has parentheses.</p>
+</section>
+<section id="operator-precedence" class="level3">
+<h3>Operator Precedence</h3>
+<p>Higher precedence operators are evaluated first.</p>
+<p>Common precedence levels:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Precedence level</th>
+<th>Operators</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Highest</td>
+<td><code>^</code></td>
+</tr>
+<tr class="even">
+<td>Next</td>
+<td><code>*</code>, <code>/</code></td>
+</tr>
+<tr class="odd">
+<td>Lowest</td>
+<td><code>+</code>, <code>-</code></td>
+</tr>
+</tbody>
+</table>
+<p>(All are left-associative except <code>^</code>)</p>
+</section>
+<section id="rule-for-handling-operators" class="level3">
+<h3>Rule for Handling Operators</h3>
+<p>Let <code>op_stack</code> denote a stack containing the
+operators<br />
+<code>"^"</code>, <code>"*"</code>, <code>"/"</code>, <code>"+"</code>,
+and <code>"-"</code>.</p>
+<p>When reading a new operator <code>op_new</code>:</p>
+<section id="case-1-the-stack-is-empty" class="level4">
+<h4>Case 1: The stack is empty</h4>
+<ul>
+<li>Push <code>op_new</code> onto the stack.</li>
+</ul>
+</section>
+<section id="case-2-the-stack-is-not-empty" class="level4">
+<h4>Case 2: The stack is not empty</h4>
+<p>While:</p>
+<ul>
+<li>the stack is not empty, and</li>
+<li>precedence(<code>op_top</code>)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≥</mo><annotation encoding="application/x-tex">\geq</annotation></semantics></math>
+precedence(<code>op_new</code>)</li>
+</ul>
+<p>do:</p>
+<ul>
+<li>pop <code>op_top</code> from the stack and add it to the
+output.</li>
+</ul>
+<p>Then:</p>
+<ul>
+<li>push <code>op_new</code> onto the stack.</li>
+</ul>
+</section>
+</section>
+<section id="important-remark" class="level3">
+<h3>Important Remark</h3>
+<p>When handling a new operator, you may need to pop <strong>more than
+one</strong> operator from the stack before pushing
+<code>op_new</code>.</p>
+<p>This simplified rule assumes there are <strong>no brackets</strong>
+in the infix expression.</p>
+</section>
+<section id="example" class="level3">
+<h3>Example</h3>
+<p>Let <code>op_stack</code> denote a Stack.</p>
+<p>Convert: <code>A * B + C * D</code></p>
+<table>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Action / Reasoning</th>
+<th>Stack</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Read <code>A</code></td>
+<td>Operand –&gt; add to output</td>
+<td><code>[ ]</code></td>
+<td><code>A</code></td>
+</tr>
+<tr class="even">
+<td>Read <code>*</code></td>
+<td>Stack empty –&gt; push <code>*</code></td>
+<td><code>[ * ]</code></td>
+<td><code>A</code></td>
+</tr>
+<tr class="odd">
+<td>Read <code>B</code></td>
+<td>Operand –&gt; add to output</td>
+<td><code>[ * ]</code></td>
+<td><code>A B</code></td>
+</tr>
+<tr class="even">
+<td>Read <code>+</code></td>
+<td>Compare with <code>*</code> –&gt; <code>*</code> has higher
+precedence –&gt; pop <code>*</code>, then push <code>+</code></td>
+<td><code>[ + ]</code></td>
+<td><code>A B *</code></td>
+</tr>
+<tr class="odd">
+<td>Read <code>C</code></td>
+<td>Operand –&gt; add to output</td>
+<td><code>[ + ]</code></td>
+<td><code>A B * C</code></td>
+</tr>
+<tr class="even">
+<td>Read <code>*</code></td>
+<td>Compare with <code>+</code> –&gt; <code>*</code> has higher
+precedence –&gt; push</td>
+<td><code>[ +, * ]</code></td>
+<td><code>A B * C</code></td>
+</tr>
+<tr class="odd">
+<td>Read <code>D</code></td>
+<td>Operand –&gt; add to output</td>
+<td><code>[ +, * ]</code></td>
+<td><code>A B * C D</code></td>
+</tr>
+<tr class="even">
+<td>End</td>
+<td>Pop <code>*</code> –&gt; add to output</td>
+<td><code>[ + ]</code></td>
+<td><code>A B * C D *</code></td>
+</tr>
+<tr class="odd">
+<td>End</td>
+<td>Pop <code>+</code> –&gt; add to output</td>
+<td><code>[ ]</code></td>
+<td><code>A B * C D * +</code></td>
+</tr>
+</tbody>
+</table>
+<section id="final-expression" class="level4">
+<h4>Final Expression</h4>
+<p>Postfix expression: <code>A B * C D * +</code></p>
+<figure class="nb-figure"><img src="intopost.png?v=4d18af8f" alt="Converting A * B + C * D to Postfix Notation" style="width:500px"><figcaption><strong>Figure: </strong> Converting A * B + C * D to Postfix Notation</figcaption></figure>
+
+</section>
+</section>
+<section id="remarks" class="level3">
+<h3>Remarks</h3>
+<p>The stack ensures that:</p>
+<ul>
+<li>higher-precedence operators are applied first</li>
+<li>parentheses and precedence rules are handled automatically</li>
+<li>no ambiguity remains in the final expression</li>
+</ul>
+</section>
+<section id="example-with-brackets" class="level3">
+<h3>Example (with brackets)</h3>
+<p>Convert: <code>(A + B) * (C - D / (E + F)) + G</code></p>
+<section id="final-expression-postfix" class="level4">
+<h4>Final Expression (Postfix)</h4>
+<p><code>A B + C D E F + / - * G +</code></p>
+</section>
+<section id="remarks-1" class="level4">
+<h4>Remarks:</h4>
+<ul>
+<li>We will not go into the full details of handling brackets
+(parentheses) during the conversion process.</li>
+<li><strong>Postfix notation eliminates the need for brackets
+entirely</strong>:
+<ul>
+<li>it produces expressions that are <strong>unambiguous and
+straightforward to evaluate computationally</strong>.</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="evaluating-postfix-expressions" class="level3">
+<h3>Evaluating Postfix Expressions</h3>
+<p>Evaluate from <strong>left to right</strong>:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span> <span class="dv">2</span> <span class="op">+</span> <span class="dv">4</span> <span class="op">*</span> <span class="dv">5</span> <span class="dv">1</span> <span class="op">-</span> <span class="op">/</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">=&gt;</span> <span class="dv">5</span> <span class="dv">4</span> <span class="op">*</span> <span class="dv">5</span> <span class="dv">1</span> <span class="op">-</span> <span class="op">/</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="op">=&gt;</span> <span class="dv">20</span> <span class="dv">5</span> <span class="dv">1</span> <span class="op">-</span> <span class="op">/</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="op">=&gt;</span> <span class="dv">20</span> <span class="dv">4</span> <span class="op">/</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="op">=&gt;</span> <span class="dv">5</span></span></code></pre></div>
+<p>At each step:</p>
+<ul>
+<li>Apply the operator to the previous two values</li>
+<li>Replace them with the result</li>
+</ul>
+<p>Remarks:</p>
+<ul>
+<li>Each operator applies to the <strong>two most recent
+values</strong></li>
+<li>No need for precedence rules (e.g., PEMDAS)</li>
+<li>Evaluation can be implemented using a <strong>stack data
+structure</strong></li>
+</ul>
+</section>
+<section id="assignment-context" class="level3">
+<h3>Assignment Context</h3>
+<p>In this week’s assignment, you will:</p>
+<ul>
+<li>Complete a <strong>Calculator class</strong> (an incomplete
+implementation will be provided)</li>
+<li>Evaluate expressions written in <strong>postfix
+notation</strong></li>
+<li>Use a <strong>stack data structure</strong> to perform the
+computation</li>
+</ul>
+</section>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture10-part1/"><span class="label">← Previous</span>Lecture
+10 · Part 1: Linear Data Structures (Continued)</a>
+<a class="next" href="../lecture10-part3/"><span class="label">Next →</span>Lecture
+10 · Part 3: Linear Data Structures (Continued)</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

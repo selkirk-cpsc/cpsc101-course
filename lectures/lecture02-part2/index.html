@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Functions · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture02-part1/"><span class="label">← Previous</span>Lecture
+2 · Part 1: Data Containers</a>
+<a class="next" href="../lecture03-part1/"><span class="label">Next →</span>Lecture
+3 · Part 1: Introduction to Object Oriented Programming</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 2 · Part 2</div>
+<h1>Functions</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#defining-functions" id="toc-defining-functions">Defining
+Functions</a></li>
+<li><a href="#parameters-and-arguments"
+id="toc-parameters-and-arguments">Parameters and Arguments</a></li>
+<li><a href="#return-values" id="toc-return-values">Return
+Values</a></li>
+<li><a href="#scope" id="toc-scope">Scope</a></li>
+<li><a href="#functions-and-mutability"
+id="toc-functions-and-mutability">Functions and Mutability</a></li>
+<li><a href="#docstrings" id="toc-docstrings">Docstrings</a></li>
+<li><a href="#putting-it-all-together"
+id="toc-putting-it-all-together">Putting It All Together</a></li>
+<li><a href="#summary" id="toc-summary">Summary</a></li>
+</ul>
+</nav>
+<section id="defining-functions" class="level2">
+<h2>Defining Functions</h2>
+<p>You already know functions from C. The idea is the same: give a block
+of code a name so you can reuse it.</p>
+<p>The syntax is different:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// C</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> add<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Python</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a, b):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>C</th>
+<th>Python</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Keyword</td>
+<td>return type then name</td>
+<td><code>def</code></td>
+</tr>
+<tr class="even">
+<td>Parameter types</td>
+<td>declared explicitly</td>
+<td><strong>not declared</strong></td>
+</tr>
+<tr class="odd">
+<td>Return type</td>
+<td>declared explicitly</td>
+<td><strong>not declared</strong></td>
+</tr>
+<tr class="even">
+<td>Body delimited by</td>
+<td><code>{ }</code></td>
+<td><strong>indentation</strong></td>
+</tr>
+</tbody>
+</table>
+<section id="python-is-dynamically-typed" class="level3">
+<h3>Python is dynamically typed</h3>
+<p>In C, every variable and parameter has a fixed type declared at
+compile time.<br />
+In Python, types are determined <strong>at runtime</strong> — the same
+function can accept different types:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a, b):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>add(<span class="dv">3</span>, <span class="dv">4</span>)          <span class="co"># works: 7</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>add(<span class="st">&quot;hello&quot;</span>, <span class="st">&quot;!&quot;</span>)  <span class="co"># also works: &quot;hello!&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>add(<span class="dv">3</span>, <span class="st">&quot;hello&quot;</span>)    <span class="co"># TypeError at runtime — + not defined for int and str</span></span></code></pre></div>
+<p>This flexibility is powerful, but it means <strong>you</strong> are
+responsible for using functions with compatible types.</p>
+<blockquote>
+<p>The function’s <strong>name</strong>, <strong>parameters</strong>,
+and <strong>docstring</strong> (coming soon) define its intended
+interface — the types aren’t enforced by the language.</p>
+</blockquote>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> greet(name):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Hello,&quot;</span>, name)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>greet(<span class="st">&quot;Alice&quot;</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>greet(<span class="st">&quot;Bob&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Hello, Alice
+Hello, Bob</pre></div>
+
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a, b):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> add(<span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">7</pre></div>
+
+</section>
+</section>
+<section id="parameters-and-arguments" class="level2">
+<h2>Parameters and Arguments</h2>
+<p>A quick terminology note:</p>
+<ul>
+<li><strong>Parameter</strong> — the name in the function definition
+(<code>def add(a, b)</code> → <code>a</code> and <code>b</code> are
+parameters)</li>
+<li><strong>Argument</strong> — the value you pass when calling the
+function (<code>add(3, 4)</code> → <code>3</code> and <code>4</code> are
+arguments)</li>
+</ul>
+<p>Python supports three ways to pass arguments:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Style</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Positional</td>
+<td>Arguments matched to parameters by order (same as C)</td>
+</tr>
+<tr class="even">
+<td>Default</td>
+<td>Parameters have a pre-set value used when not provided</td>
+</tr>
+<tr class="odd">
+<td>Keyword</td>
+<td>Arguments passed by name, order doesn’t matter</td>
+</tr>
+</tbody>
+</table>
+<section id="positional-arguments" class="level3">
+<h3>Positional Arguments</h3>
+<p>Arguments are matched to parameters by their position — exactly like
+C.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> describe(animal, sound):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;A&quot;</span>, animal, <span class="st">&quot;goes&quot;</span>, sound)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>describe(<span class="st">&quot;cat&quot;</span>, <span class="st">&quot;meow&quot;</span>)   <span class="co"># animal=&quot;cat&quot;, sound=&quot;meow&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>describe(<span class="st">&quot;meow&quot;</span>, <span class="st">&quot;cat&quot;</span>)   <span class="co"># order matters — this is wrong but Python won&#39;t catch it</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">A cat goes meow
+A meow goes cat</pre></div>
+
+</section>
+<section id="default-parameters" class="level3">
+<h3>Default Parameters</h3>
+<p>Python lets you assign a <strong>default value</strong> to a
+parameter. If the caller doesn’t supply that argument, the default is
+used.</p>
+<p>This does not exist in C.</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> greet(name, greeting<span class="op">=</span><span class="st">&quot;Hello&quot;</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(greeting <span class="op">+</span> <span class="st">&quot;,&quot;</span>, name)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>greet(<span class="st">&quot;Alice&quot;</span>)                  <span class="co"># uses default: Hello, Alice</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>greet(<span class="st">&quot;Bob&quot;</span>, <span class="st">&quot;Good morning&quot;</span>)    <span class="co"># overrides default: Good morning, Bob</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Hello, Alice
+Good morning, Bob</pre></div>
+
+<p><strong>Rule:</strong> Parameters with defaults must come
+<strong>after</strong> parameters without defaults.</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(a, b<span class="op">=</span><span class="dv">10</span>):   <span class="co"># OK</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(a<span class="op">=</span><span class="dv">10</span>, b):   <span class="co"># SyntaxError</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    ...</span></code></pre></div>
+</section>
+<section id="keyword-arguments" class="level3">
+<h3>Keyword Arguments</h3>
+<p>When calling a function, you can pass arguments <strong>by
+name</strong> instead of by position.<br />
+This makes calls more readable and lets you reorder arguments.</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> describe(animal, sound):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;A&quot;</span>, animal, <span class="st">&quot;goes&quot;</span>, sound)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># All three calls are equivalent:</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>describe(<span class="st">&quot;cat&quot;</span>, <span class="st">&quot;meow&quot;</span>)                    <span class="co"># positional</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>describe(animal<span class="op">=</span><span class="st">&quot;cat&quot;</span>, sound<span class="op">=</span><span class="st">&quot;meow&quot;</span>)       <span class="co"># keyword</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>describe(sound<span class="op">=</span><span class="st">&quot;meow&quot;</span>, animal<span class="op">=</span><span class="st">&quot;cat&quot;</span>)       <span class="co"># keyword, different order</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">A cat goes meow
+A cat goes meow
+A cat goes meow</pre></div>
+
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> power(base, exponent<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> base <span class="op">**</span> exponent</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(power(<span class="dv">3</span>))              <span class="co"># 9  (exponent defaults to 2)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(power(<span class="dv">2</span>, <span class="dv">10</span>))          <span class="co"># 1024</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(power(<span class="dv">2</span>, exponent<span class="op">=</span><span class="dv">8</span>))  <span class="co"># 256 — keyword arg skips positional matching</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">9
+1024
+256</pre></div>
+
+</section>
+</section>
+<section id="return-values" class="level2">
+<h2>Return Values</h2>
+<section id="single-value-and-none" class="level3">
+<h3>Single value and <code>None</code></h3>
+<p>A function returns a value using <code>return</code> — same concept
+as C.</p>
+<p>In C, a function that returns nothing is declared
+<code>void</code>.<br />
+In Python, a function that doesn’t <code>return</code> anything
+automatically returns <code>None</code>.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> greet(name):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;Hello,&quot;</span>, name)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># no return statement</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> greet(<span class="st">&quot;Alice&quot;</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;return value:&quot;</span>, result)   <span class="co"># None</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Hello, Alice
+return value: None</pre></div>
+
+<p><code>None</code> is Python’s way of representing “no value”. It is
+its own type (<code>NoneType</code>) and is the only value of that
+type.</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(<span class="va">None</span>))   <span class="co"># &lt;class &#39;NoneType&#39;&gt;</span></span></code></pre></div>
+</section>
+<section id="multiple-return-values" class="level3">
+<h3>Multiple Return Values</h3>
+<p>In C, a function can only return one value. To get multiple values
+out, you pass pointers.</p>
+<p>In Python, a function can return <strong>multiple values</strong> —
+they are packed into a <strong>tuple</strong> automatically.</p>
+<p>This is one of the places where tuples from Part 1 become immediately
+useful.</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> min_max(numbers):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">min</span>(numbers), <span class="bu">max</span>(numbers)   <span class="co"># returns a tuple</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> min_max([<span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">9</span>, <span class="dv">2</span>, <span class="dv">7</span>])</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)          <span class="co"># (1, 9)  &lt;-- a tuple</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">type</span>(result))    <span class="co"># &lt;class &#39;tuple&#39;&gt;</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">(1, 9)
+&lt;class &#x27;tuple&#x27;&gt;</pre></div>
+
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use tuple unpacking to capture each value separately</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>lo, hi <span class="op">=</span> min_max([<span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">9</span>, <span class="dv">2</span>, <span class="dv">7</span>])</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;min:&quot;</span>, lo)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;max:&quot;</span>, hi)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">min: 1
+max: 9</pre></div>
+
+</section>
+<section id="multiple-return-values--c-comparison" class="level3">
+<h3>Multiple return values — C comparison</h3>
+<p>In C, returning two values requires pointers:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> min_max<span class="op">(</span><span class="dt">int</span> arr<span class="op">[],</span> <span class="dt">int</span> n<span class="op">,</span> <span class="dt">int</span> <span class="op">*</span>lo<span class="op">,</span> <span class="dt">int</span> <span class="op">*</span>hi<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// write results through pointers</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lo<span class="op">,</span> hi<span class="op">;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>min_max<span class="op">(</span>arr<span class="op">,</span> n<span class="op">,</span> <span class="op">&amp;</span>lo<span class="op">,</span> <span class="op">&amp;</span>hi<span class="op">);</span></span></code></pre></div>
+<p>In Python:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> min_max(numbers):</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">min</span>(numbers), <span class="bu">max</span>(numbers)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>lo, hi <span class="op">=</span> min_max(numbers)</span></code></pre></div>
+<p>The Python version is cleaner because the function’s
+<em>interface</em> (what it produces) is expressed directly in the
+<code>return</code> statement, not through side-effects on pointers.</p>
+</section>
+</section>
+<section id="scope" class="level2">
+<h2>Scope</h2>
+<p><strong>Scope</strong> determines where a variable name is
+visible.</p>
+<p>In C, scope is <strong>block-based</strong>: any variable declared
+inside <code>{ }</code> is local to that block.</p>
+<p>In Python, scope is <strong>function-based</strong>:</p>
+<ul>
+<li>Variables defined inside a function are <strong>local</strong> —
+they don’t exist outside it</li>
+<li>Variables defined outside all functions are
+<strong>global</strong></li>
+</ul>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">10</span>          <span class="co"># global</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f():</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="dv">99</span>      <span class="co"># local — a completely separate variable</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(x)    <span class="co"># 99</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>f()</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x)        <span class="co"># 10  — global x is unchanged</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">10</span>          <span class="co"># global variable</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f():</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="dv">99</span>      <span class="co"># local variable — shadows the global</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;inside f: x =&quot;</span>, x)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>f()</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;outside f: x =&quot;</span>, x)   <span class="co"># global x is unchanged</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">inside f: x = 99
+outside f: x = 10</pre></div>
+
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>message <span class="op">=</span> <span class="st">&quot;Hello&quot;</span>    <span class="co"># global</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_message():</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(message)   <span class="co"># reads the global — no local &#39;message&#39; defined here</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>print_message()</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Hello</pre></div>
+
+<p><strong>Rule:</strong> A function can <em>read</em> a global
+variable, but any <em>assignment</em> inside a function creates a new
+<strong>local</strong> variable unless you explicitly declare
+<code>global</code>.</p>
+<section id="local-variables-dont-exist-outside-the-function"
+class="level3">
+<h3>Local variables don’t exist outside the function</h3>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compute():</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> <span class="dv">42</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>compute()</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result)   <span class="co"># NameError: name &#39;result&#39; is not defined</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">(1, 9)</pre></div>
+
+<p>Local variables are created when the function is called and destroyed
+when it returns.</p>
+<p>To get a value out of a function, <strong>use
+<code>return</code></strong> — don’t rely on writing to a global.</p>
+<blockquote>
+<p>This mirrors good C practice: return values through
+<code>return</code>, not global state.</p>
+</blockquote>
+</section>
+<section id="one-key-difference-from-c-no-block-scope" class="level3">
+<h3>One key difference from C: no block scope</h3>
+<p>In C, a variable declared inside an <code>if</code> or
+<code>for</code> block is only visible in that block.</p>
+<p>In Python, an <code>if</code> or <code>for</code> block does
+<strong>not</strong> create a new scope — variables assigned inside them
+are visible in the whole function:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f():</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="va">True</span>:</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> <span class="dv">5</span>       <span class="co"># in C, y would be local to this if-block</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(y)        <span class="co"># in Python, y is visible here too — prints 5</span></span></code></pre></div>
+<p>Only <strong>functions</strong> (and classes) create new scopes in
+Python.</p>
+</section>
+</section>
+<section id="functions-and-mutability" class="level2">
+<h2>Functions and Mutability</h2>
+<p>What happens to an argument when you pass it to a function?<br />
+The answer depends on whether the object is <strong>mutable or
+immutable</strong> — the theme from Part 1.</p>
+<p>In C, you choose: pass by value (copy) or pass by pointer
+(reference).<br />
+In Python, <strong>all arguments are passed by object reference</strong>
+— but mutability determines whether the function can modify what you
+passed.</p>
+<section id="passing-an-immutable-object" class="level3">
+<h3>Passing an immutable object</h3>
+<p>Integers, strings, and tuples are immutable. A function cannot modify
+them.</p>
+<p>This <em>behaves</em> like pass-by-value in C.</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> double(x):</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x <span class="op">*</span> <span class="dv">2</span>     <span class="co"># creates a new local binding — does NOT change the caller&#39;s x</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;inside:  x =&quot;</span>, x)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>double(n)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;outside: n =&quot;</span>, n)   <span class="co"># unchanged</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">inside:  x = 10
+outside: n = 5</pre></div>
+
+</section>
+<section id="passing-a-mutable-object" class="level3">
+<h3>Passing a mutable object</h3>
+<p>Lists and dictionaries are mutable. A function <strong>can modify
+them in-place</strong>, and the changes are visible to the caller.</p>
+<p>This <em>behaves</em> like passing a pointer in C.</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> append_zero(lst):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    lst.append(<span class="dv">0</span>)   <span class="co"># modifies the list object in place</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>numbers <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>append_zero(numbers)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(numbers)   <span class="co"># [1, 2, 3, 0] — the original list was modified</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[1, 2, 3, 0]</pre></div>
+
+<p>The function and the caller share the <strong>same list
+object</strong>. Mutating it inside the function mutates it
+everywhere.</p>
+</section>
+<section id="mutation-vs-rebinding--an-important-distinction"
+class="level3">
+<h3>Mutation vs Rebinding — an important distinction</h3>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> replace(lst):</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    lst <span class="op">=</span> [<span class="dv">99</span>, <span class="dv">98</span>, <span class="dv">97</span>]   <span class="co"># rebinds the LOCAL name — does NOT affect the caller</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>numbers <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>replace(numbers)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(numbers)   <span class="co"># still [1, 2, 3]</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[1, 2, 3]</pre></div>
+
+<p>Assignment (<code>lst = ...</code>) inside a function always creates
+or rebinds a <strong>local name</strong>.<br />
+Methods like <code>lst.append()</code> or <code>lst[i] = x</code>
+<strong>mutate the object</strong> the name points to.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Action</th>
+<th>Effect on caller’s object</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>lst.append(x)</code></td>
+<td>Modified — same object</td>
+</tr>
+<tr class="even">
+<td><code>lst[i] = x</code></td>
+<td>Modified — same object</td>
+</tr>
+<tr class="odd">
+<td><code>lst = [...]</code></td>
+<td>No effect — local rebinding</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mutability-and-function-arguments--summary" class="level3">
+<h3>Mutability and function arguments — summary</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Argument type</th>
+<th>Can function modify caller’s object?</th>
+<th>C analogy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>int</code>, <code>str</code>, <code>tuple</code>
+(immutable)</td>
+<td>No</td>
+<td>pass by value</td>
+</tr>
+<tr class="even">
+<td><code>list</code>, <code>dict</code>, <code>set</code>
+(mutable)</td>
+<td>Yes, if mutated in place</td>
+<td>pass by pointer</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Practical consequence:</strong><br />
+If you write a function that takes a list and modifies it, the caller’s
+list changes.<br />
+If you don’t want that, pass a <strong>copy</strong>:
+<code>my_function(my_list[:])</code>.</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> append_zero(lst):</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    lst.append(<span class="dv">0</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>numbers <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>append_zero(numbers[:])   <span class="co"># pass a copy — original is protected</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(numbers)            <span class="co"># [1, 2, 3] — unchanged</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[1, 2, 3]</pre></div>
+
+</section>
+</section>
+<section id="docstrings" class="level2">
+<h2>Docstrings</h2>
+<p>A <strong>docstring</strong> is a string literal placed immediately
+after the <code>def</code> line.<br />
+It documents what the function does — its purpose, parameters, and
+return value.</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> function_name(param1, param2):</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;One-line summary of what the function does.</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Longer description if needed.</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters:</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">        param1: description</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co">        param2: description</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co">        description of return value</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    ...</span></code></pre></div>
+<p>In C, you’d write a comment above the function. Python formalises
+this into the language — the docstring is stored on the function object
+and accessible via <code>help()</code>.</p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> min_max(numbers):</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Return the minimum and maximum values in a list.</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters:</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="co">        numbers: a non-empty list of comparable values</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co">        A tuple (minimum, maximum)</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">min</span>(numbers), <span class="bu">max</span>(numbers)</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="bu">help</span>(min_max)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Help on function min_max in module __main__:
+
+min_max(numbers)
+    Return the minimum and maximum values in a list.
+
+    Parameters:
+        numbers: a non-empty list of comparable values
+
+    Returns:
+        A tuple (minimum, maximum)</pre></div>
+
+<p>The docstring is part of a function’s <strong>public
+interface</strong> — it tells the caller what the function expects and
+what it produces, without needing to read the implementation.</p>
+</section>
+<section id="putting-it-all-together" class="level2">
+<h2>Putting It All Together</h2>
+<p>Let’s write a small function that uses everything from this lecture
+and Part 1:</p>
+<ul>
+<li>Takes a <strong>list</strong> of student grade dictionaries</li>
+<li>Returns a <strong>tuple</strong> with the class average and the top
+scorer’s name</li>
+</ul>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> class_summary(records):</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;Return summary statistics for a list of student records.</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters:</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co">        records: list of dicts, each with &#39;name&#39; and &#39;grade&#39; keys</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="co">        A tuple (average_grade, top_student_name)</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    top_name  <span class="op">=</span> records[<span class="dv">0</span>][<span class="st">&quot;name&quot;</span>]</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    top_grade <span class="op">=</span> records[<span class="dv">0</span>][<span class="st">&quot;grade&quot;</span>]</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> student <span class="kw">in</span> records:</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> student[<span class="st">&quot;grade&quot;</span>]</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> student[<span class="st">&quot;grade&quot;</span>] <span class="op">&gt;</span> top_grade:</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>            top_grade <span class="op">=</span> student[<span class="st">&quot;grade&quot;</span>]</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>            top_name  <span class="op">=</span> student[<span class="st">&quot;name&quot;</span>]</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>    average <span class="op">=</span> total <span class="op">/</span> <span class="bu">len</span>(records)</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> average, top_name</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>students <span class="op">=</span> [</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;Alice&quot;</span>,  <span class="st">&quot;grade&quot;</span>: <span class="dv">88</span>},</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;Bob&quot;</span>,    <span class="st">&quot;grade&quot;</span>: <span class="dv">95</span>},</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;Carol&quot;</span>,  <span class="st">&quot;grade&quot;</span>: <span class="dv">76</span>},</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;Dave&quot;</span>,   <span class="st">&quot;grade&quot;</span>: <span class="dv">91</span>},</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>avg, top <span class="op">=</span> class_summary(students)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Class average: </span><span class="sc">{</span>avg<span class="sc">:.1f}</span><span class="ss">&quot;</span>)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Top student:   </span><span class="sc">{</span>top<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Class average: 87.5
+Top student:   Bob</pre></div>
+
+</section>
+<section id="summary" class="level2">
+<h2>Summary</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Python</th>
+<th>C equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Define a function</td>
+<td><code>def name(params):</code></td>
+<td><code>type name(params) { }</code></td>
+</tr>
+<tr class="even">
+<td>Default parameters</td>
+<td><code>def f(x, y=0):</code></td>
+<td>not supported</td>
+</tr>
+<tr class="odd">
+<td>Keyword arguments</td>
+<td><code>f(y=1, x=2)</code></td>
+<td>not supported</td>
+</tr>
+<tr class="even">
+<td>No return value</td>
+<td>returns <code>None</code></td>
+<td><code>void</code></td>
+</tr>
+<tr class="odd">
+<td>Multiple return values</td>
+<td><code>return a, b</code> → tuple</td>
+<td>output pointers</td>
+</tr>
+<tr class="even">
+<td>Scope unit</td>
+<td>function</td>
+<td>block <code>{ }</code></td>
+</tr>
+<tr class="odd">
+<td>Immutable argument</td>
+<td>cannot be modified</td>
+<td>pass by value</td>
+</tr>
+<tr class="even">
+<td>Mutable argument</td>
+<td>can be modified in place</td>
+<td>pass by pointer</td>
+</tr>
+<tr class="odd">
+<td>Documentation</td>
+<td>docstring (<code>"""..."""</code>), <code>help()</code></td>
+<td>comments</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key takeaway:</strong><br />
+A function’s name, parameters, defaults, and docstring define its
+<strong>public interface</strong>.<br />
+Mutability determines whether passing an object to a function is safe or
+has side effects.</p>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture02-part1/"><span class="label">← Previous</span>Lecture
+2 · Part 1: Data Containers</a>
+<a class="next" href="../lecture03-part1/"><span class="label">Next →</span>Lecture
+3 · Part 1: Introduction to Object Oriented Programming</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linear Data Structures (Continued) · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture10-part2/"><span class="label">← Previous</span>Lecture
+10 · Part 2: Linear Data Structures (Continued)</a>
+<a class="next" href="../lecture11-part1/"><span class="label">Next →</span>Lecture
+11 · Part 1: Searching and Sorting</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 10 · Part 3</div>
+<h1>Linear Data Structures (Continued)</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#queues-informal-introduction"
+id="toc-queues-informal-introduction">Queues (Informal
+Introduction)</a></li>
+<li><a href="#applications" id="toc-applications">Applications</a></li>
+<li><a href="#queue-abstract-data-type-adt"
+id="toc-queue-abstract-data-type-adt">Queue Abstract Data Type
+(ADT)</a></li>
+<li><a href="#implementing-queue-adt"
+id="toc-implementing-queue-adt">Implementing Queue ADT</a></li>
+<li><a href="#performance" id="toc-performance">Performance</a></li>
+</ul>
+</nav>
+<section id="queues-informal-introduction" class="level2">
+<h2>Queues (Informal Introduction)</h2>
+<section id="what-is-a-queue" class="level3">
+<h3>What Is a Queue?</h3>
+<p>A <strong>queue</strong> is an ordered collection of items where:</p>
+<ul>
+<li>New items are <strong>added at one end</strong>, called the
+<strong>rear</strong></li>
+<li>Existing items are <strong>removed from the other end</strong>,
+called the <strong>front</strong></li>
+</ul>
+<p>As elements enter the queue:</p>
+<ul>
+<li>They <strong>start at the rear</strong></li>
+<li>They <strong>move toward the front</strong></li>
+<li>They <strong>wait until it is their turn to be removed</strong></li>
+</ul>
+<figure class="nb-figure"><img src="queue_line.png?v=9edadf7f" alt="Waiting in Line" style="width:600px"><figcaption><strong>Figure. </strong> Waiting in Line</figcaption></figure>
+
+</section>
+<section id="fifo-ordering" class="level3">
+<h3>FIFO Ordering</h3>
+<p>Queues follow a specific ordering principle:</p>
+<p><strong>FIFO — First In, First Out</strong></p>
+<p>This means:</p>
+<ul>
+<li>The <strong>first item added</strong> is the <strong>first item
+removed</strong></li>
+<li>The <strong>most recent item added</strong> must wait at the
+rear</li>
+</ul>
+<p>Another common way to describe this rule is:</p>
+<p><strong>First-Come, First-Served</strong></p>
+</section>
+<section id="basic-queue-operations" class="level3">
+<h3>Basic Queue Operations</h3>
+<p>Assume we start with an empty queue <code>q</code>:</p>
+<ul>
+<li><code>q = [front, ..., rear]</code></li>
+</ul>
+<p>Basic Operations:</p>
+<ul>
+<li><code>q.enqueue(x)</code> –&gt; Adds an item to the
+<strong>rear</strong> of the queue</li>
+<li><code>q.dequeue()</code> –&gt; Removes and returns items from the
+<strong>front</strong> of the queue</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Queue Contents</th>
+<th>Return Value</th>
+<th>Front</th>
+<th>Rear</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>q.enqueue(4)</code></td>
+<td><code>[4]</code></td>
+<td></td>
+<td><code>4</code></td>
+<td><code>4</code></td>
+</tr>
+<tr class="even">
+<td><code>q.enqueue('dog')</code></td>
+<td><code>[4, 'dog']</code></td>
+<td></td>
+<td><code>4</code></td>
+<td><code>'dog'</code></td>
+</tr>
+<tr class="odd">
+<td><code>q.enqueue(True)</code></td>
+<td><code>[4, 'dog', True]</code></td>
+<td></td>
+<td><code>4</code></td>
+<td><code>True</code></td>
+</tr>
+<tr class="even">
+<td><code>q.enqueue(8.4)</code></td>
+<td><code>[4, 'dog', True, 8.4]</code></td>
+<td></td>
+<td><code>4</code></td>
+<td><code>8.4</code></td>
+</tr>
+<tr class="odd">
+<td><code>q.dequeue()</code></td>
+<td><code>['dog', True, 8.4]</code></td>
+<td><code>4</code></td>
+<td><code>'dog'</code></td>
+<td><code>8.4</code></td>
+</tr>
+<tr class="even">
+<td><code>q.dequeue()</code></td>
+<td><code>[True, 8.4]</code></td>
+<td><code>'dog'</code></td>
+<td><code>True</code></td>
+<td><code>8.4</code></td>
+</tr>
+<tr class="odd">
+<td><code>q.dequeue()</code></td>
+<td><code>[8.4]</code></td>
+<td><code>True</code></td>
+<td><code>8.4</code></td>
+<td><code>8.4</code></td>
+</tr>
+<tr class="even">
+<td><code>q.dequeue()</code></td>
+<td><code>[ ]</code></td>
+<td><code>8.4</code></td>
+<td><code>None</code></td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<figure class="nb-figure"><img src="basicqueue.png?v=4e947c8d" alt="A Queue of Python Data Objects" style="width:600px"><figcaption><strong>Figure. </strong> A Queue of Python Data Objects</figcaption></figure>
+
+</section>
+</section>
+<section id="applications" class="level2">
+<h2>Applications</h2>
+<p>Queues are widely used in computer systems.</p>
+<section id="example-1-printer-queue" class="level3">
+<h3>Example 1: Printer Queue</h3>
+<ul>
+<li>A computer lab has <strong>many computers</strong></li>
+<li>All students send print jobs to <strong>one printer</strong></li>
+</ul>
+<figure class="nb-figure"><img src="printerqueue.png?v=1b4ee8c7" alt="A queue of printer jobs" style="width:400px"><figcaption><strong>Figure. </strong> A queue of printer jobs</figcaption></figure>
+
+<p>The printer behaves like a queue:</p>
+<ol type="1">
+<li>Print tasks <strong>enter the queue</strong></li>
+<li>The <strong>first task submitted</strong> prints first</li>
+<li>Later tasks <strong>must wait their turn</strong></li>
+</ol>
+<p>This is a direct application of <strong>FIFO ordering</strong>.</p>
+</section>
+<section id="example-2-queues-in-operating-systems" class="level3">
+<h3>Example 2: Queues in Operating Systems</h3>
+<p>Operating systems also use queues internally:</p>
+<section id="process-scheduling" class="level4">
+<h4>Process Scheduling:</h4>
+<ul>
+<li>Programs waiting to run are placed in <strong>process
+queues</strong></li>
+<li>The operating system decides <strong>which program runs
+next</strong></li>
+</ul>
+<figure class="nb-figure"><img src="os_scheduler_queue.png?v=bf9bf6b3" alt="CPU Process Scheduling" style="width:600px"><figcaption><strong>Figure. </strong> CPU Process Scheduling</figcaption></figure>
+
+</section>
+<section id="keyboard-input-buffer" class="level4">
+<h4>Keyboard Input Buffer</h4>
+<p>When typing quickly:</p>
+<ul>
+<li>Keystrokes may occur <strong>faster than they appear on
+screen</strong></li>
+<li>The system temporarily stores them in a <strong>queue-like
+buffer</strong></li>
+</ul>
+<p>This ensures characters appear <strong>in the correct
+order</strong>.</p>
+<figure class="nb-figure"><img src="keyboard_queue.png?v=2bd1f346" alt="Input Buffer Queue" style="width:600px"><figcaption><strong>Figure. </strong> Input Buffer Queue</figcaption></figure>
+
+</section>
+</section>
+</section>
+<section id="queue-abstract-data-type-adt" class="level2">
+<h2>Queue Abstract Data Type (ADT)</h2>
+<section id="abstract-model" class="level3">
+<h3>Abstract Model</h3>
+<p>A <strong>Queue</strong> is an ordered collection of elements that
+follows the <strong>FIFO — First In, First Out</strong> rule.</p>
+<p>If the queue contains elements</p>
+<p>$ q = [a_0, a_1, a_2, \dots, a_{n-1}] $</p>
+<p>then:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math>
+is the <strong>front</strong> of the queue</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">a_{n-1}</annotation></semantics></math>
+is the <strong>rear</strong> of the queue</li>
+<li>only the <strong>front</strong> is directly accessible</li>
+<li>elements can only be added to the <strong>rear</strong> of the
+queue</li>
+</ul>
+<p>The queue may be <strong>empty</strong>.</p>
+</section>
+<section id="public-interface" class="level3">
+<h3>Public Interface</h3>
+<p>The public interface of the Queue ADT defines the operations that can
+be performed on the stack:</p>
+<section id="is_empty" class="level4">
+<h4><code>is_empty()</code></h4>
+<ul>
+<li>Returns <code>True</code> if the queue has no elements</li>
+<li>Returns <code>False</code> otherwise</li>
+<li>The queue is not modified</li>
+</ul>
+</section>
+<section id="size" class="level4">
+<h4><code>size()</code></h4>
+<ul>
+<li>Returns the number of items currently stored in the queue</li>
+<li>The queue is not modified</li>
+</ul>
+</section>
+<section id="enqueuex" class="level4">
+<h4><code>enqueue(x)</code></h4>
+<ul>
+<li>Adds a new item to the <strong>rear</strong> of the queue</li>
+<li>Requires one parameter (the item <code>x</code>)</li>
+<li>Returns nothing</li>
+<li>The queue is modified</li>
+</ul>
+</section>
+<section id="dequeue" class="level4">
+<h4><code>dequeue()</code></h4>
+<ul>
+<li>Removes and returns the item at the <strong>front</strong> of the
+queue</li>
+<li>Requires no parameters</li>
+<li>The queue is modified</li>
+</ul>
+</section>
+<section id="front" class="level4">
+<h4><code>front()</code></h4>
+<ul>
+<li>Returns the item at the <strong>front</strong> of the queue</li>
+<li>Does not remove the item</li>
+<li>The queue is not modified</li>
+</ul>
+</section>
+</section>
+<section id="behavioral-guarantees" class="level3">
+<h3>Behavioral Guarantees</h3>
+<p>The Queue ADT, through its public interface, guarantees:</p>
+<ol type="1">
+<li><strong>FIFO ordering</strong> — the last added element is removed
+first</li>
+<li><strong>Restricted access</strong> — only the front element can be
+accessed or removed</li>
+<li><strong>Encapsulation</strong> — users interact only through the
+public interface</li>
+<li><strong>Implementation independence</strong> — behavior is fixed,
+representation is not</li>
+</ol>
+</section>
+</section>
+<section id="implementing-queue-adt" class="level2">
+<h2>Implementing Queue ADT</h2>
+<section id="goal" class="level3">
+<h3>Goal</h3>
+<p>Implement the <strong>Queue ADT</strong> using a
+<strong>LinkedList</strong> as the underlying storage.</p>
+<p>We will:</p>
+<ol type="1">
+<li>Define the <em>Queue ADT</em> (public interface)</li>
+<li>Assume an existing <code>LinkedList</code> implementation of
+<em>List ADT</em></li>
+<li>Implement <strong>LinkedQueue</strong> that inherits from
+<code>QueueADT</code></li>
+<li>Use only <strong>LinkedList operations</strong></li>
+</ol>
+</section>
+<section id="step-1-queue-adt-public-interface" class="level3">
+<h3>Step 1: Queue ADT (Public Interface)</h3>
+<p>The Queue ADT defines required behavior:</p>
+<ul>
+<li><code>enqueue(x)</code></li>
+<li><code>dequeue()</code></li>
+<li><code>front()</code></li>
+<li><code>is_empty()</code></li>
+<li><code>size()</code></li>
+</ul>
+<p>This class provides the <strong>interface only</strong>, not an
+implementation.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> QueueADT:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      <span class="kw">def</span> size(<span class="va">self</span>):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>          <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="kw">def</span> is_empty(<span class="va">self</span>):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>          <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>      <span class="kw">def</span> enqueue(<span class="va">self</span>, x):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>          <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      <span class="kw">def</span> dequeue(<span class="va">self</span>):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>          <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="kw">def</span> front(<span class="va">self</span>):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>          <span class="cf">raise</span> <span class="pp">NotImplementedError</span></span></code></pre></div>
+</section>
+<section id="step-2-assumed-linkedlist-interface" class="level3">
+<h3>Step 2: Assumed <code>LinkedList</code> Interface</h3>
+<p>We assume a <code>LinkedList</code> implementation with the following
+public interface:</p>
+<ul>
+<li><code>add(x)</code> –&gt; add to front</li>
+<li><code>append(x)</code> –&gt; add to end</li>
+<li><code>remove(i)</code> –&gt; remove at index i</li>
+<li><code>get(i)</code> –&gt; access element at index i</li>
+<li><code>size()</code> –&gt; return the <strong>number of
+elements</strong> in the list</li>
+<li><code>is_empty()</code> –&gt; returns <code>True</code> if the list
+contains no elements</li>
+</ul>
+<p>We treat <code>LinkedList</code> as a <strong>black box</strong> that
+satisfies the List ADT.</p>
+</section>
+<section id="key-design-decision" class="level3">
+<h3>Key Design Decision</h3>
+<p>We map:</p>
+<ul>
+<li><strong>front of queue</strong> –&gt; index <code>0</code></li>
+<li><strong>rear of queue</strong> –&gt; index
+<code>size() - 1</code></li>
+</ul>
+<p>So if:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>a</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo>,</mo><msub><mi>a</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">q = [a_0, a_1, a_2]</annotation></semantics></math></li>
+</ul>
+<p>then:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math>
+= front (removed first)</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>2</mn></msub><annotation encoding="application/x-tex">a_2</annotation></semantics></math>
+= rear (added last)</li>
+</ul>
+</section>
+<section id="step-3-linkedqueue-implementation" class="level3">
+<h3>Step 3: <code>LinkedQueue</code> Implementation</h3>
+<section id="constructure" class="level4">
+<h4>Constructure</h4>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LinkedQueue(QueueADT):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._data <span class="op">=</span> LinkedList()</span></code></pre></div>
+</section>
+<section id="implement-size-and-is_empty" class="level4">
+<h4>Implement <code>size()</code> and <code>is_empty()</code></h4>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> size(<span class="va">self</span>):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._data.size()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> is_empty(<span class="va">self</span>):</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._data.is_empty()</span></code></pre></div>
+</section>
+<section id="implement-enqueuex" class="level4">
+<h4>Implement <code>enqueue(x)</code></h4>
+<p>Add element to the <strong>rear</strong> of the queue.</p>
+<p>Key idea:</p>
+<ul>
+<li>Rear = end of <code>LinkedList</code></li>
+<li>Use <code>append(x)</code></li>
+</ul>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> enqueue(<span class="va">self</span>, x):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._data.append(x)</span></code></pre></div>
+<p><strong>Example:</strong></p>
+<p>Before:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>a</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[a_0, a_1]</annotation></semantics></math></p>
+<p>After <code>enqueue(x)</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>a</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo>,</mo><mi>x</mi><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[a_0, a_1, x]</annotation></semantics></math></p>
+</section>
+<section id="implement-dequeue" class="level4">
+<h4>Implement <code>dequeue()</code></h4>
+<p>Remove and return the <strong>front</strong> element.</p>
+<p>Key idea:</p>
+<ul>
+<li>Front = index <code>0</code></li>
+<li>Use <code>remove(0)</code></li>
+</ul>
+<p>Precondition:</p>
+<ul>
+<li>queue must not be empty</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> dequeue(<span class="va">self</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.is_empty():</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">IndexError</span>(<span class="st">&quot;dequeue from empty queue&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._data.remove(<span class="dv">0</span>)</span></code></pre></div>
+<p><strong>Example:</strong></p>
+<p>Before:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>a</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo>,</mo><msub><mi>a</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[a_0, a_1, a_2]</annotation></semantics></math></p>
+<p>After <code>dequeue()</code>:</p>
+<ul>
+<li>returns
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math></li>
+<li>queue becomes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>a</mi><mn>1</mn></msub><mo>,</mo><msub><mi>a</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[a_1, a_2]</annotation></semantics></math></li>
+</ul>
+</section>
+<section id="implement-front" class="level4">
+<h4>Implement <code>front()</code></h4>
+<p>Return the front element without removing it.</p>
+<p>Key idea:</p>
+<ul>
+<li>Front = index <code>0</code></li>
+<li>Use <code>get(0)</code></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> front(<span class="va">self</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.is_empty():</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">IndexError</span>(<span class="st">&quot;front from empty queue&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._data.get(<span class="dv">0</span>)</span></code></pre></div>
+<p><strong>Example:</strong></p>
+<p>Before:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>a</mi><mn>0</mn></msub><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo>,</mo><msub><mi>a</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[a_0, a_1, a_2]</annotation></semantics></math></p>
+<p>After <code>front()</code>:</p>
+<ul>
+<li>returns
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math></li>
+<li>queue unchanged</li>
+</ul>
+</section>
+<section id="complete-implementation" class="level4">
+<h4>Complete Implementation</h4>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">class</span> LinkedQueue(QueueADT):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._data <span class="op">=</span> LinkedList()</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> size(<span class="va">self</span>):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">self</span>._data.size()</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> is_empty(<span class="va">self</span>):</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">self</span>._data.isEmpty()</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> enqueue(<span class="va">self</span>, x):</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._data.append(x)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> dequeue(<span class="va">self</span>):</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.isEmpty():</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                <span class="cf">raise</span> <span class="pp">IndexError</span>(<span class="st">&quot;dequeue from empty queue&quot;</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">self</span>._data.remove(<span class="dv">0</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> front(<span class="va">self</span>):</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.isEmpty():</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                <span class="cf">raise</span> <span class="pp">IndexError</span>(<span class="st">&quot;front from empty queue&quot;</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">self</span>._data.get(<span class="dv">0</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.is_empty():</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> <span class="st">&quot;[]&quot;</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>_data<span class="sc">}</span><span class="ss"> (front=</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>front()<span class="sc">}</span><span class="ss">)&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> LinkedQueue <span class="im">import</span> LinkedQueue</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Initializing LinkedQueue()&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> LinkedQueue()</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(q)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;q.is_empty(): &quot;</span>, q.is_empty())</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;q.size(): &quot;</span>, q.size())</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;q.enqueue(4)&quot;</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>q.enqueue(<span class="dv">4</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(q)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;q.enqueue(&#39;dog&#39;)&quot;</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>q.enqueue(<span class="st">&#39;dog&#39;</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(q)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Initializing LinkedQueue()
+[]
+q.is_empty():  True
+q.size():  0
+
+q.enqueue(4)
+[4] (front=4)
+
+q.enqueue(&#x27;dog&#x27;)
+[4, dog] (front=4)</pre></div>
+
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(q)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;q.front(): &quot;</span>, q.front())</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;q.size(): &quot;</span>, q.size())</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;q.is_empty(): &quot;</span>, q.is_empty())</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;q.dequeue(): &quot;</span>, q.dequeue())</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(q, <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;q.dequeue(): &quot;</span>, q.dequeue())</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(q)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;q.front()&quot;</span>, end<span class="op">=</span><span class="st">&quot;: &quot;</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    q.front()</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">IndexError</span> <span class="im">as</span> err:</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{</span><span class="bu">type</span>(err)<span class="sc">.</span><span class="va">__name__</span><span class="sc">}</span><span class="ss">(</span><span class="sc">{</span>err<span class="sc">}</span><span class="ss">)&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[4, dog] (front=4)
+q.front():  4
+q.size():  2
+q.is_empty():  False
+
+q.dequeue():  4
+[dog] (front=dog) 
+
+q.dequeue():  dog
+[]
+
+q.front(): IndexError(front from empty queue)</pre></div>
+
+</section>
+</section>
+<section id="important-point-about-encapsulation" class="level3">
+<h3>Important Point About Encapsulation</h3>
+<p>Even though <code>_data</code> has more methods
+(<code>_data = LinkedList()</code>), users of <code>LinkedQueue</code>
+should <strong>not</strong> interact with <code>_data</code>
+directly.</p>
+<p>They should only use the queues public interface:</p>
+<ul>
+<li><code>enqueue(x)</code></li>
+<li><code>dequeue()</code></li>
+<li><code>front()</code></li>
+<li><code>size()</code></li>
+<li><code>is_empty()</code></li>
+</ul>
+<p>So the extra methods on <code>_data</code> are an <strong>internal
+implementation detail</strong>.</p>
+<p><strong>Key Takeway:</strong></p>
+<p>“The user sees the Queue public interface, not the internal storage
+object”</p>
+</section>
+<section id="self-check" class="level3">
+<h3>Self Check</h3>
+<p>Suppose a queue <code>q</code> has elements added in the following
+order:</p>
+<p>60, 10, 50, 30, 40, 20</p>
+<p>What is the output of the code below?</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="kw">not</span> q.is_empty():</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(q.dequeue(), end<span class="op">=</span><span class="st">&quot; &quot;</span>)</span></code></pre></div>
+<p>A. 10 20 30 40 50 60<br />
+B. 60 10 50 30 40 20<br />
+C. 60 50 40 30 20 10<br />
+D. 20 40 30 50 10 60<br />
+E. There is no guaranteed order</p>
+<section id="answer" class="level4">
+<h4>Answer:</h4>
+<p>B. 60 10 50 30 40 20 (FIFO — First In, First Out)</p>
+</section>
+</section>
+</section>
+<section id="performance" class="level2">
+<h2>Performance</h2>
+<section id="time-complexity" class="level3">
+<h3>Time Complexity</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>LinkedQueue (naive LinkedList)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>enqueue(x)</code></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td><code>dequeue()</code></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td><code>front()</code></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td><code>size()</code></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td><code>is_empty()</code></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<section id="why-is-enqueuex-on" class="level4">
+<h4>Why is <code>enqueue(x)</code> O(n)?</h4>
+<p>If your LinkedList:</p>
+<ul>
+<li>does <strong>not maintain a tail pointer</strong></li>
+</ul>
+<p>then:</p>
+<ul>
+<li><code>append(x)</code> requires traversal to the end</li>
+<li>cost is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></li>
+</ul>
+</section>
+<section id="optimization" class="level4">
+<h4>Optimization</h4>
+<p>If LinkedList maintains a <strong>tail reference</strong>, then:</p>
+<ul>
+<li><code>append(x)</code> becomes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></li>
+</ul>
+<p>Updated complexity:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>LinkedQueue (with tail)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>enqueue(x)</code></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td><code>dequeue()</code></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture10-part2/"><span class="label">← Previous</span>Lecture
+10 · Part 2: Linear Data Structures (Continued)</a>
+<a class="next" href="../lecture11-part1/"><span class="label">Next →</span>Lecture
+11 · Part 1: Searching and Sorting</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

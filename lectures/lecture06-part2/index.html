@@ -1,0 +1,1149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polymorphism &amp; Duck Typing · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture06-part1/"><span class="label">← Previous</span>Lecture
+6 · Part 1: Polymorphism &amp; Duck Typing</a>
+<a class="next" href="../lecture07-part1/"><span class="label">Next →</span>Lecture
+7 · Part 1: Text/Binary IO</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 6 · Part 2</div>
+<h1>Polymorphism &amp; Duck Typing</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#duck-typing-in-practice"
+id="toc-duck-typing-in-practice">Duck Typing in Practice</a></li>
+<li><a href="#duck-typing-vs-inheritance"
+id="toc-duck-typing-vs-inheritance">Duck Typing vs Inheritance</a></li>
+<li><a href="#benefits" id="toc-benefits">Benefits</a></li>
+<li><a href="#risks--trade-offs" id="toc-risks--trade-offs">Risks /
+Trade-offs</a></li>
+<li><a href="#designing-with-duck-typing-practical-habits"
+id="toc-designing-with-duck-typing-practical-habits">Designing with Duck
+Typing (Practical Habits)</a></li>
+<li><a href="#lbyl-vs-eafp" id="toc-lbyl-vs-eafp">LBYL vs EAFP</a></li>
+<li><a href="#wrap-up" id="toc-wrap-up">Wrap-up</a></li>
+</ul>
+</nav>
+<section id="duck-typing-in-practice" class="level2">
+<h2>Duck Typing in Practice</h2>
+<section id="duck-typing-through-protocols" class="level3">
+<h3>Duck Typing Through Protocols</h3>
+<p>Duck typing applies to common “protocols” (informal rules about
+behavior), like:</p>
+<ul>
+<li><strong>Method calls</strong>: <code>obj.draw()</code>,
+<code>obj.send(msg)</code></li>
+<li><strong>Built-in functions</strong>: <code>len(x)</code>,
+<code>sorted(x)</code>, <code>sum(x)</code></li>
+<li><strong>Operators</strong>: <code>x + y</code>, <code>x in y</code>,
+<code>x[i]</code></li>
+<li><strong>Iterables / iteration</strong>: <code>for item in x:</code>
+<ul>
+<li>If something works in a <code>for</code> loop, it’s following the
+<em>iteration</em> protocol</li>
+</ul></li>
+</ul>
+<p>In all cases, Python is relying on <strong>supported
+operations</strong>, not declared types.</p>
+</section>
+<section id="examples-of-common-protocols" class="level3">
+<h3>Examples of Common Protocols</h3>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1) METHOD CALLS: obj.draw()</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Circle:</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> draw(<span class="va">self</span>):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Drawing a circle&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Triangle:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> draw(<span class="va">self</span>):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Drawing a triangle&quot;</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> render(shape):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Works with anything that has .draw()</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    shape.draw()</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>render(Circle())</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>render(Triangle())</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Drawing a circle
+Drawing a triangle</pre></div>
+
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2) BUILT-IN FUNCTIONS: len(x), sorted(x), sum(x)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># has length</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(<span class="st">&quot;hello&quot;</span>))          <span class="co"># 5</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>]))     <span class="co"># 3</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># can be sorted</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sorted</span>([<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>]))     <span class="co"># [1, 2, 3]</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sorted</span>(<span class="st">&quot;python&quot;</span>))      <span class="co"># [&#39;h&#39;, &#39;n&#39;, &#39;o&#39;, &#39;p&#39;, &#39;t&#39;, &#39;y&#39;]</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># can be summed</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sum</span>([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>]))     <span class="co"># 10</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sum</span>((<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">5</span>)))        <span class="co"># 15</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">5
+3
+[1, 2, 3]
+[&#x27;h&#x27;, &#x27;n&#x27;, &#x27;o&#x27;, &#x27;p&#x27;, &#x27;t&#x27;, &#x27;y&#x27;]
+10
+15</pre></div>
+
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3) OPERATORS: x + y, x in y, x[i]</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># supports addition</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;py&quot;</span> <span class="op">+</span> <span class="st">&quot;thon&quot;</span>)         <span class="co"># &#39;python&#39;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>([<span class="dv">1</span>, <span class="dv">2</span>] <span class="op">+</span> [<span class="dv">3</span>, <span class="dv">4</span>])       <span class="co"># [1, 2, 3, 4]</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># supports membership check; &#39;in&#39;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;a&quot;</span> <span class="kw">in</span> <span class="st">&quot;cat&quot;</span>)          <span class="co"># True</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="dv">2</span> <span class="kw">in</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])        <span class="co"># True</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># supports indexing</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;hello&quot;</span>[<span class="dv">1</span>])            <span class="co"># &#39;e&#39;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>][<span class="dv">2</span>])       <span class="co"># 30</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">python
+[1, 2, 3, 4]
+True
+True
+e
+30</pre></div>
+
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 4) ITERABLES / ITERATION: for item in x</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># If it works in a for-loop, it&#39;s following the iteration protocol.</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch <span class="kw">in</span> <span class="st">&quot;hi&quot;</span>:</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(ch)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> num <span class="kw">in</span> [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>]:</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(num)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">h
+i
+10
+20
+30</pre></div>
+
+</section>
+<section id="what-to-notice" class="level3">
+<h3>What to Notice</h3>
+<ul>
+<li>Same syntax works across different types because Python checks for
+supported behavior at runtime.</li>
+<li>Each category above corresponds to “what operations does this object
+support?”
+<ul>
+<li><code>.draw()</code> method exists?</li>
+<li>has a length?</li>
+<li>can be sorted / summed?</li>
+<li>supports <code>+</code>, <code>in</code>, indexing?</li>
+<li>supports iteration for a <code>for</code> loop?</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="duck-typing-vs-inheritance" class="level2">
+<h2>Duck Typing vs Inheritance</h2>
+<section id="two-ways-to-get-same-call-different-behavior"
+class="level3">
+<h3>Two Ways to Get “Same Call, Different Behavior”</h3>
+<ol type="1">
+<li><p><strong>Inheritance-based polymorphism</strong></p>
+<ul>
+<li>Classes share a common parent</li>
+<li>Child classes override methods</li>
+</ul></li>
+<li><p><strong>Duck typing (behavior-based)</strong></p>
+<ul>
+<li>Classes do not need a common parent</li>
+<li>As long as they support the same operations, they work</li>
+</ul></li>
+</ol>
+</section>
+<section id="inheritance-based-polymorphism" class="level3">
+<h3>Inheritance-Based Polymorphism</h3>
+<p>When inheritance is used, we often have:</p>
+<ul>
+<li>A base class that defines a common method name</li>
+<li>Subclasses that override that method</li>
+</ul>
+<p>This is useful when:</p>
+<ul>
+<li>there is a true <strong>“is-a” relationship</strong></li>
+<li>subclasses share data and shared default behavior</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># INHERITANCE EXAMPLE: shared base class + overriding</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># There is an &quot;is-a&quot; relationship</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Animal:</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> speak(<span class="va">self</span>):</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">NotImplementedError</span>(<span class="st">&quot;Subclasses must override speak()&quot;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Dog(Animal):</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> speak(<span class="va">self</span>):</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;woof&quot;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Cat(Animal):</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> speak(<span class="va">self</span>):</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;meow&quot;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_it_speak(animal):</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(animal.speak())</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>make_it_speak(Dog())</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>make_it_speak(Cat())</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">woof
+meow</pre></div>
+
+</section>
+<section id="duck-typing-based-polymorphism" class="level3">
+<h3>Duck Typing Based Polymorphism</h3>
+<p>With duck typing, we often have:</p>
+<ul>
+<li>unrelated classes</li>
+<li>a shared method name (or shared set of operations)</li>
+<li>functions written to use those operations</li>
+</ul>
+<p>This is useful when:</p>
+<ul>
+<li>types are unrelated
+<ul>
+<li>they share a <strong>“has-a”/“can-do” relationship</strong> instead
+of “is-a” relationship</li>
+</ul></li>
+<li>you want plug-and-play behavior</li>
+<li>you don’t control the class definitions (library code)</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DUCK TYPING POLYMORPHISM EXAMPLE: no shared base class required</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># There is a common &quot;can-do&quot; relationship</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Dog:</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> speak(<span class="va">self</span>):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;woof&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Robot:</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> speak(<span class="va">self</span>):</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;beep&quot;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> make_it_speak(thing):</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Works with any object that has speak()</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(thing.speak())</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>make_it_speak(Dog())</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>make_it_speak(Robot())</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">woof
+beep</pre></div>
+
+</section>
+<section id="key-contrast" class="level3">
+<h3>Key Contrast</h3>
+<p>Inheritance-Based Polymorphism:</p>
+<ul>
+<li>“You are part of this family (base class)”</li>
+<li>Relationship is explicit in the class design (“is-a”
+relationship)</li>
+</ul>
+<p>Duck Typing Based Polymorphism:</p>
+<ul>
+<li>“You can do this job (provide this behavior)”</li>
+<li>Relationship is implicit in the methods/operations (“has-a”/“can-do”
+relationship)</li>
+</ul>
+</section>
+<section id="common-mistake" class="level3">
+<h3>Common Mistake</h3>
+<p>Using inheritance when you only need shared behavior:</p>
+<ul>
+<li>Inheritance is not for “I want to reuse a function”</li>
+<li>Inheritance is best when objects share a meaningful category and
+shared structure</li>
+</ul>
+<p>Duck typing is often simpler when you only need a capability.</p>
+<section id="example" class="level4">
+<h4>Example:</h4>
+<p>We want one function that computes a total cost for different
+“things”.</p>
+<p>Common instinct:</p>
+<ul>
+<li>“Make them all inherit from a common base class.”</li>
+</ul>
+<p>But often the better question is:</p>
+<ul>
+<li>Are these objects truly the same <em>kind</em> of thing (is-a)?</li>
+<li>Or do they just share a <em>capability</em> (can-do)?</li>
+</ul>
+<p>Here the capability is:</p>
+<ul>
+<li>“You can produce a number when asked for your total.”</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># BAD FIT FOR INHERITANCE: forcing unrelated objects into one family tree</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Billable:</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> total(<span class="va">self</span>):</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">NotImplementedError</span>(<span class="st">&quot;Subclasses must implement total()&quot;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ShoppingCart(Billable):</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, prices):</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.prices <span class="op">=</span> prices</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> total(<span class="va">self</span>):</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">sum</span>(<span class="va">self</span>.prices)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Invoice(Billable):</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, line_items):</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.line_items <span class="op">=</span> line_items  <span class="co"># list of (description, cost)</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> total(<span class="va">self</span>):</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">sum</span>(cost <span class="cf">for</span> desc, cost <span class="kw">in</span> <span class="va">self</span>.line_items)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Subscription(Billable):</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, monthly_cost, months):</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.monthly_cost <span class="op">=</span> monthly_cost</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.months <span class="op">=</span> months</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> total(<span class="va">self</span>):</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.monthly_cost <span class="op">*</span> <span class="va">self</span>.months</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_totals(billables):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> b <span class="kw">in</span> billables:</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(b.total())</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>items <span class="op">=</span> [</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    ShoppingCart([<span class="fl">12.99</span>, <span class="fl">4.50</span>, <span class="fl">6.25</span>]),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    Invoice([(<span class="st">&quot;setup&quot;</span>, <span class="dv">50</span>), (<span class="st">&quot;support&quot;</span>, <span class="dv">20</span>)]),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    Subscription(<span class="fl">9.99</span>, <span class="dv">3</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>print_totals(items)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">23.740000000000002
+70
+29.97</pre></div>
+
+</section>
+<section id="why-this-is-a-bad-fit" class="level4">
+<h4>Why This Is a “Bad Fit”</h4>
+<ul>
+<li><code>ShoppingCart</code>, <code>Invoice</code>, and
+<code>Subscription</code> aren’t really the same “kind” of object.</li>
+<li>The base class doesn’t provide shared data or shared default
+behavior.</li>
+<li>The only thing they share is one method name:
+<code>.total()</code>.</li>
+</ul>
+<p>Inheritance works, but it’s not pulling its weight.</p>
+</section>
+</section>
+<section id="better-fit-duck-typing" class="level3">
+<h3>Better Fit: Duck Typing</h3>
+<p>We can drop the base class entirely. The function only needs one
+capability:</p>
+<ul>
+<li>each object must provide <code>total() -&gt; number</code></li>
+</ul>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># BETTER: duck typing (no required base class)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ShoppingCart:</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, prices):</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.prices <span class="op">=</span> prices</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> total(<span class="va">self</span>):</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">sum</span>(<span class="va">self</span>.prices)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Invoice:</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, line_items):</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.line_items <span class="op">=</span> line_items</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> total(<span class="va">self</span>):</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">sum</span>(cost <span class="cf">for</span> desc, cost <span class="kw">in</span> <span class="va">self</span>.line_items)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Subscription:</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, monthly_cost, months):</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.monthly_cost <span class="op">=</span> monthly_cost</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.months <span class="op">=</span> months</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> total(<span class="va">self</span>):</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.monthly_cost <span class="op">*</span> <span class="va">self</span>.months</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_totals(things):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Duck typing: any object with total() works</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> things:</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(t.total())</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>items <span class="op">=</span> [</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    ShoppingCart([<span class="fl">12.99</span>, <span class="fl">4.50</span>, <span class="fl">6.25</span>]),</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    Invoice([(<span class="st">&quot;setup&quot;</span>, <span class="dv">50</span>), (<span class="st">&quot;support&quot;</span>, <span class="dv">20</span>)]),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    Subscription(<span class="fl">9.99</span>, <span class="dv">3</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>print_totals(items)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">23.740000000000002
+70
+29.97</pre></div>
+
+</section>
+<section id="class-discussion" class="level3">
+<h3>Class Discussion:</h3>
+<ol type="1">
+<li><p>What is the informal contract for objects passed to
+<code>print_totals</code>?</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_totals(things):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Duck typing: any object with total() works</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>   <span class="cf">for</span> t <span class="kw">in</span> things:</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>       <span class="bu">print</span>(t.total())</span></code></pre></div></li>
+</ol>
+<ul>
+<li><code>things</code> must be an iterable collection of objects, and
+<strong>each object must provide a callable method</strong>:
+<code>total()</code>
+<ul>
+<li><code>total()</code> should return a <strong>number</strong> (e.g.,
+<code>int</code> or <code>float</code>) that can be printed.</li>
+</ul></li>
+</ul>
+<ol start="2" type="1">
+<li>If you add a new class <code>Donation</code> with a
+<code>.total()</code> method, do you need to change
+<code>print_totals</code>?</li>
+</ol>
+<ul>
+<li>No. As long as <code>Donation</code> implements <code>total()</code>
+and returns a number, it will work automatically.</li>
+</ul>
+<ol start="3" type="1">
+<li>When would inheritance actually be a better choice than duck typing
+here?</li>
+</ol>
+<ul>
+<li>When there is a true <strong>is-a</strong> relationship and shared
+structure/behavior, for example:
+<ul>
+<li>All objects share common attributes (e.g., <code>customer_id</code>,
+<code>date</code>, <code>tax_rate</code>)</li>
+<li>The base class can provide <strong>useful shared default
+methods</strong> (e.g., <code>apply_tax()</code>,
+<code>format_receipt()</code>)</li>
+<li>You want to enforce a consistent design across a large codebase (a
+clear “family” of related types)</li>
+</ul></li>
+</ul>
+</section>
+<section id="takeaway" class="level3">
+<h3>Takeaway</h3>
+<ul>
+<li>Inheritance is one tool for polymorphism, but it’s not
+required.</li>
+<li>Duck typing often leads to simpler, more flexible designs in
+Python.</li>
+<li>A good question to ask: “Is this an <em>is-a</em> relationship, or
+just a <em>has-a/can-do</em> relationship?”
+<ul>
+<li>If <em>is-a</em> relationship then use inheritance-baed
+polymorphism</li>
+<li>If <em>has-a/can-do</em> relationship then use duck typing</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="benefits" class="level2">
+<h2>Benefits</h2>
+<section id="why-duck-typing-is-useful-in-python" class="level3">
+<h3>Why Duck Typing Is Useful in Python</h3>
+<p>Duck typing is useful because it helps you write code that is:</p>
+<ul>
+<li><p><strong>Reusable</strong></p>
+<ul>
+<li>One function can work with many different kinds of objects</li>
+</ul></li>
+<li><p><strong>Flexible</strong></p>
+<ul>
+<li>New classes can “plug in” later without changing existing code</li>
+</ul></li>
+<li><p><strong>Simple</strong></p>
+<ul>
+<li>You often don’t need extra inheritance hierarchies</li>
+<li>Fewer “framework” classes just to make things fit</li>
+</ul></li>
+<li><p><strong>Good for teamwork / libraries</strong></p>
+<ul>
+<li>You can use objects from libraries you didn’t write</li>
+<li>As long as they support the operations your code expects</li>
+</ul></li>
+</ul>
+<p>Duck typing encourages:</p>
+<ul>
+<li>“Write functions in terms of what you need”</li>
+<li>not “Write functions in terms of what type it is”</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># &quot;plug-in&quot; behavior without changing the function</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> EmailNotifier:</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> send(<span class="va">self</span>, message):</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;[EMAIL] </span><span class="sc">{</span>message<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SMSNotifier:</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> send(<span class="va">self</span>, message):</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;[SMS] </span><span class="sc">{</span>message<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> notify_all(notifiers, message):</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> notifiers:</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        n.send(message)   <span class="co"># duck typing: only requires .send()</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>notifiers <span class="op">=</span> [EmailNotifier(), SMSNotifier()]</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>notify_all(notifiers, <span class="st">&quot;Remainder: Midterm during week 9.&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[EMAIL] Remainder: Midterm during week 9.
+[SMS] Remainder: Midterm during week 9.</pre></div>
+
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Later, we add a new notifier type without changing notify_all:</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ConsoleNotifier:</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> send(<span class="va">self</span>, message):</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;[CONSOLE] </span><span class="sc">{</span>message<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>notifiers.append(ConsoleNotifier())</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>notify_all(notifiers, <span class="st">&quot;Assignment 2 posted.&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[EMAIL] Assignment 2 posted.
+[SMS] Assignment 2 posted.
+[CONSOLE] Assignment 2 posted.</pre></div>
+
+<p><strong>Remarks:</strong></p>
+<ul>
+<li><p><code>notifiers</code> must be iterable, and each element must
+provide a callable method: <code>send(message)</code></p></li>
+<li><p>When we added <code>ConsoleNotifier</code>:</p>
+<ul>
+<li>We did not have to change <code>notify_all</code> at all (and we
+didn’t need to change <code>EmailNotifier</code> or
+<code>SMSNotifier</code> either).</li>
+<li>We only added a new class and appended an instance to the
+<code>notifiers</code> list.</li>
+</ul></li>
+<li><p>This useful as programs grows because:</p>
+<ul>
+<li>You can add new behaviors by adding new classes (plug-ins) without
+editing existing logic.</li>
+<li>Less duplicated code, fewer “if/else type checks”, and fewer places
+to break things when extending the program.</li>
+</ul></li>
+</ul>
+</section>
+</section>
+<section id="risks--trade-offs" class="level2">
+<h2>Risks / Trade-offs</h2>
+<section id="the-trade-off" class="level3">
+<h3>The Trade-Off</h3>
+<p>Duck typing gives flexibility, but it moves some checks from:</p>
+<ul>
+<li><strong>compile time</strong> (before the program runs) to:</li>
+<li><strong>runtime</strong> (while the program runs)</li>
+</ul>
+<p>So mistakes can show up later.</p>
+</section>
+<section id="common-risks" class="level3">
+<h3>Common Risks</h3>
+<ul>
+<li><p><strong>Runtime errors</strong></p>
+<ul>
+<li>If an object is missing a required method, you get an error when
+that line runs</li>
+</ul></li>
+<li><p><strong>Typos in method names</strong></p>
+<ul>
+<li>A misspelled method name won’t be caught until the code
+executes</li>
+</ul></li>
+<li><p><strong>Unclear expectations</strong></p>
+<ul>
+<li>Without a clear “informal contract”, it may not be obvious what a
+function expects</li>
+</ul></li>
+<li><p><strong>Harder debugging in larger programs</strong></p>
+<ul>
+<li>Problems can appear far away from where the wrong object was
+created/passed in</li>
+</ul></li>
+</ul>
+</section>
+<section id="example-of-a-typical-duck-typing-failure" class="level3">
+<h3>Example of a Typical Duck Typing Failure</h3>
+<p>A function assumes a capability:</p>
+<ul>
+<li>“must have <code>.send(message)</code>”</li>
+</ul>
+<p>If the object doesn’t match that expectation, you get a runtime
+error.</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># typo / missing method leads to runtime error</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> EmailNotifier:</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> send(<span class="va">self</span>, message):</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;[EMAIL] </span><span class="sc">{</span>message<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BrokenNotifier:</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  Accidentally used a different method name</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> send_message(<span class="va">self</span>, message):</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;[BROKEN] </span><span class="sc">{</span>message<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> notify_all(notifiers, message):</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> notifiers:</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        n.send(message)   <span class="co"># assumes .send exists</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>notifiers <span class="op">=</span> [EmailNotifier(), BrokenNotifier()]</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>notify_all(notifiers, <span class="st">&quot;Quiz today.&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[EMAIL] Quiz today.
+<span class="err">---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+Cell In[13], line 17
+     14         n.send(message)   # assumes .send exists
+     16 notifiers = [EmailNotifier(), BrokenNotifier()]
+---&gt; 17 notify_all(notifiers, &quot;Quiz today.&quot;)
+
+Cell In[13], line 14, in notify_all(notifiers, message)
+     12 def notify_all(notifiers, message):
+     13     for n in notifiers:
+---&gt; 14         n.send(message)
+
+AttributeError: &#x27;BrokenNotifier&#x27; object has no attribute &#x27;send&#x27;</span></pre></div>
+
+</section>
+</section>
+<section id="designing-with-duck-typing-practical-habits"
+class="level2">
+<h2>Designing with Duck Typing (Practical Habits)</h2>
+<section id="the-design-mindset" class="level3">
+<h3>The Design Mindset</h3>
+<p>When designing functions that use duck typing, think in terms of:</p>
+<blockquote>
+<p>“What does this object need to be able to do?”</p>
+</blockquote>
+<p>not:</p>
+<blockquote>
+<p>“What type is this object?”</p>
+</blockquote>
+</section>
+<section id="habit-1-state-the-required-behavior-clearly"
+class="level3">
+<h3>Habit 1: State the Required Behavior Clearly</h3>
+<p>Before writing code, ask:</p>
+<ul>
+<li>What methods must the object provide?</li>
+<li>What operations will I use?</li>
+</ul>
+<p>Even if Python doesn’t enforce it, <strong>you should know the
+answer</strong>.</p>
+</section>
+<section id="habit-2-write-functions-around-capabilities"
+class="level3">
+<h3>Habit 2: Write Functions Around Capabilities</h3>
+<p>Good duck-typed functions:</p>
+<ul>
+<li>are small</li>
+<li>focus on one job</li>
+<li>rely on a small number of operations</li>
+</ul>
+<p>The fewer operations you require, the more flexible your function
+is.</p>
+</section>
+<section id="habit-3-avoid-type-checks" class="level3">
+<h3>Habit 3: Avoid Type Checks</h3>
+<p>Instead of writing:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(x, Person):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(x.talk())</span></code></pre></div>
+<p>Writing code that just uses the needed behavior:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(x.talk())</span></code></pre></div>
+<p>Type checks (<code>isinstance</code>) usually mean:</p>
+<ul>
+<li>your function is doing too many things</li>
+<li>or your design is too rigid</li>
+</ul>
+</section>
+<section id="habit-4-use-clear-descriptive-method-names" class="level3">
+<h3>Habit 4: Use Clear, Descriptive Method Names</h3>
+<p>Duck typing depends on <strong>shared expectations</strong>.</p>
+<p>Clear method names:</p>
+<ul>
+<li>make contracts easier to understand</li>
+<li>reduce accidental mismatches</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li><code>send(message)</code> is clearer than
+<code>do_it(x)</code></li>
+</ul>
+</section>
+<section id="habit-5-fail-clearly-not-silently" class="level3">
+<h3>Habit 5: Fail Clearly (Not Silently)</h3>
+<p>When duck typing fails:</p>
+<ul>
+<li>you want the error to happen quickly</li>
+<li>and as close as possible to the source</li>
+</ul>
+<p>This makes bugs easier to find and fix.</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>        x.talk()</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">AttributeError</span> <span class="im">as</span> e:</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Error: </span><span class="sc">{</span><span class="bu">type</span>(e)<span class="va">__name__</span><span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">)&quot;</span>)</span></code></pre></div>
+</section>
+<section id="key-takeaway" class="level3">
+<h3>Key Takeaway</h3>
+<p>Designing with duck typing is a skill:</p>
+<ul>
+<li>focus on behavior</li>
+<li>keep functions small</li>
+<li>make expectations obvious</li>
+</ul>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DESIGN HABIT EXAMPLE: small function, clear capability</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># GOOD: duck typing (behavior over concrete type)</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_combined(pairs):</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Informal contract:</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">      - pairs is iterable of (a, b)</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">      - a + b works</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> a, b <span class="kw">in</span> pairs:</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>      <span class="cf">try</span>:</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(a <span class="op">+</span> b)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>      <span class="cf">except</span> <span class="pp">TypeError</span>:</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;Skipping: &#39;+&#39; failed for:&quot;</span>, (a, b))</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>print_combined([(<span class="st">&quot;hello &quot;</span>, <span class="st">&quot;world&quot;</span>), (<span class="dv">1</span>, <span class="dv">2</span>), ([<span class="dv">1</span>, <span class="dv">2</span>], [<span class="dv">3</span>]), (<span class="st">&quot;three&quot;</span>, <span class="dv">2</span>)])</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">hello world
+3
+[1, 2, 3]
+Skipping: &#x27;+&#x27; failed for: (&#x27;three&#x27;, 2)</pre></div>
+
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># WHAT NOT TO DO: rigid design using type checks</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># BAD HABIT: &quot;defensive&quot; checks (contrived and brittle)</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_combined_checked(pairs):</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Informal contract (attempted):</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">      - pairs is iterable of (a, b)</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">      - a and b support +</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">    This version tries to *prove* the contract with checks first.</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> pair <span class="kw">in</span> pairs:</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Over-check shape</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(pair, (<span class="bu">list</span>, <span class="bu">tuple</span>)) <span class="kw">or</span> <span class="bu">len</span>(pair) <span class="op">!=</span> <span class="dv">2</span>:</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">&quot;Skipping: not a 2-item pair:&quot;</span>, pair)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>        a, b <span class="op">=</span> pair</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Over-check type families (brittle: misses lots of valid &#39;addable&#39; types)</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">isinstance</span>(a, <span class="bu">int</span>) <span class="kw">and</span> <span class="bu">isinstance</span>(b, <span class="bu">int</span>):</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(a <span class="op">+</span> b)</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> <span class="bu">isinstance</span>(a, <span class="bu">str</span>) <span class="kw">and</span> <span class="bu">isinstance</span>(b, <span class="bu">str</span>):</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(a <span class="op">+</span> b)</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> <span class="bu">isinstance</span>(a, <span class="bu">list</span>) <span class="kw">and</span> <span class="bu">isinstance</span>(b, <span class="bu">list</span>):</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(a <span class="op">+</span> b)</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>            <span class="co"># &quot;Hasattr&quot; doesn&#39;t really prove &#39;+&#39; works, but people try it anyway</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">hasattr</span>(a, <span class="st">&quot;__add__&quot;</span>):</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>                <span class="cf">try</span>:</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">print</span>(a <span class="op">+</span> b)</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>                <span class="cf">except</span> <span class="pp">TypeError</span>:</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">print</span>(<span class="st">&quot;Skipping: &#39;+&#39; failed for:&quot;</span>, (a, b))</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">&quot;Skipping: no __add__:&quot;</span>, (a, b))</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>print_combined_checked([(<span class="st">&quot;hello &quot;</span>, <span class="st">&quot;world&quot;</span>), (<span class="dv">1</span>, <span class="dv">2</span>), ([<span class="dv">1</span>, <span class="dv">2</span>], [<span class="dv">3</span>]), (<span class="st">&quot;three&quot;</span>, <span class="dv">2</span>)])</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">hello world
+3
+[1, 2, 3]
+Skipping: &#x27;+&#x27; failed for: (&#x27;three&#x27;, 2)</pre></div>
+
+</section>
+</section>
+<section id="lbyl-vs-eafp" class="level2">
+<h2>LBYL vs EAFP</h2>
+<section id="pythonic-coding-style" class="level4">
+<h4>(Pythonic Coding Style)</h4>
+</section>
+<section id="two-design-styles-youll-see-in-python" class="level3">
+<h3>Two Design Styles You’ll See in Python</h3>
+<p>When writing code that might fail, there are two common styles:</p>
+<ul>
+<li><strong>LBYL</strong> — Look Before You Leap</li>
+<li><strong>EAFP</strong> — Easier to Ask Forgiveness than
+Permission</li>
+</ul>
+<p>Both are valid, but Python strongly <em>leans toward</em> EAFP.</p>
+</section>
+<section id="lbyl-look-before-you-leap" class="level3">
+<h3>LBYL: Look Before You Leap</h3>
+<p>LBYL means:</p>
+<ul>
+<li>Check conditions <em>before</em> doing the operation</li>
+<li>Try to prevent errors by guarding every step</li>
+</ul>
+<p>General shape:</p>
+<ul>
+<li>“If this looks safe, then do it”</li>
+</ul>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># LBYL STYLE</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Text:</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, text):</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._text <span class="op">=</span> text</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Source(Text):</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> read(<span class="va">self</span>):</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._text</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_text_lbyl(source):</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># LBYL: check first, then use</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">hasattr</span>(source, <span class="st">&quot;read&quot;</span>): <span class="co"># Checks if source has attribute &quot;read&quot;</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">callable</span>(source.read): <span class="co"># Checks if source.read is callable, i.e. source.read is a method</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> source.read()</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ArithmeticError</span>(<span class="st">&quot;Object does not support read()&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>read_text_lbyl(Source(<span class="st">&#39;Will program for coffee&#39;</span>))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">&#x27;Will program for coffee&#x27;</pre></div>
+
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>read_text_lbyl(Text(<span class="st">&#39;Will program for coffee&#39;</span>))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+ArithmeticError                           Traceback (most recent call last)
+Cell In[18], line 1
+----&gt; 1 read_text_lbyl(Text(&#x27;Will program for coffee&#x27;))
+
+Cell In[16], line 17, in read_text_lbyl(source)
+     15         return source.read()
+     16 else:
+---&gt; 17     raise ArithmeticError(&quot;Object does not support read()&quot;)
+
+ArithmeticError: Object does not support read()</span></pre></div>
+
+</section>
+<section id="eafp-easier-to-ask-forgiveness-than-permission"
+class="level3">
+<h3>EAFP: Easier to Ask Forgiveness than Permission</h3>
+<p>EAFP means:</p>
+<ul>
+<li>Perform the operation directly</li>
+<li>Handle errors <em>if</em> they occur</li>
+</ul>
+<p>General shape:</p>
+<ul>
+<li>“Try it, and deal with failure if it happens”</li>
+</ul>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_text_eafp(source):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># EAFP: try the operation, handle the failure</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> source.read()</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">AttributeError</span> <span class="im">as</span> e:</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">#print(&quot;Object does not support read()&quot;)</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Error: </span><span class="sc">{</span><span class="bu">type</span>(e)<span class="sc">.</span><span class="va">__name__</span><span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">)&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>read_text_eafp(Source(<span class="st">&#39;Will program for coffee&#39;</span>))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">&#x27;Will program for coffee&#x27;</pre></div>
+
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>read_text_eafp(Text(<span class="st">&#39;Will program for coffee&#39;</span>))</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Error: AttributeError (&#x27;Text&#x27; object has no attribute &#x27;read&#x27;)</pre></div>
+
+</section>
+<section id="why-this-matters-for-duck-typing" class="level3">
+<h3>Why This Matters for Duck Typing</h3>
+<p>Duck typing says:</p>
+<ul>
+<li>Focus on <strong>behavior</strong></li>
+<li>Don’t rely on explicit type checks</li>
+</ul>
+<p>EAFP fits naturally with duck typing because:</p>
+<ul>
+<li>You <em>try</em> the behavior you need</li>
+<li>You handle failure if the object doesn’t support it</li>
+</ul>
+<p>LBYL often pushes you back toward:</p>
+<ul>
+<li>type checks</li>
+<li>rigid assumptions</li>
+<li>brittle code (everything appears to work, but unexpected failures
+can occur later)</li>
+</ul>
+</section>
+<section id="another-example" class="level3">
+<h3>Another Example</h3>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">#person = {&#39;name&#39;: &#39;Alan&#39;, &#39;age&#39;: 23, &#39;job&#39;: &#39;Computer Scientist&#39;}</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>person <span class="op">=</span> {<span class="st">&#39;name&#39;</span>: <span class="st">&#39;Alan&#39;</span>, <span class="st">&#39;age&#39;</span>: <span class="dv">23</span>}</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># LBYL (Non-Pythonic)</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform checks to see if person dictionary has keys &#39;name&#39;, &#39;age&#39;, and &#39;job&#39;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="st">&#39;name&#39;</span> <span class="kw">in</span> person <span class="kw">and</span> <span class="st">&#39;age&#39;</span> <span class="kw">in</span> person <span class="kw">and</span> <span class="st">&#39;job&#39;</span> <span class="kw">in</span> person:</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;I&#39;m </span><span class="sc">{name}</span><span class="st">. I&#39;m </span><span class="sc">{age}</span><span class="st"> years old and I am a </span><span class="sc">{job}</span><span class="st">&quot;</span>.<span class="bu">format</span>(<span class="op">**</span>person))</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;Missing some keys&#39;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Missing some keys</pre></div>
+
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># EAFP (Pythonic)</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># We don&#39;t perform any checks, we simply try</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;I&#39;m </span><span class="sc">{name}</span><span class="st">. I&#39;m </span><span class="sc">{age}</span><span class="st"> years old and I am a </span><span class="sc">{job}</span><span class="st">&quot;</span>.<span class="bu">format</span>(<span class="op">**</span>person))</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">KeyError</span> <span class="im">as</span> e:</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Missing </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss"> key&quot;</span>)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Missing &#x27;job&#x27; key</pre></div>
+
+</section>
+</section>
+<section id="wrap-up" class="level2">
+<h2>Wrap-up</h2>
+<section id="wrap-up-what-we-learned" class="level3">
+<h3>Wrap-up: What We Learned</h3>
+<ul>
+<li><strong>Polymorphism</strong> means: same operation, different
+behavior</li>
+<li>In Python, polymorphism commonly appears through <strong>duck
+typing</strong> when there is a <strong>“has-a/can-do”
+relationship</strong></li>
+<li>Inheritance is optional, should only be applied when there is an
+<strong>“is-a” relationship</strong></li>
+<li>Duck typing focuses on <strong>what an object can do</strong>, not
+<strong>what type it is</strong></li>
+</ul>
+</section>
+<section id="the-key-design-question" class="level3">
+<h3>The Key Design Question</h3>
+<p>When writing a function, always ask:</p>
+<blockquote>
+<p>“What does my input need to be able to do?”</p>
+</blockquote>
+<p>Examples:</p>
+<ul>
+<li>“must support <code>len(x)</code>”</li>
+<li>“must be iterable”</li>
+<li>“must have <code>.send(message)</code>”</li>
+</ul>
+<p>These are <strong>informal contracts</strong>.</p>
+</section>
+<section id="the-trade-off-1" class="level3">
+<h3>The Trade-off</h3>
+<p>Duck typing gives flexibility, but:</p>
+<ul>
+<li>mistakes are caught at <strong>runtime</strong></li>
+<li>errors can be unclear if expectations aren’t stated</li>
+</ul>
+</section>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture06-part1/"><span class="label">← Previous</span>Lecture
+6 · Part 1: Polymorphism &amp; Duck Typing</a>
+<a class="next" href="../lecture07-part1/"><span class="label">Next →</span>Lecture
+7 · Part 1: Text/Binary IO</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

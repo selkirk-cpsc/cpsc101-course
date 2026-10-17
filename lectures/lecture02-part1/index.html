@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Containers · CPSC 101 Notes</title>
+<style>
+  :root {
+    --bg: #f6f6f3;
+    --panel: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b72;
+    --line: #d6d6db;
+    --accent: #2f6fde;
+    --accent-soft: #dce8fd;
+    --alert: #911a28;
+    --code-bg: #f1f1ee;
+    --tok-kw: #7048e8; --tok-type: #0e7178; --tok-num: #b35a00;
+    --tok-str: #2b8a3e; --tok-com: #8a8a93; --tok-pre: #c2255c; --tok-fn: #1c4fb8;
+    --term-bg: #ffffff; --term-ink: #1d1d1f; --term-line: #c9c9cf; --term-in: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+      --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+      --code-bg: #25262b;
+      --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+      --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+      --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141518; --panel: #1e1f23; --ink: #ececf0; --muted: #9b9ca5;
+    --line: #3a3b42; --accent: #6ea0ff; --accent-soft: #1d3157; --alert: #ff8f9c;
+    --code-bg: #25262b;
+    --tok-kw: #b197fc; --tok-type: #3bc9db; --tok-num: #ffa94d;
+    --tok-str: #69db7c; --tok-com: #868e96; --tok-pre: #f783ac; --tok-fn: #74c0fc;
+    --term-bg: #1d1f23; --term-ink: #e6e6e9; --term-line: #33363d; --term-in: #7ee787;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
+
+  .topbar { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .topbar .in { max-width: 820px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; }
+  .topbar a { text-decoration: none; font-weight: 600; }
+  .topbar .crumb { color: var(--muted); font-size: .9rem; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 8px 16px 48px; }
+  header.title { margin: 28px 0 8px; }
+  header.title .week { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+  header.title h1 { margin: 4px 0 0; font-size: 2.1rem; line-height: 1.2; }
+
+  nav#TOC { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; margin: 20px 0 8px; }
+  nav#TOC::before { content: "In this chapter"; display: block; font-weight: 700; margin-bottom: 4px; }
+  nav#TOC ul { margin: 0; padding-left: 1.2em; }
+
+  h2 { font-size: 1.6rem; margin: 2.4em 0 .4em; padding-bottom: .2em; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.2rem; margin: 1.8em 0 .3em; }
+  p, li { max-width: 72ch; }
+  li { margin: .2em 0; }
+  li > p { margin: 0; }
+  .alert { color: var(--alert); font-weight: 600; }
+  :not(pre) > code { background: var(--code-bg); padding: .08em .3em; border-radius: 4px; overflow-wrap: anywhere; }
+  math[display="block"] { overflow-x: auto; max-width: 100%; }
+
+  div.sourceCode { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; margin: 1em 0; overflow-x: auto; }
+  pre.sourceCode { margin: 0; padding: 12px 14px; line-height: 1.5; }
+  /* program output and shell sessions (minted text blocks) */
+  pre:not(.sourceCode) { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  /* sample runs of a program (make_notes.py compiles and runs it): a terminal
+     box in the page's theme, with what the user typed highlighted in green */
+  .runoutput { margin: -.3em 0 1.2em; }
+  .run-label { color: var(--muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .7em 0 .25em; }
+  pre.terminal { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 8px; padding: 10px 14px; margin: 0 0 .5em; overflow-x: auto; line-height: 1.5; }
+  pre.terminal .in { color: var(--term-in); font-weight: 700; }
+  pre.terminal .err { color: var(--alert); }
+  /* PythonTutor embeds (lecture_tools/visuals.py) read Jupyter's colour
+     variables: point them at the site theme so they follow light/dark */
+  :root { --jp-layout-color1: var(--panel); --jp-layout-color2: var(--bg); --jp-content-font-color1: var(--ink);
+          --jp-content-font-color2: var(--muted); --jp-border-color2: var(--line); --jp-brand-color1: var(--accent); }
+  .lt-wrap { max-width: 100% !important; box-sizing: border-box; }
+  .lt-wrap iframe { max-width: 100%; }
+  .lt-wrap .lt-title { font-size: 1.1rem !important; }
+  figure.nb-figure { margin: 1.2em 0; }
+  figure.nb-figure figcaption { margin-top: .4em; overflow-wrap: anywhere; }
+  .animation, .animation img { max-width: 100%; height: auto; }
+  .animation { overflow-x: auto; }
+  .run-label .run-setup { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  pre.numberSource code > span { position: relative; left: -4em; }
+  pre.numberSource { margin-left: 3em; border-left: 1px solid var(--line); padding-left: 4px; }
+  pre.numberSource code > span > a:first-child::before {
+    content: counter(source-line); counter-increment: source-line; position: relative; left: -1em;
+    text-align: right; vertical-align: baseline; display: inline-block; width: 4em; color: var(--tok-com);
+  }
+  pre.numberSource code { counter-reset: source-line 0; }
+  pre > code.sourceCode > span { display: inline-block; line-height: 1.5; }
+  code.sourceCode > span > a:first-child { text-decoration: none; }
+  code span.kw, code span.cf { color: var(--tok-kw); font-weight: 600; }
+  code span.dt { color: var(--tok-type); }
+  code span.dv, code span.fl, code span.bn, code span.cn { color: var(--tok-num); }
+  code span.st, code span.ch, code span.sc, code span.ss, code span.vs { color: var(--tok-str); }
+  code span.co, code span.cv, code span.do, code span.an { color: var(--tok-com); font-style: italic; }
+  code span.pp, code span.im { color: var(--tok-pre); }
+  code span.fu, code span.bu { color: var(--tok-fn); }
+
+  img { max-width: 100%; height: auto; }
+  img.diagram { background: #fff; border-radius: 8px; padding: 8px; display: block; margin: 0 auto; }
+  /* PNGs are drawings (some with transparent backgrounds): same white card, so dark lines stay visible in dark mode */
+  img[src*=".png"] { background: #fff; border-radius: 8px; padding: 8px; }
+  .center, figure { text-align: center; }
+  figure { margin: 1em 0; }
+  figcaption { color: var(--muted); font-size: .9rem; }
+  .credit { text-align: center; color: var(--muted); font-size: .78rem; margin-top: -.6em; }
+  .credit p { max-width: none; }
+
+  /* slide columns: a figure keeps its natural width and the other column
+     fills the rest; when both can't fit, they stack (see notes.lua) */
+  .columns { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .columns > .column { flex: 1 1 280px; min-width: 0; }
+  .columns > .column.figure-col { flex: 0 1 auto; max-width: 100%; margin: 0 auto; }
+  .columns > .column.figure-col img:not(.diagram) { width: 320px; }
+
+  .multicol ul { columns: 4 8em; list-style: none; padding-left: 0; }
+
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 4px 16px; margin: 1em 0; }
+  .tryit { background: var(--accent-soft); border-radius: 10px; padding: 6px 18px; margin: 1.2em 0; }
+  .tryit .center { text-align: left; }
+  a.demo-link { display: inline-block; background: var(--accent); color: var(--bg); padding: 6px 14px; border-radius: 8px; text-decoration: none; }
+  a.demo-link code { background: none; color: inherit; }
+
+  table { border-collapse: collapse; margin: 1em auto; display: block; overflow-x: auto; max-width: 100%; width: fit-content; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .pager a { text-decoration: none; max-width: 48%; }
+  .pager .label { display: block; color: var(--muted); font-size: .85rem; }
+  .pager .next { margin-left: auto; text-align: right; }
+  .pager.top { margin-top: 16px; padding: 0 0 12px; border-top: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .pager.top + header.title { margin-top: 18px; }
+  .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; }
+  .theme-toggle:hover { border-color: var(--ink); }
+  .topbar .theme-toggle { margin-left: auto; }
+</style>
+<script>
+  // apply a saved light/dark choice before the page draws (no flash)
+  try { var t = localStorage.getItem('cpsc100-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+<div class="topbar"><div class="in">
+  <a href="../../">CPSC 101</a>
+  <span class="crumb">Lecture notes</span>
+  <button type="button" class="theme-toggle" id="theme-toggle">☾ Dark</button>
+</div></div>
+<main>
+<nav class="pager top" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture01-part2/"><span class="label">← Previous</span>Lecture
+1 · Part 2: Python Basics</a>
+<a class="next" href="../lecture02-part2/"><span class="label">Next →</span>Lecture
+2 · Part 2: Functions</a>
+</nav>
+<header class="title">
+<div class="week">Lecture 2 · Part 1</div>
+<h1>Data Containers</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#mutable-vs-immutable"
+id="toc-mutable-vs-immutable">Mutable vs Immutable</a></li>
+<li><a href="#tuples" id="toc-tuples">Tuples</a></li>
+<li><a href="#lists" id="toc-lists">Lists</a></li>
+<li><a href="#del-in-python" id="toc-del-in-python"><code>del</code> in
+Python</a></li>
+<li><a href="#dictionaries" id="toc-dictionaries">Dictionaries</a></li>
+<li><a href="#sets" id="toc-sets">Sets</a></li>
+<li><a href="#summary" id="toc-summary">Summary</a></li>
+</ul>
+</nav>
+<section id="mutable-vs-immutable" class="level2">
+<h2>Mutable vs Immutable</h2>
+<p>This is one of the most important concepts in Python.</p>
+<p><strong>In C</strong>, every variable is a named memory location —
+you can always write a new value into it:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> x <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">10</span><span class="op">;</span>   <span class="co">// always allowed — x is just a memory location</span></span></code></pre></div>
+<p><strong>In Python</strong>, a variable is a <em>name</em> that refers
+to an <em>object</em>. The object itself may or may not allow
+modification:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Immutable</strong></td>
+<td>Once created, the object’s contents cannot be changed</td>
+</tr>
+<tr class="even">
+<td><strong>Mutable</strong></td>
+<td>The object’s contents can be changed after creation</td>
+</tr>
+</tbody>
+</table>
+<section id="youve-already-seen-this" class="level3">
+<h3>You’ve already seen this</h3>
+<p>Integers and strings in Python are <strong>immutable</strong>.</p>
+<p>When you write:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">10</span></span></code></pre></div>
+<p>You are not modifying the integer <code>5</code>. You are making
+<code>x</code> point to a <strong>new object</strong>
+(<code>10</code>).</p>
+<p>The object <code>5</code> itself never changed — Python created a
+brand new <code>10</code> object and re-bound the name <code>x</code> to
+it.</p>
+<blockquote>
+<p><strong>Key idea:</strong> In Python, assignment (<code>=</code>)
+always creates a new name binding. Whether the <em>object itself</em>
+can be modified depends on whether its type is mutable.</p>
+</blockquote>
+</section>
+<section id="why-does-mutability-matter-for-containers" class="level3">
+<h3>Why does mutability matter for containers?</h3>
+<p>Python’s four built-in container types split cleanly along this
+line:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Ordered</th>
+<th>Mutable</th>
+<th>Indexed by</th>
+<th>Duplicates</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>tuple</code></td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+<td>position</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>list</code></td>
+<td>Yes</td>
+<td><strong>Yes</strong></td>
+<td>position</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>dict</code></td>
+<td>Yes*</td>
+<td><strong>Yes</strong></td>
+<td>key</td>
+<td>keys: No, values: Yes</td>
+</tr>
+<tr class="even">
+<td><code>set</code></td>
+<td>No</td>
+<td><strong>Yes</strong></td>
+<td>— (not indexed)</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><small>*Dictionaries preserve insertion order as of Python
+3.7</small></p>
+<p>Understanding mutability tells you <strong>what operations are
+legal</strong> on each type — that’s the <em>public interface</em>.</p>
+</section>
+</section>
+<section id="tuples" class="level2">
+<h2>Tuples</h2>
+<p>A <strong>tuple</strong> is an ordered, <strong>immutable</strong>
+sequence.</p>
+<ul>
+<li>Created with parentheses <code>( )</code></li>
+<li>Elements have fixed positions (indices starting at 0)</li>
+<li>Once created: <strong>you cannot add, remove, or change
+elements</strong></li>
+<li>Can hold values of different types</li>
+<li>Duplicate values are allowed</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>point <span class="op">=</span> (<span class="dv">3</span>, <span class="dv">7</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>rgb   <span class="op">=</span> (<span class="dv">255</span>, <span class="dv">128</span>, <span class="dv">0</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>mixed <span class="op">=</span> (<span class="dv">42</span>, <span class="st">&quot;hello&quot;</span>, <span class="va">True</span>, <span class="fl">3.14</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(point)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(rgb)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(mixed)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">(3, 7)
+(255, 128, 0)
+(42, &#x27;hello&#x27;, True, 3.14)</pre></div>
+
+<section id="tuple--public-interface" class="level3">
+<h3>Tuple — Public Interface</h3>
+<p>Because tuples are immutable, their interface is intentionally
+small:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Syntax</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Access by index</td>
+<td><code>t[i]</code></td>
+<td>Get element at position <code>i</code></td>
+</tr>
+<tr class="even">
+<td>Length</td>
+<td><code>len(t)</code></td>
+<td>Number of elements</td>
+</tr>
+<tr class="odd">
+<td>Membership test</td>
+<td><code>x in t</code></td>
+<td><code>True</code> if <code>x</code> is in the tuple</td>
+</tr>
+<tr class="even">
+<td>Count occurrences</td>
+<td><code>t.count(x)</code></td>
+<td>How many times <code>x</code> appears</td>
+</tr>
+<tr class="odd">
+<td>Find index</td>
+<td><code>t.index(x)</code></td>
+<td>First position where <code>x</code> appears</td>
+</tr>
+<tr class="even">
+<td>Iterate</td>
+<td><code>for x in t:</code></td>
+<td>Loop over elements</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Notice:</strong> No <code>append</code>, no
+<code>remove</code>, no <code>pop</code> — because the tuple cannot be
+modified.</p>
+</blockquote>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>grades <span class="op">=</span> (<span class="dv">85</span>, <span class="dv">92</span>, <span class="dv">78</span>, <span class="dv">92</span>, <span class="dv">88</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Length:     &quot;</span>, <span class="bu">len</span>(grades))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;First:      &quot;</span>, grades[<span class="dv">0</span>])</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Last:       &quot;</span>, grades[<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;92 appears: &quot;</span>, grades.count(<span class="dv">92</span>), <span class="st">&quot;times&quot;</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;92 first at:&quot;</span>, grades.index(<span class="dv">92</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;78 in grades:&quot;</span>, <span class="dv">78</span> <span class="kw">in</span> grades)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Length:      5
+First:       85
+Last:        88
+92 appears:  2 times
+92 first at: 1
+78 in grades: True</pre></div>
+
+</section>
+<section id="immutability-in-action" class="level3">
+<h3>Immutability in action</h3>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>point <span class="op">=</span> (<span class="dv">3</span>, <span class="dv">7</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>point[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">10</span>    <span class="co"># TypeError: &#39;tuple&#39; object does not support item assignment</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+Cell In[3], line 2
+      1 point = (3, 7)
+----&gt; 2 point[0] = 10    # TypeError: &#x27;tuple&#x27; object does not support item assignment
+
+TypeError: &#x27;tuple&#x27; object does not support item assignment</span></pre></div>
+
+<p>Python enforces immutability at runtime — attempting to modify a
+tuple raises a <code>TypeError</code>.</p>
+<p><strong>When to use a tuple:</strong><br />
+Use a tuple when the collection of values is fixed and should not change
+— for example, a coordinate, an RGB colour, or a record that should stay
+constant.</p>
+</section>
+</section>
+<section id="lists" class="level2">
+<h2>Lists</h2>
+<p>A <strong>list</strong> is an ordered, <strong>mutable</strong>
+sequence.</p>
+<ul>
+<li>Created with square brackets <code>[ ]</code></li>
+<li>Elements have positions (indices starting at 0)</li>
+<li>You <strong>can</strong> add, remove, and change elements after
+creation</li>
+<li>Can hold values of different types</li>
+<li>Duplicate values are allowed</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fruits  <span class="op">=</span> [<span class="st">&quot;apple&quot;</span>, <span class="st">&quot;banana&quot;</span>, <span class="st">&quot;cherry&quot;</span>]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>numbers <span class="op">=</span> [<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>]</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>mixed   <span class="op">=</span> [<span class="dv">1</span>, <span class="st">&quot;hello&quot;</span>, <span class="va">True</span>, <span class="fl">3.14</span>]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fruits)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(numbers)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[&#x27;apple&#x27;, &#x27;banana&#x27;, &#x27;cherry&#x27;]
+[10, 20, 30, 40]</pre></div>
+
+<section id="list--public-interface" class="level3">
+<h3>List — Public Interface</h3>
+<p>Because lists are mutable, their interface is much richer:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Syntax</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Access by index</td>
+<td><code>lst[i]</code></td>
+<td>Get element at position <code>i</code></td>
+</tr>
+<tr class="even">
+<td>Assign by index</td>
+<td><code>lst[i] = x</code></td>
+<td>Replace element at position <code>i</code></td>
+</tr>
+<tr class="odd">
+<td>Length</td>
+<td><code>len(lst)</code></td>
+<td>Number of elements</td>
+</tr>
+<tr class="even">
+<td>Membership test</td>
+<td><code>x in lst</code></td>
+<td><code>True</code> if <code>x</code> is in the list</td>
+</tr>
+<tr class="odd">
+<td>Add to end</td>
+<td><code>lst.append(x)</code></td>
+<td>Adds <code>x</code> at the end</td>
+</tr>
+<tr class="even">
+<td>Insert at position</td>
+<td><code>lst.insert(i, x)</code></td>
+<td>Inserts <code>x</code> before index <code>i</code></td>
+</tr>
+<tr class="odd">
+<td>Remove by value</td>
+<td><code>lst.remove(x)</code></td>
+<td>Removes first occurrence of <code>x</code></td>
+</tr>
+<tr class="even">
+<td>Remove by index</td>
+<td><code>lst.pop(i)</code></td>
+<td>Removes element at index <code>i</code>, returns it</td>
+</tr>
+<tr class="odd">
+<td>Delete element(s)</td>
+<td><code>del lst[i]</code></td>
+<td>Removes element at index <code>i</code></td>
+</tr>
+<tr class="even">
+<td>Iterate</td>
+<td><code>for x in lst:</code></td>
+<td>Loop over elements</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mutability-in-action" class="level3">
+<h3>Mutability in action</h3>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fruits <span class="op">=</span> [<span class="st">&quot;apple&quot;</span>, <span class="st">&quot;banana&quot;</span>, <span class="st">&quot;cherry&quot;</span>]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;original: &quot;</span>, fruits)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>fruits[<span class="dv">1</span>] <span class="op">=</span> <span class="st">&quot;mango&quot;</span>        <span class="co"># replace an element</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;after replace:&quot;</span>, fruits)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>fruits.append(<span class="st">&quot;grape&quot;</span>)     <span class="co"># add to the end</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;after append:&quot;</span>, fruits)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>fruits.remove(<span class="st">&quot;apple&quot;</span>)     <span class="co"># remove by value</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;after remove:&quot;</span>, fruits)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">original:  [&#x27;apple&#x27;, &#x27;banana&#x27;, &#x27;cherry&#x27;]
+after replace: [&#x27;apple&#x27;, &#x27;mango&#x27;, &#x27;cherry&#x27;]
+after append: [&#x27;apple&#x27;, &#x27;mango&#x27;, &#x27;cherry&#x27;, &#x27;grape&#x27;]
+after remove: [&#x27;mango&#x27;, &#x27;cherry&#x27;, &#x27;grape&#x27;]</pre></div>
+
+</section>
+<section id="tuple-vs-list--the-key-distinction" class="level3">
+<h3>Tuple vs List — The Key Distinction</h3>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)   <span class="co"># tuple — immutable</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]   <span class="co"># list  — mutable</span></span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Tuple</th>
+<th>List</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Read elements</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td>Change elements</td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td>Add elements</td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td>Remove elements</td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>The interface reflects the contract:</p>
+<ul>
+<li>A <strong>tuple</strong> says: <em>“these values are
+fixed”</em></li>
+<li>A <strong>list</strong> says: <em>“this collection can grow and
+change”</em></li>
+</ul>
+<p>Choose the type that matches your intent.</p>
+</section>
+</section>
+<section id="del-in-python" class="level2">
+<h2><code>del</code> in Python</h2>
+<p>Python’s <code>del</code> keyword does <strong>two different but
+related things</strong> depending on context:</p>
+<ol type="1">
+<li><strong>Deletes a name binding</strong> — removes a variable name
+from scope</li>
+<li><strong>Removes an element from a container</strong> — works on
+lists and dictionaries</li>
+</ol>
+<section id="comparing-to-c" class="level3">
+<h3>Comparing to C</h3>
+<p>In C, <code>free()</code> releases allocated memory directly:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> <span class="op">*</span>p <span class="op">=</span> malloc<span class="op">(</span><span class="kw">sizeof</span><span class="op">(</span><span class="dt">int</span><span class="op">));</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span>p <span class="op">=</span> <span class="dv">42</span><span class="op">;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>free<span class="op">(</span>p<span class="op">);</span>    <span class="co">// memory is released; p is now a dangling pointer</span></span></code></pre></div>
+<p>In Python, memory management is <strong>automatic</strong>. Python
+tracks how many names refer to each object (called <em>reference
+counting</em>):</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]   <span class="co"># the list has 1 reference: x</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> x            <span class="co"># the list now has 2 references: x and y</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> x            <span class="co"># removes the name x — but the list still exists via y</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(y)         <span class="co"># [1, 2, 3]  &lt;-- still alive</span></span></code></pre></div>
+<blockquote>
+<p><code>del x</code> does <strong>not</strong> free the object — it
+removes the <em>name</em>. Python frees the object automatically when
+the reference count reaches zero.</p>
+</blockquote>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> x           <span class="co"># y and x refer to the SAME list object</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> x           <span class="co"># remove the name x</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(y)        <span class="co"># the list still exists — y still refers to it</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">[1, 2, 3]</pre></div>
+
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x)        <span class="co"># NameError: name &#39;x&#39; is not defined</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+Cell In[7], line 1
+----&gt; 1 print(x)        # NameError: name &#x27;x&#x27; is not defined
+
+NameError: name &#x27;x&#x27; is not defined</span></pre></div>
+
+</section>
+<section id="del-on-containers" class="level3">
+<h3><code>del</code> on containers</h3>
+<p><code>del</code> can also remove elements from a
+<strong>mutable</strong> container by index (lists) or by key
+(dictionaries).</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>letters <span class="op">=</span> [<span class="st">&#39;A&#39;</span>, <span class="st">&#39;B&#39;</span>, <span class="st">&#39;C&#39;</span>, <span class="st">&#39;D&#39;</span>, <span class="st">&#39;E&#39;</span>]</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;before:&quot;</span>, letters)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> letters[<span class="dv">2</span>]          <span class="co"># remove element at index 2 (&#39;C&#39;)</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;after del [2]:&quot;</span>, letters)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> letters[<span class="dv">1</span>:<span class="dv">3</span>]        <span class="co"># remove a range of elements</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;after del [1:3]:&quot;</span>, letters)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">before: [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;E&#x27;]
+after del [2]: [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;D&#x27;, &#x27;E&#x27;]
+after del [1:3]: [&#x27;A&#x27;, &#x27;E&#x27;]</pre></div>
+
+<p><strong>You cannot use <code>del</code> on a tuple element</strong> —
+tuples are immutable:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> t[<span class="dv">0</span>]   <span class="co"># TypeError: &#39;tuple&#39; object doesn&#39;t support item deletion</span></span></code></pre></div>
+<blockquote>
+<p>The mutability of the type determines what <code>del</code> can do to
+it.</p>
+</blockquote>
+</section>
+<section id="del--summary" class="level3">
+<h3><code>del</code> — Summary</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Usage</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>del x</code></td>
+<td>Removes the name <code>x</code> from the current scope</td>
+</tr>
+<tr class="even">
+<td><code>del lst[i]</code></td>
+<td>Removes element at index <code>i</code> from the list</td>
+</tr>
+<tr class="odd">
+<td><code>del lst[i:j]</code></td>
+<td>Removes the slice from index <code>i</code> to <code>j-1</code></td>
+</tr>
+<tr class="even">
+<td><code>del d[key]</code></td>
+<td>Removes the key–value pair from the dictionary</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key points (from a C perspective):</strong></p>
+<ul>
+<li><code>del</code> removes a <em>reference</em>, not necessarily the
+memory</li>
+<li>Python frees memory automatically when no more references exist</li>
+<li>You cannot delete from an immutable type (tuple, string)</li>
+</ul>
+</section>
+</section>
+<section id="dictionaries" class="level2">
+<h2>Dictionaries</h2>
+<p>A <strong>dictionary</strong> stores <strong>key–value</strong>
+pairs.</p>
+<ul>
+<li>Created with curly braces <code>{ key: value, ... }</code></li>
+<li>Indexed by <strong>key</strong>, not by position</li>
+<li>Keys must be <strong>immutable</strong> (strings, integers,
+tuples)</li>
+<li>Values can be anything</li>
+<li>Mutable: entries can be added, updated, and removed</li>
+<li>Keys must be unique; values do not need to be</li>
+</ul>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>student <span class="op">=</span> {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;name&quot;</span>: <span class="st">&quot;Alice&quot;</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;grade&quot;</span>: <span class="dv">88</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;enrolled&quot;</span>: <span class="va">True</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(student)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(student[<span class="st">&quot;name&quot;</span>])    <span class="co"># access by key</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(student[<span class="st">&quot;grade&quot;</span>])</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">{&#x27;name&#x27;: &#x27;Alice&#x27;, &#x27;grade&#x27;: 88, &#x27;enrolled&#x27;: True}
+Alice
+88</pre></div>
+
+<section id="dictionary--public-interface" class="level3">
+<h3>Dictionary — Public Interface</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Syntax</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Access value</td>
+<td><code>d[key]</code></td>
+<td>Get value for <code>key</code> (error if missing)</td>
+</tr>
+<tr class="even">
+<td>Safe access</td>
+<td><code>d.get(key)</code></td>
+<td>Get value, returns <code>None</code> if key not found</td>
+</tr>
+<tr class="odd">
+<td>Add / update</td>
+<td><code>d[key] = value</code></td>
+<td>Add new entry or overwrite existing</td>
+</tr>
+<tr class="even">
+<td>Delete entry</td>
+<td><code>del d[key]</code></td>
+<td>Remove the key–value pair</td>
+</tr>
+<tr class="odd">
+<td>Membership test</td>
+<td><code>key in d</code></td>
+<td><code>True</code> if <code>key</code> exists</td>
+</tr>
+<tr class="even">
+<td>Length</td>
+<td><code>len(d)</code></td>
+<td>Number of key–value pairs</td>
+</tr>
+<tr class="odd">
+<td>All keys</td>
+<td><code>d.keys()</code></td>
+<td>View of all keys</td>
+</tr>
+<tr class="even">
+<td>All values</td>
+<td><code>d.values()</code></td>
+<td>View of all values</td>
+</tr>
+<tr class="odd">
+<td>All pairs</td>
+<td><code>d.items()</code></td>
+<td>View of <code>(key, value)</code> pairs</td>
+</tr>
+<tr class="even">
+<td>Iterate</td>
+<td><code>for k in d:</code></td>
+<td>Loop over keys</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>grades <span class="op">=</span> {<span class="st">&quot;Alice&quot;</span>: <span class="dv">85</span>, <span class="st">&quot;Bob&quot;</span>: <span class="dv">92</span>, <span class="st">&quot;Carol&quot;</span>: <span class="dv">78</span>}</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;original:&quot;</span>, grades)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>grades[<span class="st">&quot;Dave&quot;</span>] <span class="op">=</span> <span class="dv">88</span>        <span class="co"># add a new entry</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;after add:&quot;</span>, grades)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>grades[<span class="st">&quot;Alice&quot;</span>] <span class="op">=</span> <span class="dv">90</span>       <span class="co"># update an existing entry</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;after update:&quot;</span>, grades)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> grades[<span class="st">&quot;Bob&quot;</span>]          <span class="co"># remove an entry</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;after del:&quot;</span>, grades)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">original: {&#x27;Alice&#x27;: 85, &#x27;Bob&#x27;: 92, &#x27;Carol&#x27;: 78}
+after add: {&#x27;Alice&#x27;: 85, &#x27;Bob&#x27;: 92, &#x27;Carol&#x27;: 78, &#x27;Dave&#x27;: 88}
+after update: {&#x27;Alice&#x27;: 90, &#x27;Bob&#x27;: 92, &#x27;Carol&#x27;: 78, &#x27;Dave&#x27;: 88}
+after del: {&#x27;Alice&#x27;: 90, &#x27;Carol&#x27;: 78, &#x27;Dave&#x27;: 88}</pre></div>
+
+</section>
+<section id="why-must-keys-be-immutable" class="level3">
+<h3>Why must keys be immutable?</h3>
+<p>Dictionaries locate values using a <strong>hash</strong> of the key —
+a numeric fingerprint computed from the key’s value.</p>
+<p>If a key could change after being inserted, its hash would change
+too, and the dictionary would no longer be able to find it.</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Strings and integers are immutable → valid keys</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;Alice&quot;</span>, <span class="dv">42</span>: <span class="st">&quot;answer&quot;</span>}</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Lists are mutable → cannot be used as keys</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>d[[<span class="dv">1</span>, <span class="dv">2</span>]] <span class="op">=</span> <span class="st">&quot;test&quot;</span>   <span class="co"># TypeError: unhashable type: &#39;list&#39;</span></span></code></pre></div>
+<blockquote>
+<p>This is another place where mutability has direct practical
+consequences.</p>
+</blockquote>
+</section>
+<section id="iterating-over-a-dictionary" class="level3">
+<h3>Iterating over a Dictionary</h3>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>grades <span class="op">=</span> {<span class="st">&quot;Alice&quot;</span>: <span class="dv">90</span>, <span class="st">&quot;Bob&quot;</span>: <span class="dv">85</span>, <span class="st">&quot;Carol&quot;</span>: <span class="dv">92</span>}</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Iterate over key-value pairs together (most common)</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, score <span class="kw">in</span> grades.items():</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name, <span class="st">&quot;-&gt;&quot;</span>, score)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Alice -&gt; 90
+Bob -&gt; 85
+Carol -&gt; 92</pre></div>
+
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Iterating over just keys (default behaviour)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name <span class="kw">in</span> grades:</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Alice
+Bob
+Carol</pre></div>
+
+</section>
+</section>
+<section id="sets" class="level2">
+<h2>Sets</h2>
+<p>A <strong>set</strong> is an unordered collection with <strong>no
+duplicate values</strong>.</p>
+<ul>
+<li>Created with curly braces <code>{ }</code> (but no key–value
+pairs)</li>
+<li><strong>Not indexed</strong> — you cannot access elements by
+position</li>
+<li>Mutable: you can add and remove elements</li>
+<li>Automatically discards duplicates</li>
+</ul>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>colours <span class="op">=</span> {<span class="st">&quot;red&quot;</span>, <span class="st">&quot;green&quot;</span>, <span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>}   <span class="co"># &#39;red&#39; appears twice</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(colours)   <span class="co"># only one &#39;red&#39; — duplicates are silently removed</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>colours.add(<span class="st">&quot;yellow&quot;</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(colours)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>colours.remove(<span class="st">&quot;green&quot;</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(colours)</span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">{&#x27;red&#x27;, &#x27;green&#x27;, &#x27;blue&#x27;}
+{&#x27;yellow&#x27;, &#x27;red&#x27;, &#x27;green&#x27;, &#x27;blue&#x27;}
+{&#x27;yellow&#x27;, &#x27;red&#x27;, &#x27;blue&#x27;}</pre></div>
+
+<section id="set--public-interface" class="level3">
+<h3>Set — Public Interface</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Syntax</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Add element</td>
+<td><code>s.add(x)</code></td>
+<td>Adds <code>x</code> (no effect if already present)</td>
+</tr>
+<tr class="even">
+<td>Remove element</td>
+<td><code>s.remove(x)</code></td>
+<td>Removes <code>x</code> (error if not present)</td>
+</tr>
+<tr class="odd">
+<td>Membership test</td>
+<td><code>x in s</code></td>
+<td><code>True</code> if <code>x</code> is in the set</td>
+</tr>
+<tr class="even">
+<td>Length</td>
+<td><code>len(s)</code></td>
+<td>Number of elements</td>
+</tr>
+<tr class="odd">
+<td>Union</td>
+<td><code>s1 | s2</code></td>
+<td>All elements from both sets</td>
+</tr>
+<tr class="even">
+<td>Intersection</td>
+<td><code>s1 &amp; s2</code></td>
+<td>Elements in both sets</td>
+</tr>
+<tr class="odd">
+<td>Difference</td>
+<td><code>s1 - s2</code></td>
+<td>Elements in <code>s1</code> but not <code>s2</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Notice:</strong> No indexing (<code>s[0]</code>) — sets have
+no notion of order or position.</p>
+</blockquote>
+</section>
+<section id="sets-are-unordered" class="level3">
+<h3>Sets are unordered</h3>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>s1 <span class="op">=</span> {<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>}</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>s2 <span class="op">=</span> {<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>}</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s1 <span class="op">==</span> s2)   <span class="co"># True — same elements, order doesn&#39;t matter</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>s1[<span class="dv">0</span>]             <span class="co"># TypeError: &#39;set&#39; object is not subscriptable</span></span></code></pre></div>
+<div class="runoutput"><div class="run-label">Output</div><pre class="terminal">True
+<span class="err">---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+Cell In[14], line 6
+      2 s2 = {1, 2, 3}
+      4 print(s1 == s2)   # True — same elements, order doesn&#x27;t matter
+----&gt; 6 s1[0]             # TypeError: &#x27;set&#x27; object is not subscriptable
+
+TypeError: &#x27;set&#x27; object is not subscriptable</span></pre></div>
+
+<p><strong>When to use a set:</strong><br />
+Use a set when you care about <strong>membership</strong> and
+<strong>uniqueness</strong>, not order — for example, tracking which
+items have been seen, or computing overlaps between two groups.</p>
+</section>
+</section>
+<section id="summary" class="level2">
+<h2>Summary</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Syntax</th>
+<th>Ordered</th>
+<th>Mutable</th>
+<th>Indexed by</th>
+<th>Duplicates</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>tuple</code></td>
+<td><code>(a, b, c)</code></td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+<td>position</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>list</code></td>
+<td><code>[a, b, c]</code></td>
+<td>Yes</td>
+<td><strong>Yes</strong></td>
+<td>position</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>dict</code></td>
+<td><code>{k: v}</code></td>
+<td>Yes*</td>
+<td><strong>Yes</strong></td>
+<td>key</td>
+<td>keys: No</td>
+</tr>
+<tr class="even">
+<td><code>set</code></td>
+<td><code>{a, b, c}</code></td>
+<td>No</td>
+<td><strong>Yes</strong></td>
+<td>not indexed</td>
+<td><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+<p><small>*Preserves insertion order as of Python 3.7</small></p>
+<p><strong><code>del</code> reminder:</strong></p>
+<ul>
+<li><code>del x</code> — removes a name binding</li>
+<li><code>del lst[i]</code> / <code>del d[key]</code> — removes from a
+mutable container</li>
+<li>Cannot delete from an immutable type</li>
+</ul>
+</section>
+<nav class="pager" aria-label="Previous and next lecture">
+<a class="prev" href="../lecture01-part2/"><span class="label">← Previous</span>Lecture
+1 · Part 2: Python Basics</a>
+<a class="next" href="../lecture02-part2/"><span class="label">Next →</span>Lecture
+2 · Part 2: Functions</a>
+</nav>
+</main>
+<script>
+  // light/dark toggle: an explicit choice wins over the system setting
+  (function () {
+    var b = document.getElementById('theme-toggle'), r = document.documentElement;
+    function current() {
+      var t = r.getAttribute('data-theme');
+      return t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    function show() {
+      var dark = current() === 'dark';
+      b.textContent = dark ? '☀ Light' : '☾ Dark';
+      b.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    b.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', next);
+      try { localStorage.setItem('cpsc100-theme', next); } catch (e) {}
+      show();
+      b.blur();   // so Space goes back to the demo's "next step"
+    });
+    show();
+  })();
+</script>
+</body>
+</html>
