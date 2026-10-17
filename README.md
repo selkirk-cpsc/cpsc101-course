@@ -25,7 +25,7 @@ output, and links to the interactive PythonTutor visualizations.
 ### Lecture 4: Inheritance
 
 - [Part 1: Inheritance](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part1/)
-- [Part 2: A Closure Look](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part2/)
+- [Part 2: A Closer Look](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part2/)
 - [Part 3: Multiple Inheritance](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part3/)
 
 ### Lecture 5: Error & Exception Handling
@@ -37,7 +37,7 @@ output, and links to the interactive PythonTutor visualizations.
 ### Lecture 6: Polymorphism & Duck Typing
 
 - [Part 1: Introduction](https://rbrad070.github.io/cpsc101-course/lectures/lecture06-part1/)
-- [Part 2: Duck Typing - A Closure Look](https://rbrad070.github.io/cpsc101-course/lectures/lecture06-part2/)
+- [Part 2: Duck Typing - A Closer Look](https://rbrad070.github.io/cpsc101-course/lectures/lecture06-part2/)
 
 ### Lecture 7: Text/Binary IO
 
