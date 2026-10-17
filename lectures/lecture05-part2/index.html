@@ -246,7 +246,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="dv">100</span> <span class="op">/</span> x)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 ValueError                                Traceback (most recent call last)
-Cell In[2], line 2
+Cell In[3], line 2
       1 user_input = &quot;hello&quot;
 ----&gt; 2 x = int(user_input)
       3 print(100 / x)
@@ -314,7 +314,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a hr
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;That was not a valid number.&quot;</span>)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 ZeroDivisionError                         Traceback (most recent call last)
-Cell In[4], line 5
+Cell In[5], line 5
       3 try:
       4     x = int(user_input)
 ----&gt; 5     print(100 / x)
@@ -847,12 +847,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a h
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>is_even(<span class="fl">3.4</span>)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 TypeError                                 Traceback (most recent call last)
-Cell In[19], line 6
+Cell In[20], line 6
       3         raise TypeError(&quot;Input must be an integer&quot;)
       4     return x % 2 == 0
 ----&gt; 6 is_even(3.4)
 
-Cell In[19], line 3, in is_even(x)
+Cell In[20], line 3, in is_even(x)
       1 def is_even(x):
       2     if not isinstance(x, int):
 ----&gt; 3         raise TypeError(&quot;Input must be an integer&quot;)
@@ -876,6 +876,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a h
 <span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">TypeError</span> <span class="im">as</span> e:</span>
 <span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(e)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Input must be an integer</pre></div>
+
+<div class="tryit"><p><strong>Try it: Exceptions: try / except / else / finally</strong></p><p>Step through the code one line at a time and watch the frames and objects change.</p><p><a class="demo-link" href="../../demos/exceptions-flow/">Open the step-through demo</a></p></div>
 
 </section>
 <section id="another-example" class="level3">
@@ -913,12 +915,12 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a h
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data)</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal"><span class="err">---------------------------------------------------------------------------
 ValueError                                Traceback (most recent call last)
-Cell In[24], line 2
+Cell In[26], line 2
       1 data = [1,2,3,4]
 ----&gt; 2 pad_with_zeros(data, left = -1, right = 2)
       3 print(data)
 
-Cell In[21], line 8, in pad_with_zeros(data, left, right)
+Cell In[23], line 8, in pad_with_zeros(data, left, right)
       2 &quot;&quot;&quot;
       3 Pad data in-place by inserting 0s on the left and appending 0s on the right.
       4 
@@ -971,7 +973,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a h
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Conversion failed: invalid literal for int() with base 10: &#x27;abc&#x27;
 <span class="err">---------------------------------------------------------------------------
 ValueError                                Traceback (most recent call last)
-Cell In[25], line 2
+Cell In[27], line 2
       1 try:
 ----&gt; 2     x = int(&quot;abc&quot;)
       3 except ValueError as e:
@@ -1006,7 +1008,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a h
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">Error occurred: invalid literal for int() with base 10: &#x27;abc&#x27;
 <span class="err">---------------------------------------------------------------------------
 ValueError                                Traceback (most recent call last)
-Cell In[26], line 9
+Cell In[28], line 9
       7 # GOOD: log and re-raise
       8 try:
 ----&gt; 9     x = int(&quot;abc&quot;)

@@ -234,7 +234,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(listsum([<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">9</span>]))</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">25</pre></div>
 
-<div class="tryit"><p><strong>Try it: Sum of a List of Numbers (Iteration)</strong></p><p>Step through the code one line at a time and watch the variables change.</p><p><a class="demo-link" href="https://pythontutor.com/visualize.html#code=def%20listsum%28numList%29%3A%0A%20%20%20%20theSum%20%3D%200%0A%20%20%20%20for%20num%20in%20numList%3A%0A%20%20%20%20%20%20%20%20theSum%20%3D%20theSum%20%2B%20num%0A%20%20%20%20return%20theSum%0A%0Aprint%28listsum%28%5B1,3,5,7,9%5D%29%29&amp;codeDivHeight=400&amp;codeDivWidth=350&amp;cumulative=false&amp;curInstr=0&amp;heapPrimitives=nevernest&amp;origin=opt-frontend.js&amp;py=311&amp;rawInputLstJSON=%5B%5D&amp;textReferences=false" target="_blank" rel="noopener">Open in PythonTutor</a></p></div>
+<div class="tryit"><p><strong>Try it: Sum of a List of Numbers (Iteration)</strong></p><p>Step through the code one line at a time and watch the frames and objects change.</p><p><a class="demo-link" href="../../demos/sum-numlst/">Open the step-through demo</a></p></div>
 
 </section>
 <section id="a-thought-experiment" class="level3">
@@ -307,7 +307,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a hr
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(listsum([<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">9</span>]))</span></code></pre></div>
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">25</pre></div>
 
-<div class="tryit"><p><strong>Try it: Sum of a List of Numbers (Recursion)</strong></p><p>Step through the code one line at a time and watch the variables change.</p><p><a class="demo-link" href="https://pythontutor.com/visualize.html#code=def%20listsum%28numList%29%3A%0A%20%20%20%20if%20len%28numList%29%20%3D%3D%201%3A%0A%20%20%20%20%20%20%20%20return%20numList%5B0%5D%0A%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20return%20numList%5B0%5D%20%2B%20listsum%28numList%5B1%3A%5D%29%0A%0Aprint%28listsum%28%5B1,3,5,7,9%5D%29%29&amp;codeDivHeight=400&amp;codeDivWidth=350&amp;cumulative=false&amp;curInstr=0&amp;heapPrimitives=nevernest&amp;origin=opt-frontend.js&amp;py=311&amp;rawInputLstJSON=%5B%5D&amp;textReferences=false" target="_blank" rel="noopener">Open in PythonTutor</a></p></div>
+<div class="tryit"><p><strong>Try it: Sum of a List of Numbers (Recursion)</strong></p><p>Step through the code one line at a time and watch the frames and objects change.</p><p><a class="demo-link" href="../../demos/sum-numlst-rec/">Open the step-through demo</a></p></div>
 
 </section>
 </section>
@@ -650,6 +650,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a h
 Max Depth: 2978</pre></div>
 
 <figure class="nb-figure"><img src="call_stack_max_depth.png?v=67d71829" alt="RecursionError: maximum recursion depth exceeded" style="width:800px"><figcaption><strong>Figure 5.</strong> RecursionError: maximum recursion depth exceeded</figcaption></figure>
+
+<div class="tryit"><p><strong>Try it: Recursion without a Base Case (Stack Overflow)</strong></p><p>Step through the code one line at a time and watch the frames and objects change.</p><p><a class="demo-link" href="../../demos/stack-overflow/">Open the step-through demo</a></p></div>
 
 </section>
 </section>

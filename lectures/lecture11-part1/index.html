@@ -266,6 +266,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a hr
 10 found at index 2
 99 not found</pre></div>
 
+<div class="tryit"><p><strong>Try it: Linear Search</strong></p><p>Step through the code one line at a time and watch the frames and objects change.</p><p><a class="demo-link" href="../../demos/linear-search/">Open the step-through demo</a></p></div>
+
 </section>
 <section id="built-in-linear-search" class="level3">
 <h3>Built-in Linear Search</h3>
@@ -482,7 +484,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a h
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">target: 121 , Found at index 8
 target: 999 , Not Found</pre></div>
 
-<div class="tryit"><p><strong>Try it: Step through this code</strong></p><p>Step through the code one line at a time and watch the variables change.</p><p><a class="demo-link" href="https://pythontutor.com/visualize.html#code=import%20random%0A%0Adef%20binary_search%28arr,%20target%29%3A%0A%20%20%20%20low%20%3D%200%0A%20%20%20%20high%20%3D%20len%28arr%29%20-%201%0A%20%20%20%20print%28&#x27;look%20between%20index&#x27;,%20low,%20&#x27;and&#x27;,%20high%29%0A%0A%20%20%20%20while%20low%20%3C%3D%20high%3A%0A%20%20%20%20%20%20%20%20mid%20%3D%20%28low%20%2B%20high%29%20//%202%0A%20%20%20%20%20%20%20%20print%28&#x27;middle%20set%20to&#x27;,%20mid%29%0A%20%20%20%20%20%20%20%20if%20arr%5Bmid%5D%20%3D%3D%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20mid%0A%20%20%20%20%20%20%20%20elif%20arr%5Bmid%5D%20%3C%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20low%20%3D%20mid%20%2B%201%0A%20%20%20%20%20%20%20%20%20%20%20%20print%28&#x27;middle&#x27;,%20mid,%20&#x27;has%20value&#x27;,%20arr%5Bmid%5D,%20&#x27;,%20so%20look%20between%20index&#x27;,%20low,%20&#x27;and&#x27;,%20high%29%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20high%20%3D%20mid%20-%201%0A%20%20%20%20%20%20%20%20%20%20%20%20print%28&#x27;index&#x27;,%20mid,%20&#x27;has&#x27;,%20arr%5Bmid%5D,%20&#x27;,%20so%20look%20between%20index&#x27;,%20low,%20&#x27;and&#x27;,%20high%29%0A%0A%20%20%20%20return%20-1%0A%0Asorted_vals%20%3D%20sorted%28random.choices%28list%28range%281,%2021%29%29,%20k%3D10%29%29%0Aprint%28sorted_vals%29%0Abinary_search%28sorted_vals,%20sorted_vals%5B8%5D%29&amp;codeDivHeight=400&amp;codeDivWidth=350&amp;curInstr=0&amp;origin=opt-frontend.js&amp;py=311&amp;startStepMode=first" target="_blank" rel="noopener">Open in PythonTutor</a></p></div>
+<div class="tryit"><p><strong>Try it: Binary Search</strong></p><p>Step through the code one line at a time and watch the frames and objects change.</p><p><a class="demo-link" href="../../demos/binary-search/">Open the step-through demo</a></p></div>
 
 </section>
 <section id="recursive-binary-search" class="level3">
@@ -511,7 +513,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a h
 <div class="runoutput"><div class="run-label">Output</div><pre class="terminal">target: 34 , Found at index 2
 target: 999 , Not Found</pre></div>
 
-<div class="tryit"><p><strong>Try it: Step through this code</strong></p><p>Step through the code one line at a time and watch the variables change.</p><p><a class="demo-link" href="https://pythontutor.com/visualize.html#code=def%20binary_search_recursive%28lst,%20target%29%3A%0A%20%20%20%20if%20len%28lst%29%20%3D%3D%200%3A%0A%20%20%20%20%20%20%20%20return%20-1%0A%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20midpoint%20%3D%20len%28lst%29%20//%202%0A%20%20%20%20%20%20%20%20if%20lst%5Bmidpoint%5D%20%3D%3D%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20midpoint%0A%20%20%20%20%20%20%20%20elif%20lst%5Bmidpoint%5D%20%3C%20target%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20result%20%3D%20binary_search_recursive%28lst%5Bmidpoint%20%2B%201%3A%5D,%20target%29%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20-1%20if%20result%20%3D%3D%20-1%20else%20result%20%2B%20midpoint%20%2B%201%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20binary_search_recursive%28lst%5B%3Amidpoint%5D,%20target%29%0A%0A%0Asorted_data%20%3D%20%5B21,%2033,%2034,%2056,%2060,%2075,%2077,%2090,%20121,%20130%5D%0A%0Afor%20target%20in%20%5B34,%20999%5D%3A%0A%20%20%20%20result%20%3D%20binary_search_recursive%28sorted_data,%20target%29%0A%20%20%20%20print%28%22target%3A%22,%20target,%20f%22,%20Found%20at%20index%20%7Bresult%7D%22%20if%20result%20!%3D%20-1%20else%20%22,%20Not%20Found%22%29&amp;codeDivHeight=400&amp;codeDivWidth=350&amp;curInstr=0&amp;origin=opt-frontend.js&amp;py=311&amp;startStepMode=first" target="_blank" rel="noopener">Open in PythonTutor</a></p></div>
+<div class="tryit"><p><strong>Try it: Binary Search (Recursive)</strong></p><p>Step through the code one line at a time and watch the frames and objects change.</p><p><a class="demo-link" href="../../demos/binary-search-rec/">Open the step-through demo</a></p></div>
 
 </section>
 <section id="binary-search-analysis" class="level3">
