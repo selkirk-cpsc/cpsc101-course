@@ -1,6 +1,6 @@
 # CPSC 101: Programming II (Python)
 
-**[Course info](https://rbrad070.github.io/cpsc101-course/course/) · [Schedule](https://rbrad070.github.io/cpsc101-course/schedule/) · [Demos](https://rbrad070.github.io/cpsc101-course/demos/) · [Setting up Python](https://rbrad070.github.io/cpsc101-course/setup/)**
+**[Course info](https://selkirk-cpsc.github.io/cpsc101-course/course/) · [Schedule](https://selkirk-cpsc.github.io/cpsc101-course/schedule/) · [Demos](https://selkirk-cpsc.github.io/cpsc101-course/demos/) · [Setting up Python](https://selkirk-cpsc.github.io/cpsc101-course/setup/)**
 
 Assignments, labs, the project, grades and all due dates are on [Moodle](https://learn.selkirk.ca/).
 
