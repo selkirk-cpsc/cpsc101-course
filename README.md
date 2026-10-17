@@ -6,35 +6,65 @@ output, and links to the interactive PythonTutor visualizations.
 
 ## Lecture Notes
 
-| Lecture | Part | Topic |
-|---|---|---|
-| 1 | 1 | [Orientation](https://rbrad070.github.io/cpsc101-course/lectures/lecture01-part1/) |
-| 1 | 2 | [Python Basics](https://rbrad070.github.io/cpsc101-course/lectures/lecture01-part2/) |
-| 2 | 1 | [Data Containers](https://rbrad070.github.io/cpsc101-course/lectures/lecture02-part1/) |
-| 2 | 2 | [Functions](https://rbrad070.github.io/cpsc101-course/lectures/lecture02-part2/) |
-| 3 | 1 | [Introduction to Object Oriented Programming](https://rbrad070.github.io/cpsc101-course/lectures/lecture03-part1/) |
-| 3 | 2 | [Introduction to Object Oriented Programming](https://rbrad070.github.io/cpsc101-course/lectures/lecture03-part2/) |
-| 3 | 3 | [Introduction to Object Oriented Programming](https://rbrad070.github.io/cpsc101-course/lectures/lecture03-part3/) |
-| 4 | 1 | [Inheritance](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part1/) |
-| 4 | 2 | [Inheritance](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part2/) |
-| 4 | 3 | [Inheritance](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part3/) |
-| 5 | 1 | [Error & Exception Handling](https://rbrad070.github.io/cpsc101-course/lectures/lecture05-part1/) |
-| 5 | 2 | [Error & Exception Handling](https://rbrad070.github.io/cpsc101-course/lectures/lecture05-part2/) |
-| 5 | 3 | [Error & Exception Handling](https://rbrad070.github.io/cpsc101-course/lectures/lecture05-part3/) |
-| 6 | 1 | [Polymorphism & Duck Typing](https://rbrad070.github.io/cpsc101-course/lectures/lecture06-part1/) |
-| 6 | 2 | [Polymorphism & Duck Typing](https://rbrad070.github.io/cpsc101-course/lectures/lecture06-part2/) |
-| 7 | 1 | [Text/Binary IO](https://rbrad070.github.io/cpsc101-course/lectures/lecture07-part1/) |
-| 7 | 2 | [Text/Binary IO](https://rbrad070.github.io/cpsc101-course/lectures/lecture07-part2/) |
-| 7 | 3 | [Text/Binary IO](https://rbrad070.github.io/cpsc101-course/lectures/lecture07-part3/) |
-| 7 | 4 | [Text/Binary IO](https://rbrad070.github.io/cpsc101-course/lectures/lecture07-part4/) |
-| 8 | 1 | [Recursion](https://rbrad070.github.io/cpsc101-course/lectures/lecture08-part1/) |
-| 8 | 2 | [Recursion](https://rbrad070.github.io/cpsc101-course/lectures/lecture08-part2/) |
-| 9 | 1 | [Linear Data Structures](https://rbrad070.github.io/cpsc101-course/lectures/lecture09-part1/) |
-| 9 | 2 | [Linear Data Structures](https://rbrad070.github.io/cpsc101-course/lectures/lecture09-part2/) |
-| 9 | 3 | [Linear Data Structures](https://rbrad070.github.io/cpsc101-course/lectures/lecture09-part3/) |
-| 10 | 1 | [Linear Data Structures (Continued)](https://rbrad070.github.io/cpsc101-course/lectures/lecture10-part1/) |
-| 10 | 2 | [Linear Data Structures (Continued)](https://rbrad070.github.io/cpsc101-course/lectures/lecture10-part2/) |
-| 10 | 3 | [Linear Data Structures (Continued)](https://rbrad070.github.io/cpsc101-course/lectures/lecture10-part3/) |
-| 11 | 1 | [Searching and Sorting](https://rbrad070.github.io/cpsc101-course/lectures/lecture11-part1/) |
-| 11 | 2 | [Searching and Sorting](https://rbrad070.github.io/cpsc101-course/lectures/lecture11-part2/) |
-| 11 | 3 | [Hashing](https://rbrad070.github.io/cpsc101-course/lectures/lecture11-part3/) |
+### Lecture 1
+
+- [Part 1: Orientation](https://rbrad070.github.io/cpsc101-course/lectures/lecture01-part1/)
+- [Part 2: Python Basics](https://rbrad070.github.io/cpsc101-course/lectures/lecture01-part2/)
+
+### Lecture 2
+
+- [Part 1: Data Containers](https://rbrad070.github.io/cpsc101-course/lectures/lecture02-part1/)
+- [Part 2: Functions](https://rbrad070.github.io/cpsc101-course/lectures/lecture02-part2/)
+
+### Lecture 3: Introduction to Object Oriented Programming
+
+- [Part 1: The Big Picture](https://rbrad070.github.io/cpsc101-course/lectures/lecture03-part1/)
+- [Part 2: Python Classes and their Objects](https://rbrad070.github.io/cpsc101-course/lectures/lecture03-part2/)
+- [Part 3: Class Side and Static Behaviour](https://rbrad070.github.io/cpsc101-course/lectures/lecture03-part3/)
+
+### Lecture 4: Inheritance
+
+- [Part 1: Inheritance](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part1/)
+- [Part 2: A Closure Look](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part2/)
+- [Part 3: Multiple Inheritance](https://rbrad070.github.io/cpsc101-course/lectures/lecture04-part3/)
+
+### Lecture 5: Error & Exception Handling
+
+- [Part 1: Introduction](https://rbrad070.github.io/cpsc101-course/lectures/lecture05-part1/)
+- [Part 2: Exception Handling](https://rbrad070.github.io/cpsc101-course/lectures/lecture05-part2/)
+- [Part 3: Custom Exceptions](https://rbrad070.github.io/cpsc101-course/lectures/lecture05-part3/)
+
+### Lecture 6: Polymorphism & Duck Typing
+
+- [Part 1: Introduction](https://rbrad070.github.io/cpsc101-course/lectures/lecture06-part1/)
+- [Part 2: Duck Typing - A Closure Look](https://rbrad070.github.io/cpsc101-course/lectures/lecture06-part2/)
+
+### Lecture 7: Text/Binary IO
+
+- [Part 1: Text IO (Basics)](https://rbrad070.github.io/cpsc101-course/lectures/lecture07-part1/)
+- [Part 2: More Text IO](https://rbrad070.github.io/cpsc101-course/lectures/lecture07-part2/)
+- [Part 3: Binary IO](https://rbrad070.github.io/cpsc101-course/lectures/lecture07-part3/)
+- [Part 4: Standard Streams](https://rbrad070.github.io/cpsc101-course/lectures/lecture07-part4/)
+
+### Lecture 8: Recursion
+
+- [Part 1: Introduction](https://rbrad070.github.io/cpsc101-course/lectures/lecture08-part1/)
+- [Part 2: Applications](https://rbrad070.github.io/cpsc101-course/lectures/lecture08-part2/)
+
+### Lecture 9: Linear Data Structures
+
+- [Part 1: Lists](https://rbrad070.github.io/cpsc101-course/lectures/lecture09-part1/)
+- [Part 2: List Implementations](https://rbrad070.github.io/cpsc101-course/lectures/lecture09-part2/)
+- [Part 3: Comparisons](https://rbrad070.github.io/cpsc101-course/lectures/lecture09-part3/)
+
+### Lecture 10: Linear Data Structures (Continued)
+
+- [Part 1: Stacks](https://rbrad070.github.io/cpsc101-course/lectures/lecture10-part1/)
+- [Part 2: Stack Applications](https://rbrad070.github.io/cpsc101-course/lectures/lecture10-part2/)
+- [Part 3: Queues](https://rbrad070.github.io/cpsc101-course/lectures/lecture10-part3/)
+
+### Lecture 11
+
+- [Part 1: Searching Algorithms](https://rbrad070.github.io/cpsc101-course/lectures/lecture11-part1/)
+- [Part 2: Sorting Algorithms](https://rbrad070.github.io/cpsc101-course/lectures/lecture11-part2/)
+- [Part 3: Hashing](https://rbrad070.github.io/cpsc101-course/lectures/lecture11-part3/)
