@@ -44,7 +44,10 @@
   header .desc p { margin: 6px 0 0; color: var(--ink); }
   header .desc ol { margin: 6px 0 0; padding-left: 1.6em; }
   header .desc li { margin: 2px 0; }
-  header .desc code { background: var(--code-bg); padding: 0 .25em; border-radius: 4px; font-size: .92em; }
+  header .desc code { background: var(--code-bg); padding: 0 .15em; border-radius: 4px; font-size: .92em; }
+  header .desc details { margin-top: 6px; }
+  header .desc summary { cursor: pointer; color: var(--accent); font-weight: 600; width: max-content; }
+  header .desc details[open] summary { margin-bottom: 2px; }
   .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; float: right; margin: 0 0 8px 12px; }
   main { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
   @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
@@ -138,7 +141,7 @@
   <h1>Two Names, One List (Aliasing)</h1>
   <p>Step through the program one line at a time. Watch the frames (each function call's
      variables) and the objects they point to. Keys: <kbd>→</kbd>/<kbd>Space</kbd> next, <kbd>←</kbd> back.</p>
-  <div class="desc"><p>y = x does not copy the list: both names point to the same list object, so a change made through y shows up through x. A slice [:] makes a new list.</p></div>
+  <div class="desc"><p>In Python a variable doesn&#x27;t hold a list itself: it holds a <strong>reference</strong> to (an arrow pointing at) a list object. So <code>y = x</code> doesn&#x27;t copy the list. It makes <code>y</code> point to the same list as <code>x</code>: two names, one list.</p><details><summary>How it works</summary><p>What to watch for:</p><ol><li><code>y = x</code>: a second arrow appears, pointing to the same list.</li><li><code>y.append(4)</code> changes that one list, so printing <code>x</code> shows the 4 too.</li><li><code>z = x[:]</code>: the slice builds a <strong>new</strong> list, a copy, with its own arrow.</li><li><code>z.append(5)</code> changes only the copy; <code>x</code> is unaffected.</li><li><code>x is y</code> asks &quot;same object?&quot;: <code>True</code>. <code>x is z</code> is <code>False</code>, even though the lists started out equal.</li></ol></details></div>
 </header>
 <main>
   <section class="card">

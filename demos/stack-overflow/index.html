@@ -44,7 +44,10 @@
   header .desc p { margin: 6px 0 0; color: var(--ink); }
   header .desc ol { margin: 6px 0 0; padding-left: 1.6em; }
   header .desc li { margin: 2px 0; }
-  header .desc code { background: var(--code-bg); padding: 0 .25em; border-radius: 4px; font-size: .92em; }
+  header .desc code { background: var(--code-bg); padding: 0 .15em; border-radius: 4px; font-size: .92em; }
+  header .desc details { margin-top: 6px; }
+  header .desc summary { cursor: pointer; color: var(--accent); font-weight: 600; width: max-content; }
+  header .desc details[open] summary { margin-bottom: 2px; }
   .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; float: right; margin: 0 0 8px 12px; }
   main { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
   @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
@@ -138,7 +141,7 @@
   <h1>Recursion without a Base Case (Stack Overflow)</h1>
   <p>Step through the program one line at a time. Watch the frames (each function call's
      variables) and the objects they point to. Keys: <kbd>→</kbd>/<kbd>Space</kbd> next, <kbd>←</kbd> back.</p>
-  <div class="desc"><p>recurse() never stops calling itself, so frames pile up on the call stack until there is no room left and Python raises RecursionError. This demo allows only 10 frames (Python&#x27;s real limit is about 1000) so the overflow comes quickly.</p></div>
+  <div class="desc"><p>Every recursive function needs a <strong>base case</strong>: a case it answers without calling itself. <code>recurse()</code> has none, so it never stops calling itself.</p><details><summary>How it works</summary><p>What to watch for:</p><ol><li>Each call pushes a new frame onto the <strong>call stack</strong>, one deeper each time.</li><li>The stack has a limit. Python allows about 1000 frames; this demo allows only 10, so the overflow comes quickly.</li><li>When there&#x27;s no room for another frame, Python raises <code>RecursionError</code>: a <strong>stack overflow</strong>.</li><li>Here the deepest call catches the error and returns its depth. Then every waiting call returns in turn, and the frames are popped one by one as the stack unwinds.</li></ol></details></div>
 </header>
 <main>
   <section class="card">

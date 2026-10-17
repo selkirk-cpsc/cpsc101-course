@@ -44,7 +44,10 @@
   header .desc p { margin: 6px 0 0; color: var(--ink); }
   header .desc ol { margin: 6px 0 0; padding-left: 1.6em; }
   header .desc li { margin: 2px 0; }
-  header .desc code { background: var(--code-bg); padding: 0 .25em; border-radius: 4px; font-size: .92em; }
+  header .desc code { background: var(--code-bg); padding: 0 .15em; border-radius: 4px; font-size: .92em; }
+  header .desc details { margin-top: 6px; }
+  header .desc summary { cursor: pointer; color: var(--accent); font-weight: 600; width: max-content; }
+  header .desc details[open] summary { margin-bottom: 2px; }
   .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; float: right; margin: 0 0 8px 12px; }
   main { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
   @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
@@ -138,7 +141,7 @@
   <h1>Balanced Parentheses with a Stack</h1>
   <p>Step through the program one line at a time. Watch the frames (each function call's
      variables) and the objects they point to. Keys: <kbd>→</kbd>/<kbd>Space</kbd> next, <kbd>←</kbd> back.</p>
-  <div class="desc"><p>Pick one of the three strings to check. Each ( is pushed onto the stack and each ) pops one off. The string is balanced if no pop finds the stack empty and the stack is empty at the end. (The stack here is a simple list-backed version of the course&#x27;s ArrayStack.)</p></div>
+  <div class="desc"><p>Checking whether every <code>(</code> has a matching <code>)</code>, in the right order, using a <strong>stack</strong>: the last item pushed is the first one popped (LIFO). The most recent unmatched <code>(</code> is always on top, and that&#x27;s exactly the one the next <code>)</code> must match. Pick a string with the buttons. (The stack here is a simple list-backed version of the course&#x27;s <code>ArrayStack</code>.)</p><details><summary>How it works</summary><ol><li>Start with an empty stack.</li><li>Read the string one symbol at a time.</li><li><code>(</code>: push it onto the stack. It&#x27;s waiting for its match.</li><li><code>)</code>: if the stack is empty, there&#x27;s nothing to match: <strong>not balanced</strong>, stop. Otherwise pop the <code>(</code> it matches.</li><li>At the end: balanced only if the stack is empty. A <code>(</code> still on it was never closed.</li></ol><p><code>&quot;((()))&quot;</code> is balanced. <code>&quot;(()&quot;</code> ends with a <code>(</code> left on the stack. <code>&quot;)(()&quot;</code> fails at its very first symbol.</p></details></div>
 </header>
 <main>
   <section class="card">

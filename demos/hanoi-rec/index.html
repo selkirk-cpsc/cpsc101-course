@@ -44,7 +44,10 @@
   header .desc p { margin: 6px 0 0; color: var(--ink); }
   header .desc ol { margin: 6px 0 0; padding-left: 1.6em; }
   header .desc li { margin: 2px 0; }
-  header .desc code { background: var(--code-bg); padding: 0 .25em; border-radius: 4px; font-size: .92em; }
+  header .desc code { background: var(--code-bg); padding: 0 .15em; border-radius: 4px; font-size: .92em; }
+  header .desc details { margin-top: 6px; }
+  header .desc summary { cursor: pointer; color: var(--accent); font-weight: 600; width: max-content; }
+  header .desc details[open] summary { margin-bottom: 2px; }
   .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; float: right; margin: 0 0 8px 12px; }
   main { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
   @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
@@ -138,7 +141,7 @@
   <h1>Tower of Hanoi (Recursion)</h1>
   <p>Step through the program one line at a time. Watch the frames (each function call's
      variables) and the objects they point to. Keys: <kbd>→</kbd>/<kbd>Space</kbd> next, <kbd>←</kbd> back.</p>
-  
+  <div class="desc"><p>The <strong>Tower of Hanoi</strong>: move a stack of disks from one pole to another, moving one disk at a time and never putting a larger disk on a smaller one. A third pole is there to help.</p><details><summary>How it works</summary><p>To move <code>n</code> disks from <code>fromPole</code> to <code>toPole</code>, using <code>withPole</code> as the spare:</p><ol><li><strong>Base case:</strong> one disk: just move it.</li><li>Move the top <code>n - 1</code> disks out of the way, from <code>fromPole</code> to <code>withPole</code> (a smaller tower, so: recursion).</li><li>Move the biggest disk, disk <code>n</code>, from <code>fromPole</code> to <code>toPole</code>.</li><li>Move the <code>n - 1</code> disks from <code>withPole</code> onto <code>toPole</code>, on top of it (recursion again).</li></ol><p>Each call trusts the smaller calls to do their job. Three disks take 2³ − 1 = 7 moves; <code>n</code> disks take 2ⁿ − 1.</p></details></div>
 </header>
 <main>
   <section class="card">

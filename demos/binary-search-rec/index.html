@@ -44,7 +44,10 @@
   header .desc p { margin: 6px 0 0; color: var(--ink); }
   header .desc ol { margin: 6px 0 0; padding-left: 1.6em; }
   header .desc li { margin: 2px 0; }
-  header .desc code { background: var(--code-bg); padding: 0 .25em; border-radius: 4px; font-size: .92em; }
+  header .desc code { background: var(--code-bg); padding: 0 .15em; border-radius: 4px; font-size: .92em; }
+  header .desc details { margin-top: 6px; }
+  header .desc summary { cursor: pointer; color: var(--accent); font-weight: 600; width: max-content; }
+  header .desc details[open] summary { margin-bottom: 2px; }
   .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; float: right; margin: 0 0 8px 12px; }
   main { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
   @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
@@ -138,7 +141,7 @@
   <h1>Binary Search Rec</h1>
   <p>Step through the program one line at a time. Watch the frames (each function call's
      variables) and the objects they point to. Keys: <kbd>→</kbd>/<kbd>Space</kbd> next, <kbd>←</kbd> back.</p>
-  <div class="desc"><p>The same idea as the loop version, written recursively: each call looks at the middle of the list it was given, then searches only one half with a new call.</p><ol><li><strong>Base case:</strong> an empty list can&#x27;t contain the target, so return <code>-1</code>.</li><li>Otherwise look at the middle item, <code>lst[midpoint]</code> with <code>midpoint = len(lst) // 2</code>. If it&#x27;s the target, return <code>midpoint</code>.</li><li>If it&#x27;s too small, search the right half, <code>lst[midpoint + 1:]</code>. That call returns an index in the smaller list, so add <code>midpoint + 1</code> to turn it into an index in <code>lst</code> (unless it&#x27;s <code>-1</code>, meaning not found).</li><li>If it&#x27;s too big, search the left half, <code>lst[:midpoint]</code>. Its indices match <code>lst</code>&#x27;s, so the result is returned as is.</li></ol><p>Each call halves the list, so the stack is never more than about log₂ n calls deep. Unlike the loop version, every slice copies part of the list; the loop just moves <code>low</code> and <code>high</code>.</p></div>
+  <div class="desc"><p>The same idea as the loop version, written recursively: each call looks at the middle of the list it was given, then searches only one half with a new call.</p><details><summary>How it works</summary><ol><li><strong>Base case:</strong> an empty list can&#x27;t contain the target, so return <code>-1</code>.</li><li>Otherwise look at the middle item, <code>lst[midpoint]</code> with <code>midpoint = len(lst) // 2</code>. If it&#x27;s the target, return <code>midpoint</code>.</li><li>If it&#x27;s too small, search the right half, <code>lst[midpoint + 1:]</code>. That call returns an index in the smaller list, so add <code>midpoint + 1</code> to turn it into an index in <code>lst</code> (unless it&#x27;s <code>-1</code>, meaning not found).</li><li>If it&#x27;s too big, search the left half, <code>lst[:midpoint]</code>. Its indices match <code>lst</code>&#x27;s, so the result is returned as is.</li></ol><p>Each call halves the list, so the stack is never more than about log₂ n calls deep. Unlike the loop version, every slice copies part of the list; the loop just moves <code>low</code> and <code>high</code>.</p></details></div>
 </header>
 <main>
   <section class="card">

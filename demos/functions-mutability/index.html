@@ -44,7 +44,10 @@
   header .desc p { margin: 6px 0 0; color: var(--ink); }
   header .desc ol { margin: 6px 0 0; padding-left: 1.6em; }
   header .desc li { margin: 2px 0; }
-  header .desc code { background: var(--code-bg); padding: 0 .25em; border-radius: 4px; font-size: .92em; }
+  header .desc code { background: var(--code-bg); padding: 0 .15em; border-radius: 4px; font-size: .92em; }
+  header .desc details { margin-top: 6px; }
+  header .desc summary { cursor: pointer; color: var(--accent); font-weight: 600; width: max-content; }
+  header .desc details[open] summary { margin-bottom: 2px; }
   .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; float: right; margin: 0 0 8px 12px; }
   main { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
   @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
@@ -138,7 +141,7 @@
   <h1>Functions and Mutability</h1>
   <p>Step through the program one line at a time. Watch the frames (each function call's
      variables) and the objects they point to. Keys: <kbd>→</kbd>/<kbd>Space</kbd> next, <kbd>←</kbd> back.</p>
-  <div class="desc"><p>A function gets a reference to the caller&#x27;s object. Changing a mutable object (append) is seen by the caller; rebinding the parameter (lst = ...) is not.</p></div>
+  <div class="desc"><p>When you call a function, each parameter gets a <strong>reference</strong> to the caller&#x27;s object, not a copy. What the caller sees afterwards depends on what the function does with it.</p><details><summary>How it works</summary><p>What to watch for:</p><ol><li><code>double(n)</code>: <code>x = x * 2</code> makes the local name <code>x</code> point to a new number. The caller&#x27;s <code>n</code> is still 5 (numbers can&#x27;t be changed in place anyway).</li><li><code>append_zero(numbers)</code>: <code>lst</code> and <code>numbers</code> point to the <strong>same</strong> list, so <code>lst.append(0)</code> changes the caller&#x27;s list.</li><li><code>replace(numbers)</code>: <code>lst = [99, 98, 97]</code> only moves the local name <code>lst</code> to a new list. The caller&#x27;s <code>numbers</code> still points to the old one.</li><li><code>append_zero(numbers[:])</code> passes a copy, so the original list is protected.</li></ol><p>Rule of thumb: changing an object (<code>append</code>, <code>lst[0] = ...</code>) is seen by the caller; assigning to the parameter name (<code>lst = ...</code>) is not.</p></details></div>
 </header>
 <main>
   <section class="card">

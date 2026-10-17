@@ -44,7 +44,10 @@
   header .desc p { margin: 6px 0 0; color: var(--ink); }
   header .desc ol { margin: 6px 0 0; padding-left: 1.6em; }
   header .desc li { margin: 2px 0; }
-  header .desc code { background: var(--code-bg); padding: 0 .25em; border-radius: 4px; font-size: .92em; }
+  header .desc code { background: var(--code-bg); padding: 0 .15em; border-radius: 4px; font-size: .92em; }
+  header .desc details { margin-top: 6px; }
+  header .desc summary { cursor: pointer; color: var(--accent); font-weight: 600; width: max-content; }
+  header .desc details[open] summary { margin-bottom: 2px; }
   .theme-toggle { font: inherit; font-size: .85rem; line-height: 1.2; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; white-space: nowrap; float: right; margin: 0 0 8px 12px; }
   main { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
   @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
@@ -138,7 +141,7 @@
   <h1>Binary Search</h1>
   <p>Step through the program one line at a time. Watch the frames (each function call's
      variables) and the objects they point to. Keys: <kbd>→</kbd>/<kbd>Space</kbd> next, <kbd>←</kbd> back.</p>
-  <div class="desc"><p>Binary search finds a target in a <strong>sorted</strong> list by halving the part of the list it still has to search, again and again.</p><ol><li><code>low</code> and <code>high</code> mark the part of the list that could still hold the target. At first that&#x27;s the whole list.</li><li>Look at the middle item, at index <code>mid = (low + high) // 2</code>. If it&#x27;s the target, return <code>mid</code>.</li><li>If the middle item is too small, the target can only be to its right: move <code>low</code> to <code>mid + 1</code>.</li><li>If it&#x27;s too big, the target can only be to its left: move <code>high</code> to <code>mid - 1</code>.</li><li>Repeat while <code>low &lt;= high</code>. If the range runs out (<code>low &gt; high</code>), the target isn&#x27;t in the list: return <code>-1</code>.</li></ol><p>Each pass throws away half of what&#x27;s left, so a list of n items needs at most about log₂ n + 1 passes: 4 for these 10 values, about 20 for a million. A linear search might have to check every item.</p></div>
+  <div class="desc"><p>Binary search finds a target in a <strong>sorted</strong> list by halving the part of the list it still has to search, again and again.</p><details><summary>How it works</summary><ol><li><code>low</code> and <code>high</code> mark the part of the list that could still hold the target. At first that&#x27;s the whole list.</li><li>Look at the middle item, at index <code>mid = (low + high) // 2</code>. If it&#x27;s the target, return <code>mid</code>.</li><li>If the middle item is too small, the target can only be to its right: move <code>low</code> to <code>mid + 1</code>.</li><li>If it&#x27;s too big, the target can only be to its left: move <code>high</code> to <code>mid - 1</code>.</li><li>Repeat while <code>low &lt;= high</code>. If the range runs out (<code>low &gt; high</code>), the target isn&#x27;t in the list: return <code>-1</code>.</li></ol><p>Each pass throws away half of what&#x27;s left, so a list of n items needs at most about log₂ n + 1 passes: 4 for these 10 values, about 20 for a million. A linear search might have to check every item.</p></details></div>
 </header>
 <main>
   <section class="card">
