@@ -15,3 +15,9 @@ well worth a visit: paste in any of your own code and watch it run.
 ## Lecture Notes
 
 The notes are posted here as each week of the course is taught.
+
+---
+
+*Notes by Ryan Bradshaw, based on earlier notes by Jonathan Doyle and Tanmay Deshpande.
+The notes and pages are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+and the code under MIT: see the [licence](https://github.com/selkirk-cpsc/cpsc101-course/blob/main/LICENSE.md).*
